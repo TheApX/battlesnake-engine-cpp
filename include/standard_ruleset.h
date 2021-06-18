@@ -18,11 +18,12 @@ class StandardRuleset : public Ruleset {
       : food_spawn_chance_(food_spawn_chance),
         minimum_food_(minimum_food),
         snake_max_health_(snake_max_health),
-        snake_start_size_(snake_start_size)
-        {}
+        snake_start_size_(snake_start_size) {}
 
-  virtual BoardState CreateInitialBoardState(int width, int height, std::vector<SnakeId> snakeIDs) override;
-  virtual BoardState CreateNextBoardState(const BoardState& prev_state, std::map<SnakeId, Move> moves) override;
+  virtual BoardState CreateInitialBoardState(
+      int width, int height, std::vector<SnakeId> snakeIDs) override;
+  virtual BoardState CreateNextBoardState(
+      const BoardState& prev_state, std::map<SnakeId, Move> moves) override;
   virtual bool IsGameOver(const BoardState& state) override;
 
  private:

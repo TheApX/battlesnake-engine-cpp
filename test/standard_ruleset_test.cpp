@@ -1,11 +1,11 @@
 #include "standard_ruleset.h"
-#include "ruleset_errors.h"
 
 #include <algorithm>
 #include <initializer_list>
 
-#include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "gtest/gtest.h"
+#include "ruleset_errors.h"
 
 namespace battlesnake {
 namespace engine {
@@ -18,8 +18,7 @@ using ::testing::Eq;
 
 class StandardRulesetTest : public testing::Test {
  protected:
-  void ExpectBoard(const BoardState& state, int width, int height,
-                   int num_food,
+  void ExpectBoard(const BoardState& state, int width, int height, int num_food,
                    const std::initializer_list<SnakeId>& ids) {
     EXPECT_THAT(state.width, Eq(width));
     EXPECT_THAT(state.height, Eq(height));
@@ -27,7 +26,7 @@ class StandardRulesetTest : public testing::Test {
     std::vector<SnakeId> state_snake_ids;
     std::transform(state.snakes.begin(), state.snakes.end(),
                    state_snake_ids.begin(),
-                   [](const Snake& snake) -> SnakeId {return snake.id;} );
+                   [](const Snake& snake) -> SnakeId { return snake.id; });
     EXPECT_THAT(state_snake_ids, ElementsAreArray(ids));
   }
 };
@@ -77,22 +76,27 @@ TEST_F(CreateInitialBoardStateTest, NonStandardSize) {
 
 TEST_F(CreateInitialBoardStateTest, SmallTwoSnakes) {
   StandardRuleset ruleset;
-  ExpectBoard(ruleset.CreateInitialBoardState(2, 2, {"one", "two"}), 2, 2, 0, {"one", "two"});
+  ExpectBoard(ruleset.CreateInitialBoardState(2, 2, {"one", "two"}), 2, 2, 0,
+              {"one", "two"});
 }
 
 TEST_F(CreateInitialBoardStateTest, NoRoom1by1) {
   StandardRuleset ruleset;
-  EXPECT_THROW(ruleset.CreateInitialBoardState(1, 1, {"one"}), ErrorNoRoomForSnake);
+  EXPECT_THROW(ruleset.CreateInitialBoardState(1, 1, {"one"}),
+               ErrorNoRoomForSnake);
 }
 
 TEST_F(CreateInitialBoardStateTest, NoRoom1by2) {
   StandardRuleset ruleset;
-  EXPECT_THROW(ruleset.CreateInitialBoardState(1, 2, {"one"}), ErrorNoRoomForSnake);
+  EXPECT_THROW(ruleset.CreateInitialBoardState(1, 2, {"one"}),
+               ErrorNoRoomForSnake);
 }
 
 TEST_F(CreateInitialBoardStateTest, SmallBoard) {
   StandardRuleset ruleset;
-  ExpectBoard(ruleset.CreateInitialBoardState(kBoardSizeSmall, kBoardSizeSmall, {"one", "two"}), kBoardSizeSmall, kBoardSizeSmall, 3, {"one", "two"});
+  ExpectBoard(ruleset.CreateInitialBoardState(kBoardSizeSmall, kBoardSizeSmall,
+                                              {"one", "two"}),
+              kBoardSizeSmall, kBoardSizeSmall, 3, {"one", "two"});
 }
 
 }  // namespace

@@ -1,15 +1,15 @@
 #include <exception>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 namespace battlesnake {
 namespace engine {
 
 // Standard board sizes.
-static constexpr int kBoardSizeSmall  = 7;
+static constexpr int kBoardSizeSmall = 7;
 static constexpr int kBoardSizeMedium = 11;
-static constexpr int kBoardSizeLarge  = 19;
+static constexpr int kBoardSizeLarge = 19;
 
 using SnakeId = std::string;
 
@@ -46,10 +46,10 @@ struct Point {
 
 struct Snake {
   SnakeId id;
-	std::vector<Point> body;
+  std::vector<Point> body;
   int health = 0;
-	EliminatedCause eliminated_cause = EliminatedCause::NotEliminated;
-	SnakeId eliminated_by_id;
+  EliminatedCause eliminated_cause = EliminatedCause::NotEliminated;
+  SnakeId eliminated_by_id;
 };
 
 struct BoardState {
@@ -63,8 +63,10 @@ class Ruleset {
  public:
   virtual ~Ruleset() = default;
 
-  virtual BoardState CreateInitialBoardState(int width, int height, std::vector<SnakeId> snakeIDs) = 0;
-  virtual BoardState CreateNextBoardState(const BoardState& prev_state, std::map<SnakeId, Move> moves) = 0;
+  virtual BoardState CreateInitialBoardState(int width, int height,
+                                             std::vector<SnakeId> snakeIDs) = 0;
+  virtual BoardState CreateNextBoardState(const BoardState& prev_state,
+                                          std::map<SnakeId, Move> moves) = 0;
   virtual bool IsGameOver(const BoardState& state) = 0;
 };
 

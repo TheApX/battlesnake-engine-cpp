@@ -17,10 +17,7 @@ BoardState StandardRuleset::CreateNextBoardState(
   return next_state;
 }
 
-bool StandardRuleset::IsGameOver(const BoardState& state) {
-  return true;
-}
-
+bool StandardRuleset::IsGameOver(const BoardState& state) { return true; }
 
 }  // namespace engine
 }  // namespace battlesnake
