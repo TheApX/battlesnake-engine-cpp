@@ -20,7 +20,7 @@ BoardState StandardRuleset::CreateInitialBoardState(
   for (const SnakeId snake_id : snake_ids) {
     initial_board_state.snakes.push_back(Snake{
         .id = snake_id,
-        .health = snake_max_health_,
+        .health = config_.snake_max_health,
     });
   }
 
@@ -78,8 +78,8 @@ void StandardRuleset::placeSnakesFixed(BoardState& state) const {
 
   // Assign snakes in the given order.
   for (size_t i = 0; i < state.snakes.size(); ++i) {
-    state.snakes[i].body.reserve(snake_start_size_);
-    for (int j = 0; j < snake_start_size_; ++j) {
+    state.snakes[i].body.reserve(config_.snake_start_size);
+    for (int j = 0; j < config_.snake_start_size; ++j) {
       state.snakes[i].body.push_back(start_points[i]);
     }
   }
@@ -94,8 +94,8 @@ void StandardRuleset::placeSnakesRandomly(
 
     int ri = getRandomNumber(unoccupied_points.size());
     const Point& p = unoccupied_points[ri];
-    snake.body.reserve(snake_start_size_);
-    for (int j = 0; j < snake_start_size_; ++j) {
+    snake.body.reserve(config_.snake_start_size);
+    for (int j = 0; j < config_.snake_start_size; ++j) {
       snake.body.push_back(p);
     }
 
@@ -219,9 +219,84 @@ std::vector<Point> StandardRuleset::getEvenUnoccupiedPoints(
 
 BoardState StandardRuleset::CreateNextBoardState(
     const BoardState& prev_state, std::map<SnakeId, Move> moves) {
-  BoardState next_state;
+  BoardState next_state = prev_state;
+
+  moveSnakes(next_state, moves);
 
   return next_state;
+}
+
+void StandardRuleset::moveSnakes(BoardState& state,
+                                 std::map<SnakeId, Move> moves) const {
+  checkSnakesForMove(state, moves);
+
+  for (Snake& snake : state.snakes) {
+    Move move = moves[snake.id];
+
+    Point old_head = snake.body.front();
+    // Default direction is Up.
+    Point new_head = old_head.Up();
+
+    switch (move) {
+      case Move::Up:
+        new_head = old_head.Up();
+        break;
+      case Move::Down:
+        new_head = old_head.Down();
+        break;
+      case Move::Left:
+        new_head = old_head.Left();
+        break;
+      case Move::Right:
+        new_head = old_head.Right();
+        break;
+
+      default:
+        // If neck is available, use neck to determine last direction.
+        if (snake.body.size() < 2) {
+          break;
+        }
+        const Point& neck = snake.body[1];
+        if (old_head == neck.Up()) {
+          new_head = old_head.Up();
+        }
+        if (old_head == neck.Down()) {
+          new_head = old_head.Down();
+        }
+        if (old_head == neck.Left()) {
+          new_head = old_head.Left();
+        }
+        if (old_head == neck.Right()) {
+          new_head = old_head.Right();
+        }
+        break;
+    }
+
+    // Shift body to tail.
+    for (int i = snake.body.size() - 1; i > 0; --i) {
+      snake.body[i] = snake.body[i - 1];
+    }
+    // Set new head.
+    snake.body.front() = new_head;
+  }
+}
+
+void StandardRuleset::checkSnakesForMove(BoardState& state,
+                                         std::map<SnakeId, Move> moves) const {
+  // Check that all non-eliminated snakes have moves and bodies.
+  for (const Snake& snake : state.snakes) {
+    if (snake.eliminated_cause != EliminatedCause::NotEliminated) {
+      continue;
+    }
+
+    if (snake.body.empty()) {
+      throw ErrorZeroLengthSnake(snake.id);
+    }
+
+    if (moves.find(snake.id) == moves.end()) {
+      throw ErrorNoMoveFound(snake.id);
+    }
+  }
 }
 
 bool StandardRuleset::IsGameOver(const BoardState& state) { return true; }

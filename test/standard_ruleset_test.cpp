@@ -12,10 +12,12 @@ namespace engine {
 
 namespace {
 
+using ::testing::_;
 using ::testing::AllOf;
 using ::testing::ElementsAre;
 using ::testing::ElementsAreArray;
 using ::testing::Eq;
+using ::testing::Field;
 using ::testing::Ge;
 using ::testing::Gt;
 using ::testing::IsFalse;
@@ -26,6 +28,21 @@ using ::testing::Lt;
 template <class T>
 auto ValueBetween(const T& a, const T& b) {
   return AllOf(Ge(a), Lt(b));
+}
+
+template <class M>
+auto SnakeIdIs(M m) {
+  return Field(&Snake::id, m);
+}
+
+template <class M>
+auto SnakeBodyIs(const M& m) {
+  return Field(&Snake::body, m);
+}
+
+template <class M>
+auto SnakeHealthIs(M m) {
+  return Field(&Snake::health, m);
 }
 
 class StandardRulesetTest : public testing::Test {
@@ -337,6 +354,250 @@ TEST_F(PlaceFoodTest, KnownSizeLarge) {
 
   ExpectBoardFood(board_state, 7);
   ExpectFoodAroundSnakes(board_state);
+}
+
+class TestCreateNextBoardState : public StandardRulesetTest {
+  //
+};
+
+TEST_F(TestCreateNextBoardState, NoMoveFound) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  // Disable spawning random food so that it doesn't interfere with tests.
+  StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
+  EXPECT_THROW(ruleset.CreateNextBoardState(initial_state, {}),
+               ErrorNoMoveFound);
+}
+
+TEST_F(TestCreateNextBoardState, ZeroLengthSnake) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body = {},
+                  .health = 100,
+              },
+          },
+  };
+
+  // Disable spawning random food so that it doesn't interfere with tests.
+  StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
+  EXPECT_THROW(
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Down}}),
+      ErrorZeroLengthSnake);
+}
+
+TEST_F(TestCreateNextBoardState, MovesTail) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  // Disable spawning random food so that it doesn't interfere with tests.
+  StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Down}});
+
+  // Don't care about head in this test, only about the rest of the body.
+  EXPECT_THAT(
+      state.snakes,
+      ElementsAre(SnakeBodyIs(ElementsAre(_, Point(1, 1), Point(1, 2)))));
+}
+
+TEST_F(TestCreateNextBoardState, MovesHeadUp) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Up}});
+
+  EXPECT_THAT(state.snakes,
+              ElementsAre(SnakeBodyIs(ElementsAre(Point(1, 2), _, _))));
+}
+
+TEST_F(TestCreateNextBoardState, MovesHeadDown) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Down}});
+
+  EXPECT_THAT(state.snakes,
+              ElementsAre(SnakeBodyIs(ElementsAre(Point(1, 0), _, _))));
+}
+
+TEST_F(TestCreateNextBoardState, MovesHeadLeft) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
+
+  EXPECT_THAT(state.snakes,
+              ElementsAre(SnakeBodyIs(ElementsAre(Point(0, 1), _, _))));
+}
+
+TEST_F(TestCreateNextBoardState, MovesHeadRight) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Right}});
+
+  EXPECT_THAT(state.snakes,
+              ElementsAre(SnakeBodyIs(ElementsAre(Point(2, 1), _, _))));
+}
+
+TEST_F(TestCreateNextBoardState, MovesHeadUnknownContinue) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Unknown}});
+
+  // Unknown move should move snake to its old direction.
+  EXPECT_THAT(state.snakes,
+              ElementsAre(SnakeBodyIs(ElementsAre(Point(1, 0), _, _))));
+}
+
+TEST_F(TestCreateNextBoardState, MovesHeadUnknownUp) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point{1, 1},
+                          Point{1, 1},
+                          Point{1, 1},
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Unknown}});
+
+  // Unknown move should move snake up if previous move is also unknown.
+  EXPECT_THAT(state.snakes,
+              ElementsAre(SnakeBodyIs(ElementsAre(Point(1, 2), _, _))));
 }
 
 }  // namespace

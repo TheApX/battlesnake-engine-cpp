@@ -8,19 +8,16 @@ namespace engine {
 class StandardRuleset : public Ruleset {
  public:
   // Default values.
-  static constexpr int kDefaultFoodSpawnChance = 15;
-  static constexpr int kDefaultMinimumFood = 1;
-  static constexpr int kDefaultSnakeMaxHealth = 100;
-  static constexpr int kDefaultSnakeStartSize = 3;
+  struct Config {
+    int food_spawn_chance = 15;  // [0, 100]
+    int minimum_food = 1;
+    int snake_max_health = 100;
+    int snake_start_size = 3;
 
-  StandardRuleset(int food_spawn_chance = kDefaultFoodSpawnChance,
-                  int minimum_food = kDefaultMinimumFood,
-                  int snake_max_health = kDefaultSnakeMaxHealth,
-                  int snake_start_size = kDefaultSnakeStartSize)
-      : food_spawn_chance_(food_spawn_chance),
-        minimum_food_(minimum_food),
-        snake_max_health_(snake_max_health),
-        snake_start_size_(snake_start_size) {}
+    static Config Default() { return Config(); }
+  };
+
+  StandardRuleset(const Config& config = Config::Default()) : config_(config) {}
 
   virtual BoardState CreateInitialBoardState(
       int width, int height, std::vector<SnakeId> snake_ids) override;
@@ -29,10 +26,7 @@ class StandardRuleset : public Ruleset {
   virtual bool IsGameOver(const BoardState& state) override;
 
  private:
-  int food_spawn_chance_ = 0;  // [0, 100]
-  int minimum_food_ = 0;
-  int snake_max_health_ = 0;
-  int snake_start_size_ = 0;
+  Config config_;
 
   static int getRandomNumber(int max_value);
   static bool isKnownBoardSize(const BoardState& state);
@@ -53,6 +47,10 @@ class StandardRuleset : public Ruleset {
         return true;
       });
   static std::vector<Point> getEvenUnoccupiedPoints(const BoardState& state);
+
+  void moveSnakes(BoardState& state, std::map<SnakeId, Move> moves) const;
+  void checkSnakesForMove(BoardState& state,
+                          std::map<SnakeId, Move> moves) const;
 };
 
 }  // namespace engine
