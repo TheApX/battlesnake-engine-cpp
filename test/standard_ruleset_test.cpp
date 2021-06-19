@@ -16,7 +16,25 @@ using ::testing::ElementsAre;
 using ::testing::ElementsAreArray;
 using ::testing::Eq;
 
-class StandardRulesetTest : public testing::Test {
+class StandardRulesetTest : public testing::Test {};
+
+TEST_F(StandardRulesetTest, Sanity) {
+  StandardRuleset ruleset;
+
+  BoardState state = ruleset.CreateInitialBoardState(0, 0, {});
+  EXPECT_THAT(state.width, Eq(0));
+  EXPECT_THAT(state.height, Eq(0));
+  EXPECT_THAT(state.snakes, ElementsAre());
+
+  BoardState new_state = ruleset.CreateNextBoardState(state, {});
+  EXPECT_THAT(state.width, Eq(0));
+  EXPECT_THAT(state.height, Eq(0));
+  EXPECT_THAT(state.snakes, ElementsAre());
+
+  EXPECT_THAT(ruleset.IsGameOver(state), Eq(true));
+}
+
+class CreateInitialBoardStateTest : public StandardRulesetTest {
  protected:
   void ExpectBoard(const BoardState& state, int width, int height, int num_food,
                    const std::initializer_list<SnakeId>& ids) {
@@ -35,24 +53,6 @@ class StandardRulesetTest : public testing::Test {
     }
   }
 };
-
-TEST_F(StandardRulesetTest, Sanity) {
-  StandardRuleset ruleset;
-
-  BoardState state = ruleset.CreateInitialBoardState(0, 0, {});
-  EXPECT_THAT(state.width, Eq(0));
-  EXPECT_THAT(state.height, Eq(0));
-  EXPECT_THAT(state.snakes, ElementsAre());
-
-  BoardState new_state = ruleset.CreateNextBoardState(state, {});
-  EXPECT_THAT(state.width, Eq(0));
-  EXPECT_THAT(state.height, Eq(0));
-  EXPECT_THAT(state.snakes, ElementsAre());
-
-  EXPECT_THAT(ruleset.IsGameOver(state), Eq(true));
-}
-
-using CreateInitialBoardStateTest = StandardRulesetTest;
 
 TEST_F(CreateInitialBoardStateTest, Small1by1) {
   StandardRuleset ruleset;
