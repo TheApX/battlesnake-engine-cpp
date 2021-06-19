@@ -24,10 +24,15 @@ BoardState StandardRuleset::CreateInitialBoardState(
     });
   }
 
-  std::vector<Point> unoccupied_points =
-      getEvenUnoccupiedPoints(initial_board_state);
-  placeSnakes(initial_board_state, unoccupied_points);
-  placeFood(initial_board_state, unoccupied_points);
+  if (isKnownBoardSize(initial_board_state)) {
+    placeSnakesFixed(initial_board_state);
+    placeFoodFixed(initial_board_state);
+  } else {
+    std::vector<Point> unoccupied_points =
+        getEvenUnoccupiedPoints(initial_board_state);
+    placeSnakesRandomly(initial_board_state, unoccupied_points);
+    placeFoodRandomly(initial_board_state, unoccupied_points);
+  }
 
   return initial_board_state;
 }
@@ -51,15 +56,6 @@ bool StandardRuleset::isKnownBoardSize(const BoardState& state) {
     return true;
   }
   return false;
-}
-
-void StandardRuleset::placeSnakes(BoardState& state,
-                                  std::vector<Point>& unoccupied_points) const {
-  if (isKnownBoardSize(state)) {
-    placeSnakesFixed(state);
-  } else {
-    placeSnakesRandomly(state, unoccupied_points);
-  }
 }
 
 void StandardRuleset::placeSnakesFixed(BoardState& state) const {
@@ -109,15 +105,6 @@ void StandardRuleset::placeSnakesRandomly(
       unoccupied_points[ri] = unoccupied_points[unoccupied_points.size() - 1];
       unoccupied_points.resize(unoccupied_points.size() - 1);
     }
-  }
-}
-
-void StandardRuleset::placeFood(BoardState& state,
-                                std::vector<Point>& unoccupied_points) const {
-  if (isKnownBoardSize(state)) {
-    placeFoodFixed(state);
-  } else {
-    placeFoodRandomly(state, unoccupied_points);
   }
 }
 

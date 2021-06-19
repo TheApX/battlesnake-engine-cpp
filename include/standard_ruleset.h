@@ -37,14 +37,10 @@ class StandardRuleset : public Ruleset {
   static int getRandomNumber(int max_value);
   static bool isKnownBoardSize(const BoardState& state);
 
-  void placeSnakes(BoardState& state,
-                   std::vector<Point>& unoccupied_points) const;
   void placeSnakesFixed(BoardState& state) const;
   void placeSnakesRandomly(BoardState& state,
                            std::vector<Point>& unoccupied_points) const;
 
-  void placeFood(BoardState& state,
-                 std::vector<Point>& unoccupied_points) const;
   void placeFoodFixed(BoardState& state) const;
   void placeFoodRandomly(BoardState& state,
                          std::vector<Point>& unoccupied_points) const;
