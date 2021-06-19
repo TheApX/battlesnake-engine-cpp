@@ -12,9 +12,17 @@ namespace engine {
 
 namespace {
 
+using ::testing::AllOf;
 using ::testing::ElementsAre;
 using ::testing::ElementsAreArray;
 using ::testing::Eq;
+using ::testing::Ge;
+using ::testing::Lt;
+
+template <class T>
+auto ValueBetween(const T& a, const T& b) {
+  return AllOf(Ge(a), Lt(b));
+}
 
 class StandardRulesetTest : public testing::Test {};
 
@@ -102,6 +110,79 @@ TEST_F(CreateInitialBoardStateTest, SmallBoard) {
   ExpectBoard(ruleset.CreateInitialBoardState(kBoardSizeSmall, kBoardSizeSmall,
                                               {"one", "two"}),
               kBoardSizeSmall, kBoardSizeSmall, 3, {"one", "two"});
+}
+
+class PlaceFoodTest : public StandardRulesetTest {
+ protected:
+  void ExpectBoardFood(const BoardState& state, int num_food) {
+    EXPECT_THAT(state.food.size(), Eq(num_food));
+    for (const Point& food : state.food) {
+      EXPECT_THAT(food.x, ValueBetween(0, state.width));
+      EXPECT_THAT(food.y, ValueBetween(0, state.height));
+    }
+  }
+
+  std::vector<SnakeId> CreateSnakeIds(int n) {
+    std::vector<SnakeId> result;
+    result.reserve(n);
+    for (int i = 0; i < n; ++i) {
+      result.push_back("Snake" + std::to_string(n));
+    }
+    return result;
+  }
+};
+
+TEST_F(PlaceFoodTest, Small1by1) {
+  // The only cell is taken by snake, no place for food.
+  StandardRuleset ruleset;
+  ExpectBoardFood(ruleset.CreateInitialBoardState(1, 1, CreateSnakeIds(1)), 0);
+}
+
+TEST_F(PlaceFoodTest, Small1by2) {
+  // One cell is taken by snake, but the other one is not even.
+  StandardRuleset ruleset;
+  ExpectBoardFood(ruleset.CreateInitialBoardState(1, 2, CreateSnakeIds(1)), 0);
+}
+
+TEST_F(PlaceFoodTest, ManySnakesMuchSpace) {
+  // Many randomly placed snakes, food for everybody.
+  StandardRuleset ruleset;
+  ExpectBoardFood(ruleset.CreateInitialBoardState(101, 202, CreateSnakeIds(17)),
+                  17);
+}
+
+TEST_F(PlaceFoodTest, AllFreeSpaceFilledIn) {
+  // Many randomly placed snakes, space for some food, but not for everybody.
+  StandardRuleset ruleset;
+  ExpectBoardFood(ruleset.CreateInitialBoardState(10, 20, CreateSnakeIds(60)),
+                  40);
+}
+
+TEST_F(PlaceFoodTest, KnownSizeSmall) {
+  // Food for each snake + 1 food in the middle for known board sizes.
+  // Also tests known board size detection.
+  StandardRuleset ruleset;
+  ExpectBoardFood(ruleset.CreateInitialBoardState(
+                      kBoardSizeSmall, kBoardSizeSmall, CreateSnakeIds(3)),
+                  4);
+}
+
+TEST_F(PlaceFoodTest, KnownSizeMiddlle) {
+  // Food for each snake + 1 food in the middle for known board sizes.
+  // Also tests known board size detection.
+  StandardRuleset ruleset;
+  ExpectBoardFood(ruleset.CreateInitialBoardState(
+                      kBoardSizeSmall, kBoardSizeSmall, CreateSnakeIds(8)),
+                  9);
+}
+
+TEST_F(PlaceFoodTest, KnownSizeLarge) {
+  // Food for each snake + 1 food in the middle for known board sizes.
+  // Also tests known board size detection.
+  StandardRuleset ruleset;
+  ExpectBoardFood(ruleset.CreateInitialBoardState(
+                      kBoardSizeSmall, kBoardSizeSmall, CreateSnakeIds(6)),
+                  7);
 }
 
 }  // namespace
