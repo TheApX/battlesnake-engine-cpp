@@ -672,6 +672,35 @@ TEST_F(TestCreateNextBoardState, MovesTwoSnakes) {
       }));
 }
 
+TEST_F(TestCreateNextBoardState, MoveReducesHealth) {
+  int initial_health = 75;
+
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = initial_health,
+              },
+          },
+  };
+
+  // Disable spawning random food so that it doesn't interfere with tests.
+  StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Down}});
+
+  EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(Lt(initial_health))));
+}
+
 TEST_F(TestCreateNextBoardState, FoodGrowsSnake) {
   BoardState initial_state{
       .width = kBoardSizeSmall,

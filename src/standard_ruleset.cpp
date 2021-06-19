@@ -224,6 +224,7 @@ BoardState StandardRuleset::CreateNextBoardState(
   BoardState next_state = prev_state;
 
   moveSnakes(next_state, moves);
+  reduceSnakeHealth(next_state);
   maybeFeedSnakes(next_state);
 
   return next_state;
@@ -299,6 +300,15 @@ void StandardRuleset::checkSnakesForMove(BoardState& state,
     if (moves.find(snake.id) == moves.end()) {
       throw ErrorNoMoveFound(snake.id);
     }
+  }
+}
+
+void StandardRuleset::reduceSnakeHealth(BoardState& state) const {
+  for (Snake& snake : state.snakes) {
+    if (snake.IsEliminated()) {
+      continue;
+    }
+    snake.health--;
   }
 }
 

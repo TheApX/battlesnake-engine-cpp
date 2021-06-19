@@ -52,6 +52,8 @@ class StandardRuleset : public Ruleset {
   void checkSnakesForMove(BoardState& state,
                           std::map<SnakeId, Move> moves) const;
 
+  void reduceSnakeHealth(BoardState& state) const;
+
   void maybeFeedSnakes(BoardState& state) const;
   void feedSnake(Snake& snake) const;
   void growSnake(Snake& snake) const;
