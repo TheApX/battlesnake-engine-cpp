@@ -24,6 +24,9 @@ std::ostream& PrintVector(std::ostream& s, const std::vector<T>& v) {
 
 std::ostream& operator<<(std::ostream& s, Move move) {
   switch (move) {
+    case Move::Unknown:
+      s << "Unknown";
+      break;
     case Move::Up:
       s << "Up";
       break;

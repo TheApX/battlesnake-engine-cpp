@@ -15,6 +15,7 @@ static constexpr int kBoardSizeLarge = 19;
 using SnakeId = std::string;
 
 enum class Move {
+  Unknown,  // No move returned from snake.
   Up,
   Down,
   Left,
