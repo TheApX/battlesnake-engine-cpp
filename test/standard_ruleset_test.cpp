@@ -24,6 +24,7 @@ using ::testing::IsFalse;
 using ::testing::IsTrue;
 using ::testing::Le;
 using ::testing::Lt;
+using ::testing::UnorderedElementsAreArray;
 
 template <class T>
 auto ValueBetween(const T& a, const T& b) {
@@ -43,6 +44,31 @@ auto SnakeBodyIs(const M& m) {
 template <class M>
 auto SnakeHealthIs(M m) {
   return Field(&Snake::health, m);
+}
+
+template <class A, class B, class C, class D, class E>
+auto SnakeIs(const A& m_id, const B& m_body, const C& m_health,
+             const D& m_cause, const E& m_eliminated_by) {
+  return AllOf(Field(&Snake::id, m_id), Field(&Snake::body, m_body),
+               Field(&Snake::health, m_health),
+               Field(&Snake::eliminated_cause, m_cause),
+               Field(&Snake::eliminated_by_id, m_eliminated_by));
+}
+
+template <class A, class B, class C, class D>
+auto SnakeIs(const A& m_id, const B& m_body, const C& m_health,
+             const D& m_cause) {
+  return SnakeIs(m_id, m_body, m_health, m_cause, _);
+}
+
+template <class A, class B, class C>
+auto SnakeIs(const A& m_id, const B& m_body, const C& m_health) {
+  return SnakeIs(m_id, m_body, m_health, _, _);
+}
+
+template <class A, class B>
+auto SnakeIs(const A& m_id, const B& m_body) {
+  return SnakeIs(m_id, m_body, _, _, _);
 }
 
 class StandardRulesetTest : public testing::Test {
@@ -598,6 +624,52 @@ TEST_F(TestCreateNextBoardState, MovesHeadUnknownUp) {
   // Unknown move should move snake up if previous move is also unknown.
   EXPECT_THAT(state.snakes,
               ElementsAre(SnakeBodyIs(ElementsAre(Point(1, 2), _, _))));
+}
+
+TEST_F(TestCreateNextBoardState, MovesTwoSnakes) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
+                      },
+                  .health = 100,
+              },
+              Snake{
+                  .id = "two",
+                  .body =
+                      {
+                          Point{3, 8},
+                          Point{3, 7},
+                          Point{3, 6},
+                          Point{3, 5},
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {
+                                                      {"one", Move::Left},
+                                                      {"two", Move::Right},
+                                                  });
+
+  EXPECT_THAT(
+      state.snakes,
+      UnorderedElementsAreArray({
+          SnakeIs("one", ElementsAre(Point(0, 1), Point{1, 1}, Point{1, 2})),
+          SnakeIs("two", ElementsAre(Point{4, 8}, Point{3, 8}, Point{3, 7},
+                                     Point{3, 6})),
+      }));
 }
 
 }  // namespace
