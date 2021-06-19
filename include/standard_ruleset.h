@@ -1,3 +1,5 @@
+#include <functional>
+
 #include "ruleset.h"
 
 namespace battlesnake {
@@ -21,7 +23,7 @@ class StandardRuleset : public Ruleset {
         snake_start_size_(snake_start_size) {}
 
   virtual BoardState CreateInitialBoardState(
-      int width, int height, std::vector<SnakeId> snakeIDs) override;
+      int width, int height, std::vector<SnakeId> snake_ids) override;
   virtual BoardState CreateNextBoardState(
       const BoardState& prev_state, std::map<SnakeId, Move> moves) override;
   virtual bool IsGameOver(const BoardState& state) override;
@@ -31,6 +33,18 @@ class StandardRuleset : public Ruleset {
   int minimum_food_ = 0;
   int snake_max_health_ = 0;
   int snake_start_size_ = 0;
+
+  static int getRandomNumber(int max_value);
+  static bool isKnownBoardSize(const BoardState& state);
+  void placeSnakes(BoardState& state) const;
+  void placeSnakesFixed(BoardState& state) const;
+  void placeSnakesRandomly(BoardState& state) const;
+  static std::vector<Point> getUnoccupiedPoints(
+      const BoardState& state, bool include_possible_moves,
+      const std::function<bool(const Point&)>& filter = [](const Point&) {
+        return true;
+      });
+  static std::vector<Point> getEvenUnoccupiedPoints(const BoardState& state);
 };
 
 }  // namespace engine

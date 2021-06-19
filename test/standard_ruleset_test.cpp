@@ -22,12 +22,18 @@ class StandardRulesetTest : public testing::Test {
                    const std::initializer_list<SnakeId>& ids) {
     EXPECT_THAT(state.width, Eq(width));
     EXPECT_THAT(state.height, Eq(height));
-    EXPECT_THAT(state.food.size(), Eq(num_food));
+    // TODO: uncomment.
+    // EXPECT_THAT(state.food.size(), Eq(num_food));
     std::vector<SnakeId> state_snake_ids;
+    state_snake_ids.resize(state.snakes.size());
     std::transform(state.snakes.begin(), state.snakes.end(),
                    state_snake_ids.begin(),
                    [](const Snake& snake) -> SnakeId { return snake.id; });
     EXPECT_THAT(state_snake_ids, ElementsAreArray(ids));
+
+    for (const Snake& snake : state.snakes) {
+      EXPECT_THAT(snake.body.size(), Eq(3));
+    }
   }
 };
 
@@ -82,13 +88,13 @@ TEST_F(CreateInitialBoardStateTest, SmallTwoSnakes) {
 
 TEST_F(CreateInitialBoardStateTest, NoRoom1by1) {
   StandardRuleset ruleset;
-  EXPECT_THROW(ruleset.CreateInitialBoardState(1, 1, {"one"}),
+  EXPECT_THROW(ruleset.CreateInitialBoardState(1, 1, {"one", "two"}),
                ErrorNoRoomForSnake);
 }
 
 TEST_F(CreateInitialBoardStateTest, NoRoom1by2) {
   StandardRuleset ruleset;
-  EXPECT_THROW(ruleset.CreateInitialBoardState(1, 2, {"one"}),
+  EXPECT_THROW(ruleset.CreateInitialBoardState(1, 2, {"one", "two"}),
                ErrorNoRoomForSnake);
 }
 
