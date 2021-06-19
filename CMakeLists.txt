@@ -11,6 +11,7 @@ add_subdirectory(test)
 
 
 set(libbattlesnakerules_SRCS
+    src/ruleset.cpp
     src/standard_ruleset.cpp
 )
 

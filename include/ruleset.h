@@ -1,5 +1,6 @@
 #include <exception>
 #include <map>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -22,11 +23,11 @@ enum class Move {
 
 enum class EliminatedCause {
   NotEliminated,
-  ByCollision,
-  BySelfCollision,
-  ByOutOfHealth,
-  ByHeadToHeadCollision,
-  ByOutOfBounds,
+  Collision,
+  SelfCollision,
+  OutOfHealth,
+  HeadToHeadCollision,
+  OutOfBounds,
 };
 
 struct Point {
@@ -78,6 +79,13 @@ struct BoardState {
   std::vector<Point> food;
   std::vector<Snake> snakes;
 };
+
+std::ostream& operator<<(std::ostream& s, Move move);
+std::ostream& operator<<(std::ostream& s, EliminatedCause cause);
+std::ostream& operator<<(std::ostream& s, const Point& point);
+std::ostream& operator<<(std::ostream& s, const Snake& snake);
+// TODO: implement when needed.
+// std::ostream& operator<<(std::ostream& s, const BoardState& state);
 
 class Ruleset {
  public:
