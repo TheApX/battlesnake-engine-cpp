@@ -672,6 +672,178 @@ TEST_F(TestCreateNextBoardState, MovesTwoSnakes) {
       }));
 }
 
+TEST_F(TestCreateNextBoardState, FoodGrowsSnake) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .food =
+          {
+              Point(0, 1),
+          },
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = 50,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
+
+  EXPECT_THAT(state.snakes,
+              ElementsAre(SnakeBodyIs(ElementsAre(Point(0, 1), Point(1, 1),
+                                                  Point(1, 2), Point(1, 2)))));
+}
+
+TEST_F(TestCreateNextBoardState, FoodRestoresHealth) {
+  int max_health = StandardRuleset::Config::Default().snake_max_health;
+
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .food =
+          {
+              Point(0, 1),
+          },
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = max_health / 2,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
+
+  EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(max_health)));
+}
+
+TEST_F(TestCreateNextBoardState, DontEatFoodOtherPosition) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .food =
+          {
+              Point(10, 10),
+          },
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = 50,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
+
+  EXPECT_THAT(state.snakes, ElementsAre(SnakeBodyIs(ElementsAre(
+                                Point(0, 1), Point(1, 1), Point(1, 2)))));
+}
+
+TEST_F(TestCreateNextBoardState, EatenFoodDisappears) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .food =
+          {
+              Point(0, 1),
+              Point(10, 10),
+          },
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = 50,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
+
+  EXPECT_THAT(state.food, ElementsAre(Point(10, 10)));
+}
+
+TEST_F(TestCreateNextBoardState, HeadToHeadFoodDisappears) {
+  int max_health = StandardRuleset::Config::Default().snake_max_health;
+
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .food =
+          {
+              Point(1, 1),
+          },
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 2),
+                          Point(1, 3),
+                          Point(1, 4),
+                      },
+                  .health = max_health / 2,
+              },
+              Snake{
+                  .id = "two",
+                  .body =
+                      {
+                          Point(2, 1),
+                          Point(3, 1),
+                          Point(4, 1),
+                      },
+                  .health = max_health / 2,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {
+                                                      {"one", Move::Down},
+                                                      {"two", Move::Left},
+                                                  });
+
+  // Food must disappear.
+  EXPECT_THAT(state.food, ElementsAre());
+}
+
 }  // namespace
 
 }  // namespace engine

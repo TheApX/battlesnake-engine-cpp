@@ -51,6 +51,10 @@ class StandardRuleset : public Ruleset {
   void moveSnakes(BoardState& state, std::map<SnakeId, Move> moves) const;
   void checkSnakesForMove(BoardState& state,
                           std::map<SnakeId, Move> moves) const;
+
+  void maybeFeedSnakes(BoardState& state) const;
+  void feedSnake(Snake& snake) const;
+  void growSnake(Snake& snake) const;
 };
 
 }  // namespace engine

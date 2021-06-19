@@ -102,7 +102,8 @@ void StandardRuleset::placeSnakesRandomly(
     if (unoccupied_points.size() == 1) {
       unoccupied_points.clear();
     } else {
-      unoccupied_points[ri] = unoccupied_points[unoccupied_points.size() - 1];
+      unoccupied_points[ri] =
+          std::move(unoccupied_points[unoccupied_points.size() - 1]);
       unoccupied_points.resize(unoccupied_points.size() - 1);
     }
   }
@@ -165,7 +166,8 @@ void StandardRuleset::spawnFood(BoardState& state, int count,
     if (unoccupied_points.size() == 1) {
       unoccupied_points.clear();
     } else {
-      unoccupied_points[ri] = unoccupied_points[unoccupied_points.size() - 1];
+      unoccupied_points[ri] =
+          std::move(unoccupied_points[unoccupied_points.size() - 1]);
       unoccupied_points.resize(unoccupied_points.size() - 1);
     }
   }
@@ -222,6 +224,7 @@ BoardState StandardRuleset::CreateNextBoardState(
   BoardState next_state = prev_state;
 
   moveSnakes(next_state, moves);
+  maybeFeedSnakes(next_state);
 
   return next_state;
 }
@@ -285,7 +288,7 @@ void StandardRuleset::checkSnakesForMove(BoardState& state,
                                          std::map<SnakeId, Move> moves) const {
   // Check that all non-eliminated snakes have moves and bodies.
   for (const Snake& snake : state.snakes) {
-    if (snake.eliminated_cause != EliminatedCause::NotEliminated) {
+    if (snake.IsEliminated()) {
       continue;
     }
 
@@ -297,6 +300,41 @@ void StandardRuleset::checkSnakesForMove(BoardState& state,
       throw ErrorNoMoveFound(snake.id);
     }
   }
+}
+
+void StandardRuleset::maybeFeedSnakes(BoardState& state) const {
+  for (int i = 0; i < state.food.size(); ++i) {
+    const Point& food = state.food[i];
+    bool food_has_been_eaten = false;
+    for (Snake& snake : state.snakes) {
+      if (snake.IsEliminated() || snake.body.size() == 0) {
+        continue;
+      }
+      const Point& head = snake.body.front();
+      if (head == food) {
+        feedSnake(snake);
+        food_has_been_eaten = true;
+      }
+    }
+
+    if (food_has_been_eaten) {
+      state.food[i] = std::move(state.food[state.food.size() - 1]);
+      state.food.resize(state.food.size() - 1);
+      --i;
+    }
+  }
+}
+
+void StandardRuleset::feedSnake(Snake& snake) const {
+  growSnake(snake);
+  snake.health = config_.snake_max_health;
+}
+
+void StandardRuleset::growSnake(Snake& snake) const {
+  if (snake.body.empty()) {
+    return;
+  }
+  snake.body.push_back(snake.body[snake.body.size() - 1]);
 }
 
 bool StandardRuleset::IsGameOver(const BoardState& state) { return true; }
