@@ -17,7 +17,7 @@ class RulesetException : public std::exception {
 
 class ErrorTooManySnakes : public RulesetException {
  public:
-  ErrorTooManySnakes(int n)
+  ErrorTooManySnakes(size_t n)
       : RulesetException("Too many snakes for fixed start positions: " +
                          std::to_string(n)) {}
 };
