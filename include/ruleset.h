@@ -30,18 +30,34 @@ enum class EliminatedCause {
 };
 
 struct Point {
+  int x = 0;
+  int y = 0;
+
   Point() = default;
   Point(const Point&) = default;
   Point(Point&&) = default;
 
   Point(int x_, int y_) : x(x_), y(y_) {}
 
+  Point& operator=(const Point& other) = default;
+  Point& operator=(Point&& other) = default;
+
   bool operator==(const Point& other) const {
     return this->x == other.x && this->y == other.y;
   }
 
-  int x = 0;
-  int y = 0;
+  Point Up() const { return Point(x, y + 1); }
+  Point Down() const { return Point(x, y - 1); }
+  Point Left() const { return Point(x - 1, y); }
+  Point Right() const { return Point(x + 1, y); }
+};
+
+struct PointHash {
+  size_t operator()(const Point& point) const {
+    size_t x_hash = std::hash<int>()(point.x);
+    size_t y_hash = std::hash<int>()(point.y) << 1;
+    return x_hash ^ y_hash;
+  }
 };
 
 struct Snake {
@@ -50,11 +66,15 @@ struct Snake {
   int health = 0;
   EliminatedCause eliminated_cause = EliminatedCause::NotEliminated;
   SnakeId eliminated_by_id;
+
+  bool IsEliminated() const {
+    return eliminated_cause != EliminatedCause::NotEliminated;
+  }
 };
 
 struct BoardState {
-  int height = 0;
   int width = 0;
+  int height = 0;
   std::vector<Point> food;
   std::vector<Snake> snakes;
 };
