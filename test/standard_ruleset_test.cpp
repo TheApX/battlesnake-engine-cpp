@@ -396,9 +396,9 @@ TEST_F(TestCreateNextBoardState, NoMoveFound) {
                   .id = "one",
                   .body =
                       {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
                       },
                   .health = 100,
               },
@@ -442,9 +442,9 @@ TEST_F(TestCreateNextBoardState, MovesTail) {
                   .id = "one",
                   .body =
                       {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
                       },
                   .health = 100,
               },
@@ -472,9 +472,9 @@ TEST_F(TestCreateNextBoardState, MovesHeadUp) {
                   .id = "one",
                   .body =
                       {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
                       },
                   .health = 100,
               },
@@ -499,9 +499,9 @@ TEST_F(TestCreateNextBoardState, MovesHeadDown) {
                   .id = "one",
                   .body =
                       {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
                       },
                   .health = 100,
               },
@@ -526,9 +526,9 @@ TEST_F(TestCreateNextBoardState, MovesHeadLeft) {
                   .id = "one",
                   .body =
                       {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
                       },
                   .health = 100,
               },
@@ -553,9 +553,9 @@ TEST_F(TestCreateNextBoardState, MovesHeadRight) {
                   .id = "one",
                   .body =
                       {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
                       },
                   .health = 100,
               },
@@ -580,9 +580,9 @@ TEST_F(TestCreateNextBoardState, MovesHeadUnknownContinue) {
                   .id = "one",
                   .body =
                       {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
                       },
                   .health = 100,
               },
@@ -608,9 +608,9 @@ TEST_F(TestCreateNextBoardState, MovesHeadUnknownUp) {
                   .id = "one",
                   .body =
                       {
-                          Point{1, 1},
-                          Point{1, 1},
-                          Point{1, 1},
+                          Point(1, 1),
+                          Point(1, 1),
+                          Point(1, 1),
                       },
                   .health = 100,
               },
@@ -636,9 +636,9 @@ TEST_F(TestCreateNextBoardState, MovesTwoSnakes) {
                   .id = "one",
                   .body =
                       {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
                       },
                   .health = 100,
               },
@@ -646,10 +646,10 @@ TEST_F(TestCreateNextBoardState, MovesTwoSnakes) {
                   .id = "two",
                   .body =
                       {
-                          Point{3, 8},
-                          Point{3, 7},
-                          Point{3, 6},
-                          Point{3, 5},
+                          Point(3, 8),
+                          Point(3, 7),
+                          Point(3, 6),
+                          Point(3, 5),
                       },
                   .health = 100,
               },
@@ -666,9 +666,9 @@ TEST_F(TestCreateNextBoardState, MovesTwoSnakes) {
   EXPECT_THAT(
       state.snakes,
       UnorderedElementsAreArray({
-          SnakeIs("one", ElementsAre(Point(0, 1), Point{1, 1}, Point{1, 2})),
-          SnakeIs("two", ElementsAre(Point{4, 8}, Point{3, 8}, Point{3, 7},
-                                     Point{3, 6})),
+          SnakeIs("one", ElementsAre(Point(0, 1), Point(1, 1), Point(1, 2))),
+          SnakeIs("two", ElementsAre(Point(4, 8), Point(3, 8), Point(3, 7),
+                                     Point(3, 6))),
       }));
 }
 
