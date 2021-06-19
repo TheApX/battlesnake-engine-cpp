@@ -22,8 +22,7 @@ class StandardRulesetTest : public testing::Test {
                    const std::initializer_list<SnakeId>& ids) {
     EXPECT_THAT(state.width, Eq(width));
     EXPECT_THAT(state.height, Eq(height));
-    // TODO: uncomment.
-    // EXPECT_THAT(state.food.size(), Eq(num_food));
+    EXPECT_THAT(state.food.size(), Eq(num_food));
     std::vector<SnakeId> state_snake_ids;
     state_snake_ids.resize(state.snakes.size());
     std::transform(state.snakes.begin(), state.snakes.end(),

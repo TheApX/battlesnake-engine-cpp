@@ -23,7 +23,11 @@ BoardState StandardRuleset::CreateInitialBoardState(
         .health = snake_max_health_,
     });
   }
-  placeSnakes(initial_board_state);
+
+  std::vector<Point> unoccupied_points =
+      getEvenUnoccupiedPoints(initial_board_state);
+  placeSnakes(initial_board_state, unoccupied_points);
+  placeFood(initial_board_state, unoccupied_points);
 
   return initial_board_state;
 }
@@ -49,11 +53,12 @@ bool StandardRuleset::isKnownBoardSize(const BoardState& state) {
   return false;
 }
 
-void StandardRuleset::placeSnakes(BoardState& state) const {
+void StandardRuleset::placeSnakes(BoardState& state,
+                                  std::vector<Point>& unoccupied_points) const {
   if (isKnownBoardSize(state)) {
     placeSnakesFixed(state);
   } else {
-    placeSnakesRandomly(state);
+    placeSnakesRandomly(state, unoccupied_points);
   }
 }
 
@@ -84,9 +89,8 @@ void StandardRuleset::placeSnakesFixed(BoardState& state) const {
   }
 }
 
-void StandardRuleset::placeSnakesRandomly(BoardState& state) const {
-  std::vector<Point> unoccupied_points = getEvenUnoccupiedPoints(state);
-
+void StandardRuleset::placeSnakesRandomly(
+    BoardState& state, std::vector<Point>& unoccupied_points) const {
   for (Snake& snake : state.snakes) {
     if (unoccupied_points.empty()) {
       throw ErrorNoRoomForSnake();
@@ -98,6 +102,78 @@ void StandardRuleset::placeSnakesRandomly(BoardState& state) const {
     for (int j = 0; j < snake_start_size_; ++j) {
       snake.body.push_back(p);
     }
+
+    if (unoccupied_points.size() == 1) {
+      unoccupied_points.clear();
+    } else {
+      unoccupied_points[ri] = unoccupied_points[unoccupied_points.size() - 1];
+      unoccupied_points.resize(unoccupied_points.size() - 1);
+    }
+  }
+}
+
+void StandardRuleset::placeFood(BoardState& state,
+                                std::vector<Point>& unoccupied_points) const {
+  if (isKnownBoardSize(state)) {
+    placeFoodFixed(state);
+  } else {
+    placeFoodRandomly(state, unoccupied_points);
+  }
+}
+
+void StandardRuleset::placeFoodFixed(BoardState& state) const {
+  // Place 1 food within exactly 2 moves of each snake.
+  std::unordered_set<Point, PointHash> food_locations;
+
+  for (const Snake& snake : state.snakes) {
+    const Point& snake_head = snake.body.front();
+    std::initializer_list<Point> possible_food_locations{
+        Point(snake_head.x - 1, snake_head.y - 1),
+        Point(snake_head.x - 1, snake_head.y + 1),
+        Point(snake_head.x + 1, snake_head.y - 1),
+        Point(snake_head.x + 1, snake_head.y + 1),
+    };
+
+    std::vector<Point> available_food_locations;
+    for (const Point& p : possible_food_locations) {
+      if (food_locations.find(p) != food_locations.end()) {
+        // Already occupied by a food.
+        continue;
+      }
+      available_food_locations.push_back(p);
+    }
+
+    if (available_food_locations.size() <= 0) {
+      throw ErrorNoRoomForFood();
+    }
+
+    const Point& placed_food = available_food_locations[getRandomNumber(
+        available_food_locations.size())];
+    state.food.push_back(placed_food);
+    food_locations.insert(placed_food);
+  }
+
+  // Always place 1 food in center of board for dramatic purposes.
+  Point center_coordinates{(state.width - 1) / 2, (state.height - 1) / 2};
+  if (food_locations.find(center_coordinates) != food_locations.end()) {
+    throw ErrorNoRoomForFood();
+  }
+  state.food.push_back(center_coordinates);
+}
+
+void StandardRuleset::placeFoodRandomly(
+    BoardState& state, std::vector<Point>& unoccupied_points) const {
+  spawnFood(state, state.snakes.size(), unoccupied_points);
+}
+
+void StandardRuleset::spawnFood(BoardState& state, int count,
+                                std::vector<Point>& unoccupied_points) const {
+  for (int i = 0; i < count; ++i) {
+    if (unoccupied_points.empty()) {
+      return;
+    }
+    int ri = getRandomNumber(unoccupied_points.size());
+    state.food.push_back(unoccupied_points[ri]);
 
     if (unoccupied_points.size() == 1) {
       unoccupied_points.clear();
