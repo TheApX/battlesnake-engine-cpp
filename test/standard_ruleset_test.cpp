@@ -253,6 +253,31 @@ class PlaceFoodTest : public StandardRulesetTest {
       EXPECT_THAT(food.y, ValueBetween(0, state.height));
     }
   }
+
+  void ExpectFoodAroundSnakes(const BoardState& state) {
+    for (const Snake& snake : state.snakes) {
+      ASSERT_THAT(snake.body.empty(), IsFalse());
+      const Point& head = snake.body.front();
+
+      auto accepted_food_pos = {
+          Point(head.x - 1, head.y - 1),
+          Point(head.x - 1, head.y + 1),
+          Point(head.x + 1, head.y - 1),
+          Point(head.x + 1, head.y + 1),
+      };
+
+      bool snake_has_food = false;
+      for (const Point& pos : accepted_food_pos) {
+        for (const Point& food : state.food) {
+          if (food == pos) {
+            snake_has_food = true;
+            break;
+          }
+        }
+      }
+      EXPECT_THAT(snake_has_food, IsTrue());
+    }
+  }
 };
 
 TEST_F(PlaceFoodTest, Small1by1) {
@@ -285,27 +310,33 @@ TEST_F(PlaceFoodTest, KnownSizeSmall) {
   // Food for each snake + 1 food in the middle for known board sizes.
   // Also tests known board size detection.
   StandardRuleset ruleset;
-  ExpectBoardFood(ruleset.CreateInitialBoardState(
-                      kBoardSizeSmall, kBoardSizeSmall, CreateSnakeIds(3)),
-                  4);
+  BoardState board_state = ruleset.CreateInitialBoardState(
+      kBoardSizeSmall, kBoardSizeSmall, CreateSnakeIds(3));
+
+  ExpectBoardFood(board_state, 4);
+  ExpectFoodAroundSnakes(board_state);
 }
 
 TEST_F(PlaceFoodTest, KnownSizeMiddlle) {
   // Food for each snake + 1 food in the middle for known board sizes.
   // Also tests known board size detection.
   StandardRuleset ruleset;
-  ExpectBoardFood(ruleset.CreateInitialBoardState(
-                      kBoardSizeSmall, kBoardSizeSmall, CreateSnakeIds(8)),
-                  9);
+  BoardState board_state = ruleset.CreateInitialBoardState(
+      kBoardSizeSmall, kBoardSizeSmall, CreateSnakeIds(8));
+
+  ExpectBoardFood(board_state, 9);
+  ExpectFoodAroundSnakes(board_state);
 }
 
 TEST_F(PlaceFoodTest, KnownSizeLarge) {
   // Food for each snake + 1 food in the middle for known board sizes.
   // Also tests known board size detection.
   StandardRuleset ruleset;
-  ExpectBoardFood(ruleset.CreateInitialBoardState(
-                      kBoardSizeSmall, kBoardSizeSmall, CreateSnakeIds(6)),
-                  7);
+  BoardState board_state = ruleset.CreateInitialBoardState(
+      kBoardSizeSmall, kBoardSizeSmall, CreateSnakeIds(6));
+
+  ExpectBoardFood(board_state, 7);
+  ExpectFoodAroundSnakes(board_state);
 }
 
 }  // namespace
