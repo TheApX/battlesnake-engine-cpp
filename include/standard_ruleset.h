@@ -38,6 +38,7 @@ class StandardRuleset : public Ruleset {
   void placeFoodFixed(BoardState& state) const;
   void placeFoodRandomly(BoardState& state,
                          std::vector<Point>& unoccupied_points) const;
+  void maybeSpawnFood(BoardState& state) const;
   void spawnFood(BoardState& state, int count,
                  std::vector<Point>& unoccupied_points) const;
 

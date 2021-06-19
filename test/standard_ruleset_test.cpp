@@ -758,7 +758,7 @@ TEST_F(TestCreateNextBoardState, FoodRestoresHealth) {
           },
   };
 
-  StandardRuleset ruleset;
+  StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
   BoardState state =
       ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
 
@@ -788,7 +788,7 @@ TEST_F(TestCreateNextBoardState, DontEatFoodOtherPosition) {
           },
   };
 
-  StandardRuleset ruleset;
+  StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
   BoardState state =
       ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
 
@@ -820,7 +820,7 @@ TEST_F(TestCreateNextBoardState, EatenFoodDisappears) {
           },
   };
 
-  StandardRuleset ruleset;
+  StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
   BoardState state =
       ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
 
@@ -862,7 +862,10 @@ TEST_F(TestCreateNextBoardState, HeadToHeadFoodDisappears) {
           },
   };
 
-  StandardRuleset ruleset;
+  StandardRuleset ruleset(StandardRuleset::Config{
+      .food_spawn_chance = 0,
+      .minimum_food = 0,
+  });
   BoardState state =
       ruleset.CreateNextBoardState(initial_state, {
                                                       {"one", Move::Down},
@@ -871,6 +874,66 @@ TEST_F(TestCreateNextBoardState, HeadToHeadFoodDisappears) {
 
   // Food must disappear.
   EXPECT_THAT(state.food, ElementsAre());
+}
+
+TEST_F(TestCreateNextBoardState, ZeroChanceNeverSpawnsFood) {
+  int max_health = StandardRuleset::Config::Default().snake_max_health;
+
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .food = {},
+  };
+
+  StandardRuleset ruleset(StandardRuleset::Config{
+      .food_spawn_chance = 0,
+      .minimum_food = 0,
+  });
+
+  for (int i = 0; i < 1000; ++i) {
+    BoardState state = ruleset.CreateNextBoardState(initial_state, {});
+    ASSERT_THAT(state.food.size(), Eq(0));
+  }
+}
+
+TEST_F(TestCreateNextBoardState, HundredChanceAlwaysSpawnsFood) {
+  int max_health = StandardRuleset::Config::Default().snake_max_health;
+
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .food = {},
+  };
+
+  StandardRuleset ruleset(StandardRuleset::Config{
+      .food_spawn_chance = 100,
+      .minimum_food = 0,
+  });
+
+  for (int i = 0; i < 1000; ++i) {
+    BoardState state = ruleset.CreateNextBoardState(initial_state, {});
+    ASSERT_THAT(state.food.size(), Eq(1));
+  }
+}
+
+TEST_F(TestCreateNextBoardState, SpawnFoodMinimum) {
+  int max_health = StandardRuleset::Config::Default().snake_max_health;
+
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .food =
+          {
+              Point(1, 1),
+          },
+  };
+
+  StandardRuleset ruleset(StandardRuleset::Config{
+      .minimum_food = 7,
+  });
+  BoardState state = ruleset.CreateNextBoardState(initial_state, {});
+
+  EXPECT_THAT(state.food.size(), Eq(7));
 }
 
 }  // namespace

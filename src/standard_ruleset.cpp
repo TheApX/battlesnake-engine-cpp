@@ -154,6 +154,22 @@ void StandardRuleset::placeFoodRandomly(
   spawnFood(state, state.snakes.size(), unoccupied_points);
 }
 
+void StandardRuleset::maybeSpawnFood(BoardState& state) const {
+  int num_current_food = state.food.size();
+  if (num_current_food < config_.minimum_food) {
+    auto unoccupied_points = getUnoccupiedPoints(state, false);
+    spawnFood(state, config_.minimum_food - num_current_food,
+              unoccupied_points);
+    return;
+  }
+  if (config_.food_spawn_chance > 0 &&
+      getRandomNumber(100) < config_.food_spawn_chance) {
+    auto unoccupied_points = getUnoccupiedPoints(state, false);
+    spawnFood(state, 1, unoccupied_points);
+    return;
+  }
+}
+
 void StandardRuleset::spawnFood(BoardState& state, int count,
                                 std::vector<Point>& unoccupied_points) const {
   for (int i = 0; i < count; ++i) {
@@ -226,6 +242,7 @@ BoardState StandardRuleset::CreateNextBoardState(
   moveSnakes(next_state, moves);
   reduceSnakeHealth(next_state);
   maybeFeedSnakes(next_state);
+  maybeSpawnFood(next_state);
 
   return next_state;
 }
