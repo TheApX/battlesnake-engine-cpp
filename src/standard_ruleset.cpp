@@ -530,7 +530,16 @@ void StandardRuleset::applyCollisionEliminations(
   }
 }
 
-bool StandardRuleset::IsGameOver(const BoardState& state) { return true; }
+bool StandardRuleset::IsGameOver(const BoardState& state) {
+  int num_snakes_remaining = 0;
+  for (const Snake& snake : state.snakes) {
+    if (!snake.IsEliminated()) {
+      num_snakes_remaining++;
+    }
+  }
+
+  return num_snakes_remaining <= 1;
+}
 
 }  // namespace engine
 }  // namespace battlesnake

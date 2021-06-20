@@ -1855,6 +1855,125 @@ TEST_F(TestCreateNextBoardState, HeadToHeadFoodOneEliminated) {
           SnakeIs("two", _, _, EliminatedCause::HeadToHeadCollision, "one")));
 }
 
+class IsGameOverTest : public StandardRulesetTest {};
+
+TEST_F(IsGameOverTest, ZeroSnakes) {
+  BoardState board_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes = {},
+  };
+
+  StandardRuleset ruleset;
+
+  EXPECT_THAT(ruleset.IsGameOver(board_state), IsTrue());
+}
+
+TEST_F(IsGameOverTest, OneNotEliminatedSnake) {
+  BoardState board_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .eliminated_cause =
+                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+          },
+  };
+
+  StandardRuleset ruleset;
+
+  EXPECT_THAT(ruleset.IsGameOver(board_state), IsTrue());
+}
+
+TEST_F(IsGameOverTest, OneEliminatedOneNotEliminatedSnake) {
+  BoardState board_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .eliminated_cause =
+                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+              Snake{.eliminated_cause =
+                        EliminatedCause{.cause = EliminatedCause::Collision}},
+          },
+  };
+
+  StandardRuleset ruleset;
+
+  EXPECT_THAT(ruleset.IsGameOver(board_state), IsTrue());
+}
+
+TEST_F(IsGameOverTest, TwoNotEliminatedSnake) {
+  BoardState board_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .eliminated_cause =
+                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+              Snake{
+                  .eliminated_cause =
+                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+          },
+  };
+
+  StandardRuleset ruleset;
+
+  EXPECT_THAT(ruleset.IsGameOver(board_state), IsFalse());
+}
+
+TEST_F(IsGameOverTest, OneOfFourEliminated) {
+  BoardState board_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .eliminated_cause =
+                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+              Snake{
+                  .eliminated_cause =
+                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+              Snake{.eliminated_cause =
+                        EliminatedCause{.cause = EliminatedCause::OutOfBounds}},
+              Snake{
+                  .eliminated_cause =
+                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+          },
+  };
+
+  StandardRuleset ruleset;
+
+  EXPECT_THAT(ruleset.IsGameOver(board_state), IsFalse());
+}
+
+TEST_F(IsGameOverTest, ThreeOfFourEliminated) {
+  BoardState board_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{.eliminated_cause =
+                        EliminatedCause{.cause = EliminatedCause::OutOfHealth}},
+              Snake{
+                  .eliminated_cause =
+                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+              Snake{.eliminated_cause =
+                        EliminatedCause{.cause = EliminatedCause::OutOfBounds}},
+              Snake{.eliminated_cause =
+                        EliminatedCause{
+                            .cause = EliminatedCause::HeadToHeadCollision}},
+          },
+  };
+
+  StandardRuleset ruleset;
+
+  EXPECT_THAT(ruleset.IsGameOver(board_state), IsTrue());
+}
+
 }  // namespace
 
 }  // namespace engine
