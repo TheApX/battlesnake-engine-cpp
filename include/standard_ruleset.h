@@ -58,6 +58,18 @@ class StandardRuleset : public Ruleset {
   void maybeFeedSnakes(BoardState& state) const;
   void feedSnake(Snake& snake) const;
   void growSnake(Snake& snake) const;
+
+  void maybeEliminateSnakes(BoardState& state) const;
+  void eliminateOutOfHealthOrBoundsSnakes(BoardState& state) const;
+  bool snakeOutOfBounds(const BoardState& state, const Snake& snake) const;
+  std::map<SnakeId, EliminatedCause> findCollisionEliminations(
+      const BoardState& state,
+      const std::vector<int>& snake_indices_by_length) const;
+  bool snakeHasBodyCollided(const Snake& snake, const Snake& other) const;
+  bool snakeHasLostHeadToHead(const Snake& snake, const Snake& other) const;
+  void applyCollisionEliminations(
+      BoardState& state,
+      const std::map<SnakeId, EliminatedCause>& eliminations) const;
 };
 
 }  // namespace engine

@@ -22,13 +22,18 @@ enum class Move {
   Right,
 };
 
-enum class EliminatedCause {
-  NotEliminated,
-  Collision,
-  SelfCollision,
-  OutOfHealth,
-  HeadToHeadCollision,
-  OutOfBounds,
+struct EliminatedCause {
+  enum Cause {
+    NotEliminated,
+    Collision,
+    SelfCollision,
+    OutOfHealth,
+    HeadToHeadCollision,
+    OutOfBounds,
+  };
+
+  Cause cause = NotEliminated;
+  SnakeId by_id;
 };
 
 struct Point {
@@ -47,6 +52,7 @@ struct Point {
   bool operator==(const Point& other) const {
     return this->x == other.x && this->y == other.y;
   }
+  bool operator!=(const Point& other) const { return !operator==(other); }
 
   Point Up() const { return Point(x, y + 1); }
   Point Down() const { return Point(x, y - 1); }
@@ -66,12 +72,17 @@ struct Snake {
   SnakeId id;
   std::vector<Point> body;
   int health = 0;
-  EliminatedCause eliminated_cause = EliminatedCause::NotEliminated;
-  SnakeId eliminated_by_id;
+  EliminatedCause eliminated_cause;
 
   bool IsEliminated() const {
-    return eliminated_cause != EliminatedCause::NotEliminated;
+    return eliminated_cause.cause != EliminatedCause::NotEliminated;
   }
+
+  bool IsOutOfHealth() const { return health <= 0; }
+
+  Point& Head();
+  const Point& Head() const;
+  size_t Length() const { return body.size(); }
 };
 
 struct BoardState {
@@ -82,8 +93,10 @@ struct BoardState {
 };
 
 std::ostream& operator<<(std::ostream& s, Move move);
+std::ostream& operator<<(std::ostream& s, EliminatedCause::Cause cause);
 std::ostream& operator<<(std::ostream& s, EliminatedCause cause);
 std::ostream& operator<<(std::ostream& s, const Point& point);
+std::ostream& operator<<(std::ostream& s, const Snake& snake);
 std::ostream& operator<<(std::ostream& s, const Snake& snake);
 // TODO: implement when needed.
 // std::ostream& operator<<(std::ostream& s, const BoardState& state);

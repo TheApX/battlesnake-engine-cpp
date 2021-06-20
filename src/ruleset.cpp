@@ -1,5 +1,7 @@
 #include "ruleset.h"
 
+#include "ruleset_errors.h"
+
 namespace battlesnake {
 namespace engine {
 
@@ -21,6 +23,20 @@ std::ostream& PrintVector(std::ostream& s, const std::vector<T>& v) {
 }
 
 }  // namespace
+
+Point& Snake::Head() {
+  if (body.empty()) {
+    throw ErrorZeroLengthSnake(id);
+  }
+  return body.front();
+}
+
+const Point& Snake::Head() const {
+  if (body.empty()) {
+    throw ErrorZeroLengthSnake(id);
+  }
+  return body.front();
+}
 
 std::ostream& operator<<(std::ostream& s, Move move) {
   switch (move) {
@@ -47,7 +63,7 @@ std::ostream& operator<<(std::ostream& s, Move move) {
   return s;
 }
 
-std::ostream& operator<<(std::ostream& s, EliminatedCause cause) {
+std::ostream& operator<<(std::ostream& s, EliminatedCause::Cause cause) {
   switch (cause) {
     case EliminatedCause::NotEliminated:
       s << "NotEliminated";
@@ -75,6 +91,19 @@ std::ostream& operator<<(std::ostream& s, EliminatedCause cause) {
   return s;
 }
 
+std::ostream& operator<<(std::ostream& s, EliminatedCause cause) {
+  s << cause.cause;
+  switch (cause.cause) {
+    case EliminatedCause::Collision:
+    case EliminatedCause::HeadToHeadCollision:
+      s << " by '" << cause.by_id << "'";
+      break;
+    default:
+      break;
+  }
+  return s;
+}
+
 std::ostream& operator<<(std::ostream& s, const Point& point) {
   s << "(" << point.x << "," << point.y << ")";
   return s;
@@ -87,7 +116,6 @@ std::ostream& operator<<(std::ostream& s, const Snake& snake) {
   PrintVector(s, snake.body);
   s << " health: " << snake.health;
   s << " eliminated: " << snake.eliminated_cause;
-  s << " by: '" << snake.eliminated_by_id << "'";
   s << "}";
 
   return s;

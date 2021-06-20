@@ -243,6 +243,7 @@ BoardState StandardRuleset::CreateNextBoardState(
   reduceSnakeHealth(next_state);
   maybeFeedSnakes(next_state);
   maybeSpawnFood(next_state);
+  maybeEliminateSnakes(next_state);
 
   return next_state;
 }
@@ -252,6 +253,9 @@ void StandardRuleset::moveSnakes(BoardState& state,
   checkSnakesForMove(state, moves);
 
   for (Snake& snake : state.snakes) {
+    if (snake.IsEliminated()) {
+      continue;
+    }
     Move move = moves[snake.id];
 
     Point old_head = snake.body.front();
@@ -362,6 +366,168 @@ void StandardRuleset::growSnake(Snake& snake) const {
     return;
   }
   snake.body.push_back(snake.body[snake.body.size() - 1]);
+}
+
+void StandardRuleset::maybeEliminateSnakes(BoardState& state) const {
+  std::vector<int> snake_indices_by_length;
+  snake_indices_by_length.reserve(state.snakes.size());
+  for (int i = 0; i < state.snakes.size(); ++i) {
+    snake_indices_by_length.push_back(i);
+  }
+  std::sort(snake_indices_by_length.begin(), snake_indices_by_length.end(),
+            [&](int a, int b) -> bool {
+              int len_a = state.snakes[a].body.size();
+              int len_b = state.snakes[b].body.size();
+              return len_a > len_b;
+            });
+
+  // First, iterate over all non-eliminated snakes and eliminate the ones
+  // that are out of health or have moved out of bounds.
+  eliminateOutOfHealthOrBoundsSnakes(state);
+
+  std::map<SnakeId, EliminatedCause> collision_eliminations =
+      findCollisionEliminations(state, snake_indices_by_length);
+  applyCollisionEliminations(state, collision_eliminations);
+}
+
+void StandardRuleset::eliminateOutOfHealthOrBoundsSnakes(
+    BoardState& state) const {
+  for (Snake& snake : state.snakes) {
+    if (snake.IsEliminated()) {
+      continue;
+    }
+
+    if (snake.body.empty()) {
+      throw ErrorZeroLengthSnake(snake.id);
+    }
+
+    if (snake.IsOutOfHealth()) {
+      snake.eliminated_cause.cause = EliminatedCause::OutOfHealth;
+      continue;
+    }
+
+    if (snakeOutOfBounds(state, snake)) {
+      snake.eliminated_cause.cause = EliminatedCause::OutOfBounds;
+      continue;
+    }
+  }
+}
+
+bool StandardRuleset::snakeOutOfBounds(const BoardState& state,
+                                       const Snake& snake) const {
+  for (const Point& p : snake.body) {
+    if (p.x < 0 || p.x >= state.width) {
+      return true;
+    }
+    if (p.y < 0 || p.y >= state.height) {
+      return true;
+    }
+  }
+  return false;
+}
+
+std::map<SnakeId, EliminatedCause> StandardRuleset::findCollisionEliminations(
+    const BoardState& state,
+    const std::vector<int>& snake_indices_by_length) const {
+  std::map<SnakeId, EliminatedCause> result;
+  for (const Snake& snake : state.snakes) {
+    if (snake.IsEliminated()) {
+      continue;
+    }
+
+    // Check for self-collision first.
+    if (snakeHasBodyCollided(snake, snake)) {
+      result[snake.id] = EliminatedCause{
+          .cause = EliminatedCause::SelfCollision,
+          .by_id = snake.id,
+      };
+      continue;
+    }
+
+    // Check for body collisions with other snakes.
+    {
+      bool has_body_collided = false;
+      for (int i = 0; i < snake_indices_by_length.size(); ++i) {
+        const Snake& other = state.snakes[snake_indices_by_length[i]];
+        if (other.IsEliminated()) {
+          continue;
+        }
+        if (snake.id == other.id) {
+          continue;
+        }
+        if (snakeHasBodyCollided(snake, other)) {
+          result[snake.id] = EliminatedCause{
+              .cause = EliminatedCause::Collision,
+              .by_id = other.id,
+          };
+          has_body_collided = true;
+          break;
+        }
+      }
+      if (has_body_collided) {
+        continue;
+      }
+    }
+
+    // Check for head-to-head.
+    {
+      bool has_head_collided = false;
+      for (int i = 0; i < snake_indices_by_length.size(); ++i) {
+        const Snake& other = state.snakes[snake_indices_by_length[i]];
+        if (other.IsEliminated()) {
+          continue;
+        }
+        if (snake.id == other.id) {
+          continue;
+        }
+        if (snakeHasLostHeadToHead(snake, other)) {
+          result[snake.id] = EliminatedCause{
+              .cause = EliminatedCause::HeadToHeadCollision,
+              .by_id = other.id,
+          };
+          has_head_collided = true;
+          break;
+        }
+      }
+      if (has_head_collided) {
+        continue;
+      }
+    }
+  }
+
+  return result;
+}
+
+bool StandardRuleset::snakeHasBodyCollided(const Snake& snake,
+                                           const Snake& other) const {
+  const Point& head = snake.Head();
+  for (int i = 1; i < other.body.size(); ++i) {
+    if (head == other.body[i]) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool StandardRuleset::snakeHasLostHeadToHead(const Snake& snake,
+                                             const Snake& other) const {
+  if (snake.Head() != other.Head()) {
+    return false;
+  }
+
+  return snake.Length() <= other.Length();
+}
+
+void StandardRuleset::applyCollisionEliminations(
+    BoardState& state,
+    const std::map<SnakeId, EliminatedCause>& eliminations) const {
+  for (Snake& snake : state.snakes) {
+    auto elimination = eliminations.find(snake.id);
+    if (elimination == eliminations.end()) {
+      continue;
+    }
+    snake.eliminated_cause = elimination->second;
+  }
 }
 
 bool StandardRuleset::IsGameOver(const BoardState& state) { return true; }

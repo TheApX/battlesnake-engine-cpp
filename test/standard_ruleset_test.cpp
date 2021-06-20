@@ -24,6 +24,7 @@ using ::testing::IsFalse;
 using ::testing::IsTrue;
 using ::testing::Le;
 using ::testing::Lt;
+using ::testing::Not;
 using ::testing::UnorderedElementsAreArray;
 
 template <class T>
@@ -49,10 +50,12 @@ auto SnakeHealthIs(M m) {
 template <class A, class B, class C, class D, class E>
 auto SnakeIs(const A& m_id, const B& m_body, const C& m_health,
              const D& m_cause, const E& m_eliminated_by) {
-  return AllOf(Field(&Snake::id, m_id), Field(&Snake::body, m_body),
-               Field(&Snake::health, m_health),
-               Field(&Snake::eliminated_cause, m_cause),
-               Field(&Snake::eliminated_by_id, m_eliminated_by));
+  return AllOf(
+      Field(&Snake::id, m_id), Field(&Snake::body, m_body),
+      Field(&Snake::health, m_health),
+      Field(&Snake::eliminated_cause, Field(&EliminatedCause::cause, m_cause)),
+      Field(&Snake::eliminated_cause,
+            Field(&EliminatedCause::by_id, m_eliminated_by)));
 }
 
 template <class A, class B, class C, class D>
@@ -382,9 +385,7 @@ TEST_F(PlaceFoodTest, KnownSizeLarge) {
   ExpectFoodAroundSnakes(board_state);
 }
 
-class TestCreateNextBoardState : public StandardRulesetTest {
-  //
-};
+class TestCreateNextBoardState : public StandardRulesetTest {};
 
 TEST_F(TestCreateNextBoardState, NoMoveFound) {
   BoardState initial_state{
@@ -934,6 +935,924 @@ TEST_F(TestCreateNextBoardState, SpawnFoodMinimum) {
   BoardState state = ruleset.CreateNextBoardState(initial_state, {});
 
   EXPECT_THAT(state.food.size(), Eq(7));
+}
+
+TEST_F(TestCreateNextBoardState, EatingOnLastMove) {
+  // We want to specifically ensure that snakes eating food on their last turn
+  // survive.
+  int max_health = StandardRuleset::Config::Default().snake_max_health;
+
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .food =
+          {
+              Point(0, 1),
+          },
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = 1,
+              },
+          },
+  };
+
+  StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
+
+  EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(max_health)));
+}
+
+TEST_F(TestCreateNextBoardState, IgnoresEliminatedSnakes) {
+  // We want to specifically ensure that snakes eating food on their last turn
+  // survive.
+  int max_health = StandardRuleset::Config::Default().snake_max_health;
+
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .food =
+          {
+              Point(0, 1),
+          },
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = 10,
+                  .eliminated_cause =
+                      EliminatedCause{.cause = EliminatedCause::OutOfHealth},
+              },
+          },
+  };
+
+  StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
+
+  // Snake has not moved, health has not changed.
+  EXPECT_THAT(
+      state.snakes,
+      ElementsAre(SnakeIs(
+          "one", ElementsAre(Point(1, 1), Point(1, 2), Point(1, 3)), 10)));
+  // Food hasn't disappeared.
+  EXPECT_THAT(state.food, ElementsAre(Point(0, 1)));
+}
+
+class TestEliminateSnakes : public TestCreateNextBoardState {};
+
+TEST_F(TestEliminateSnakes, OutOfHealth) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = 1,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
+
+  EXPECT_THAT(state.snakes,
+              ElementsAre(SnakeIs("one", _, 0, EliminatedCause::OutOfHealth)));
+}
+
+TEST_F(TestEliminateSnakes, OutOfBoundsUp) {
+  BoardState initial_state{
+      .width = 1,
+      .height = 1,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(0, 0),
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Up}});
+
+  EXPECT_THAT(state.snakes,
+              ElementsAre(SnakeIs("one", _, _, EliminatedCause::OutOfBounds)));
+}
+
+TEST_F(TestEliminateSnakes, OutOfBoundsDown) {
+  BoardState initial_state{
+      .width = 1,
+      .height = 1,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(0, 0),
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Down}});
+
+  EXPECT_THAT(state.snakes,
+              ElementsAre(SnakeIs("one", _, _, EliminatedCause::OutOfBounds)));
+}
+
+TEST_F(TestEliminateSnakes, OutOfBoundsLeft) {
+  BoardState initial_state{
+      .width = 1,
+      .height = 1,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(0, 0),
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
+
+  EXPECT_THAT(state.snakes,
+              ElementsAre(SnakeIs("one", _, _, EliminatedCause::OutOfBounds)));
+}
+
+TEST_F(TestEliminateSnakes, OutOfBoundsRight) {
+  BoardState initial_state{
+      .width = 1,
+      .height = 1,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(0, 0),
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Right}});
+
+  EXPECT_THAT(state.snakes,
+              ElementsAre(SnakeIs("one", _, _, EliminatedCause::OutOfBounds)));
+}
+
+TEST_F(TestEliminateSnakes, NoSelfCollision) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
+
+  EXPECT_THAT(state.snakes, ElementsAre(SnakeIs(
+                                "one", _, _, EliminatedCause::NotEliminated)));
+}
+
+TEST_F(TestEliminateSnakes, NeckSelfCollision) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Up}});
+
+  EXPECT_THAT(state.snakes, ElementsAre(SnakeIs(
+                                "one", _, _, EliminatedCause::SelfCollision)));
+}
+
+TEST_F(TestEliminateSnakes, RegularSelfCollision) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(2, 2),
+                          Point(2, 1),
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
+
+  EXPECT_THAT(state.snakes, ElementsAre(SnakeIs(
+                                "one", _, _, EliminatedCause::SelfCollision)));
+}
+
+TEST_F(TestEliminateSnakes, OwnTailChase) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(2, 2),
+                          Point(2, 1),
+                          Point(1, 1),
+                          Point(1, 2),
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
+
+  EXPECT_THAT(state.snakes, ElementsAre(SnakeIs(
+                                "one", _, _, EliminatedCause::NotEliminated)));
+}
+
+TEST_F(TestEliminateSnakes, OtherNoCollision) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = 100,
+              },
+              Snake{
+                  .id = "two",
+                  .body =
+                      {
+                          Point(2, 1),
+                          Point(2, 2),
+                          Point(2, 3),
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {
+                                                      {"one", Move::Down},
+                                                      {"two", Move::Right},
+                                                  });
+
+  EXPECT_THAT(state.snakes,
+              UnorderedElementsAre(
+                  SnakeIs("one", _, _, EliminatedCause::NotEliminated),
+                  SnakeIs("two", _, _, EliminatedCause::NotEliminated)));
+}
+
+TEST_F(TestEliminateSnakes, OtherBodyCollision) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = 100,
+              },
+              Snake{
+                  .id = "two",
+                  .body =
+                      {
+                          Point(2, 1),
+                          Point(2, 2),
+                          Point(2, 3),
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {
+                                                      {"one", Move::Down},
+                                                      {"two", Move::Left},
+                                                  });
+
+  EXPECT_THAT(state.snakes,
+              UnorderedElementsAre(
+                  SnakeIs("one", _, _, EliminatedCause::NotEliminated),
+                  SnakeIs("two", _, _, EliminatedCause::Collision, "one")));
+}
+
+TEST_F(TestEliminateSnakes, OtherTailChase) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = 100,
+              },
+              Snake{
+                  .id = "two",
+                  .body =
+                      {
+                          Point(1, 4),
+                          Point(1, 5),
+                          Point(1, 6),
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {
+                                                      {"one", Move::Down},
+                                                      {"two", Move::Down},
+                                                  });
+
+  EXPECT_THAT(state.snakes,
+              UnorderedElementsAre(
+                  SnakeIs("one", _, _, EliminatedCause::NotEliminated),
+                  SnakeIs("two", _, _, EliminatedCause::NotEliminated)));
+}
+
+TEST_F(TestEliminateSnakes, HeadToHeadDifferentLength) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 3),
+                          Point(1, 2),
+                          Point(1, 1),
+                          Point(1, 0),
+                      },
+                  .health = 100,
+              },
+              Snake{
+                  .id = "two",
+                  .body =
+                      {
+                          Point(1, 5),
+                          Point(1, 6),
+                          Point(1, 7),
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {
+                                                      {"one", Move::Up},
+                                                      {"two", Move::Down},
+                                                  });
+
+  EXPECT_THAT(
+      state.snakes,
+      UnorderedElementsAre(
+          SnakeIs("one", _, _, EliminatedCause::NotEliminated),
+          SnakeIs("two", _, _, EliminatedCause::HeadToHeadCollision, "one")));
+}
+
+TEST_F(TestEliminateSnakes, HeadToHeadEqualLength) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 3),
+                          Point(1, 2),
+                          Point(1, 1),
+                      },
+                  .health = 100,
+              },
+              Snake{
+                  .id = "two",
+                  .body =
+                      {
+                          Point(1, 5),
+                          Point(1, 6),
+                          Point(1, 7),
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {
+                                                      {"one", Move::Up},
+                                                      {"two", Move::Down},
+                                                  });
+
+  EXPECT_THAT(
+      state.snakes,
+      UnorderedElementsAre(
+          SnakeIs("one", _, _, EliminatedCause::HeadToHeadCollision, "two"),
+          SnakeIs("two", _, _, EliminatedCause::HeadToHeadCollision, "one")));
+}
+
+TEST_F(TestEliminateSnakes, PriorityOutOfHealthOutOfBounds) {
+  BoardState initial_state{
+      .width = 1,
+      .height = 1,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(0, 0),
+                      },
+                  .health = 1,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Up}});
+
+  EXPECT_THAT(state.snakes,
+              ElementsAre(SnakeIs("one", _, _, EliminatedCause::OutOfHealth)));
+}
+
+TEST_F(TestEliminateSnakes, PriorityOutOfHealthSelfCollision) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = 1,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Up}});
+
+  EXPECT_THAT(state.snakes,
+              ElementsAre(SnakeIs("one", _, _, EliminatedCause::OutOfHealth)));
+}
+
+TEST_F(TestEliminateSnakes, PriorityOutOfHealthOtherBodyCollision) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = 100,
+              },
+              Snake{
+                  .id = "two",
+                  .body =
+                      {
+                          Point(2, 1),
+                          Point(2, 2),
+                          Point(2, 3),
+                      },
+                  .health = 1,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {
+                                                      {"one", Move::Down},
+                                                      {"two", Move::Left},
+                                                  });
+
+  EXPECT_THAT(
+      state.snakes,
+      UnorderedElementsAre(
+          SnakeIs("one", _, _, EliminatedCause::NotEliminated),
+          SnakeIs("two", _, _, EliminatedCause::OutOfHealth, Not("one"))));
+}
+
+TEST_F(TestEliminateSnakes, PrioritySelfCollisionHeadToHead) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                          Point(1, 4),
+                      },
+                  .health = 100,
+              },
+              Snake{
+                  .id = "two",
+                  .body =
+                      {
+                          Point(0, 0),
+                          Point(1, 0),
+                          Point(2, 0),
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {
+                                                      {"one", Move::Down},
+                                                      {"two", Move::Right},
+                                                  });
+
+  EXPECT_THAT(
+      state.snakes,
+      UnorderedElementsAre(
+          SnakeIs("one", _, _, EliminatedCause::Collision, "two"),
+          SnakeIs("two", _, _, EliminatedCause::SelfCollision, Not("one"))));
+}
+
+TEST_F(TestEliminateSnakes, PriorityOtherCollisionHeadToHead) {
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = 100,
+              },
+              Snake{
+                  .id = "two",
+                  .body =
+                      {
+                          Point(0, 0),
+                          Point(1, 0),
+                          Point(2, 0),
+                          Point(3, 0),
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {
+                                                      {"one", Move::Down},
+                                                      {"two", Move::Right},
+                                                  });
+
+  EXPECT_THAT(
+      state.snakes,
+      UnorderedElementsAre(
+          SnakeIs("one", _, _, EliminatedCause::Collision, "two"),
+          SnakeIs("two", _, _, EliminatedCause::SelfCollision, Not("one"))));
+}
+
+TEST_F(TestEliminateSnakes, OutOfHealthDoesntEliminateOthers) {
+  // Snake Two can eliminate snake One for multiple reasons:
+  // * One collided into Two's body.
+  // * Two wins head-to-head.
+  // But snake Two is out of health, so One doesn't get eliminated.
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = 100,
+              },
+              Snake{
+                  .id = "two",
+                  .body =
+                      {
+                          Point(0, 0),
+                          Point(1, 0),
+                          Point(2, 0),
+                          Point(3, 0),
+                      },
+                  .health = 1,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {
+                                                      {"one", Move::Down},
+                                                      {"two", Move::Right},
+                                                  });
+
+  EXPECT_THAT(
+      state.snakes,
+      UnorderedElementsAre(
+          SnakeIs("one", _, _, EliminatedCause::NotEliminated, Not("two")),
+          SnakeIs("two", _, _, EliminatedCause::OutOfHealth, Not("one"))));
+}
+
+TEST_F(TestEliminateSnakes, OutOfBoundsDoesntEliminateOthers) {
+  // Snake Two can eliminate snake One because One collided into Two's body.
+  // But snake Two is out of bounds, so One doesn't get eliminated.
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 1),
+                          Point(1, 2),
+                          Point(1, 3),
+                      },
+                  .health = 100,
+              },
+              Snake{
+                  .id = "two",
+                  .body =
+                      {
+                          Point(0, 0),
+                          Point(1, 0),
+                          Point(2, 0),
+                          Point(3, 0),
+                      },
+                  .health = 100,
+              },
+          },
+  };
+
+  StandardRuleset ruleset;
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {
+                                                      {"one", Move::Down},
+                                                      {"two", Move::Left},
+                                                  });
+
+  EXPECT_THAT(
+      state.snakes,
+      UnorderedElementsAre(
+          SnakeIs("one", _, _, EliminatedCause::NotEliminated, Not("two")),
+          SnakeIs("two", _, _, EliminatedCause::OutOfBounds, Not("one"))));
+}
+
+TEST_F(TestCreateNextBoardState, HeadToHeadFoodBothEliminated) {
+  int max_health = StandardRuleset::Config::Default().snake_max_health;
+
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .food =
+          {
+              Point(1, 1),
+          },
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 2),
+                          Point(1, 3),
+                          Point(1, 4),
+                      },
+                  .health = max_health / 2,
+              },
+              Snake{
+                  .id = "two",
+                  .body =
+                      {
+                          Point(2, 1),
+                          Point(3, 1),
+                          Point(4, 1),
+                      },
+                  .health = max_health / 2,
+              },
+          },
+  };
+
+  StandardRuleset ruleset(StandardRuleset::Config{
+      .food_spawn_chance = 0,
+      .minimum_food = 0,
+  });
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {
+                                                      {"one", Move::Down},
+                                                      {"two", Move::Left},
+                                                  });
+
+  // Food must disappear.
+  EXPECT_THAT(state.food, ElementsAre());
+  // Both snakes eliminated.
+  EXPECT_THAT(
+      state.snakes,
+      UnorderedElementsAre(
+          SnakeIs("one", _, _, EliminatedCause::HeadToHeadCollision, "two"),
+          SnakeIs("two", _, _, EliminatedCause::HeadToHeadCollision, "one")));
+}
+
+TEST_F(TestCreateNextBoardState, HeadToHeadFoodOneEliminated) {
+  int max_health = StandardRuleset::Config::Default().snake_max_health;
+
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .food =
+          {
+              Point(1, 1),
+          },
+      .snakes =
+          {
+              Snake{
+                  .id = "one",
+                  .body =
+                      {
+                          Point(1, 2),
+                          Point(1, 3),
+                          Point(1, 4),
+                          Point(1, 5),
+                      },
+                  .health = max_health / 2,
+              },
+              Snake{
+                  .id = "two",
+                  .body =
+                      {
+                          Point(2, 1),
+                          Point(3, 1),
+                          Point(4, 1),
+                      },
+                  .health = max_health / 2,
+              },
+          },
+  };
+
+  StandardRuleset ruleset(StandardRuleset::Config{
+      .food_spawn_chance = 0,
+      .minimum_food = 0,
+  });
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state, {
+                                                      {"one", Move::Down},
+                                                      {"two", Move::Left},
+                                                  });
+
+  // Food must disappear.
+  EXPECT_THAT(state.food, ElementsAre());
+  // One snake survives and grows.
+  EXPECT_THAT(
+      state.snakes,
+      UnorderedElementsAre(
+          SnakeIs("one", ElementsAre(_, _, _, _, _), max_health,
+                  EliminatedCause::NotEliminated, Not("two")),
+          SnakeIs("two", _, _, EliminatedCause::HeadToHeadCollision, "one")));
 }
 
 }  // namespace
