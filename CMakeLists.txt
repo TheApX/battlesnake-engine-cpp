@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(battlesnake-cpp)
+project(battlesnake-engine-cpp)
 
 # Suppress long and annoying warning.
 SET(GCC_NO_PSABI_WARNING "-Wno-psabi")
