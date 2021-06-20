@@ -4,6 +4,10 @@ find_package(Threads REQUIRED)
 # Enable ExternalProject CMake module
 include(ExternalProject)
 
+if(TARGET gtest)
+    return()
+endif(TARGET gtest)
+
 # Download and install GoogleTest
 ExternalProject_Add(
     gtest

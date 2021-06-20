@@ -19,6 +19,6 @@ add_library(libbattlesnakerules STATIC
     ${libbattlesnakerules_SRCS}
 )
 
-target_include_directories(libbattlesnakerules PUBLIC
+target_include_directories(libbattlesnakerules INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
