@@ -1,4 +1,4 @@
-#include "battlesnake/rules/ruleset.h"
+#include "battlesnake/rules/data_types.h"
 
 #include "battlesnake/rules/errors.h"
 

@@ -1,5 +1,5 @@
 set(libbattlesnakerules_SRCS
-    ruleset.cpp
+    data_types.cpp
     standard_ruleset.cpp
 )
 

@@ -1,7 +1,7 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 
-#include "battlesnake/rules/ruleset.h"
+#include "battlesnake/rules/data_types.h"
 
 namespace battlesnake {
 namespace json {
