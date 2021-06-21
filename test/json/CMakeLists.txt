@@ -1,7 +1,8 @@
 file(GLOB SRCS *.cpp)
 
 set(testbattlesnakejson_SRCS
-    converter_test.cpp
+    create_json_test.cpp
+    parse_json_test.cpp
 )
 
 add_executable(testbattlesnakejson ${testbattlesnakejson_SRCS})

@@ -5,28 +5,37 @@ namespace json {
 namespace {
 
 using namespace ::battlesnake::engine;
-using json = nlohmann::json;
 
 template <class T>
 nlohmann::json CreateVectorJson(const std::vector<T>& values) {
-  json result = json::array();
+  nlohmann::json result = nlohmann::json::array();
   for (const T& v : values) {
     result.push_back(CreateJson(v));
   }
   return result;
 }
 
+int GetInt(const nlohmann::json& json, const char* key) {
+  auto v = json.find(key);
+  if (v == json.end()) {
+    throw ParseException();
+  }
+  if (!v->is_number_integer()) {
+    throw ParseException();
+  }
+  return *v;
+}
+
 }  // namespace
 
-nlohmann::json CreateJson(const battlesnake::engine::Point& point) {
-  return json{
+nlohmann::json CreateJson(const Point& point) {
+  return nlohmann::json{
       {"x", point.x},
       {"y", point.y},
   };
 }
 
-std::unique_ptr<nlohmann::json> MaybeCreateJson(
-    const battlesnake::engine::Snake& snake) {
+std::unique_ptr<nlohmann::json> MaybeCreateJson(const Snake& snake) {
   if (snake.IsEliminated()) {
     return nullptr;
   }
@@ -48,7 +57,7 @@ std::unique_ptr<nlohmann::json> MaybeCreateJson(
   return result_ptr;
 }
 
-nlohmann::json CreateJson(const battlesnake::engine::BoardState& state) {
+nlohmann::json CreateJson(const BoardState& state) {
   nlohmann::json result;
 
   result["width"] = state.width;
@@ -56,7 +65,7 @@ nlohmann::json CreateJson(const battlesnake::engine::BoardState& state) {
   result["food"] = CreateVectorJson(state.food);
   result["hazards"] = CreateVectorJson(state.hazards);
 
-  auto snakes = json::array();
+  auto snakes = nlohmann::json::array();
   for (const Snake& snake : state.snakes) {
     auto snake_json = MaybeCreateJson(snake);
     if (snake_json == nullptr) {
@@ -67,6 +76,10 @@ nlohmann::json CreateJson(const battlesnake::engine::BoardState& state) {
   result["snakes"] = std::move(snakes);
 
   return result;
+}
+
+Point ParseJsonPoint(const nlohmann::json& json) {
+  return Point(GetInt(json, "x"), GetInt(json, "y"));
 }
 
 }  // namespace json
