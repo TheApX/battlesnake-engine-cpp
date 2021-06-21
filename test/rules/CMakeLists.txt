@@ -1,6 +1,10 @@
 file(GLOB SRCS *.cpp)
 
-add_executable(testbattlesnakerules ${SRCS})
+set(testbattlesnakerules_SRCS
+    standard_ruleset_test.cpp
+)
+
+add_executable(testbattlesnakerules ${testbattlesnakerules_SRCS})
 
 target_link_libraries(testbattlesnakerules
     libbattlesnakerules
