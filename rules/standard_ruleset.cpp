@@ -1,10 +1,10 @@
-#include "battlesnake/engine/standard_ruleset.h"
+#include "battlesnake/rules/standard_ruleset.h"
 
 #include <algorithm>
 #include <random>
 #include <unordered_set>
 
-#include "battlesnake/engine/ruleset_errors.h"
+#include "battlesnake/rules/ruleset_errors.h"
 
 namespace battlesnake {
 namespace engine {

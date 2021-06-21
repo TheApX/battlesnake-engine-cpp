@@ -1,6 +1,6 @@
 #include <functional>
 
-#include "battlesnake/engine/ruleset.h"
+#include "battlesnake/rules/ruleset.h"
 
 namespace battlesnake {
 namespace engine {
