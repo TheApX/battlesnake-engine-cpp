@@ -69,6 +69,23 @@ std::vector<Point> GetPointArray(const nlohmann::json& json, const char* key) {
   return result;
 }
 
+std::vector<Snake> GetSnakeArray(const nlohmann::json& json, const char* key) {
+  auto v = json.find(key);
+  if (v == json.end()) {
+    throw ParseException();
+  }
+  if (!v->is_array()) {
+    throw ParseException();
+  }
+
+  std::vector<Snake> result;
+  result.reserve(v->size());
+  for (const nlohmann::json& s : *v) {
+    result.push_back(ParseJsonSnake(s));
+  }
+  return result;
+}
+
 }  // namespace
 
 nlohmann::json CreateJson(const Point& point) {
@@ -128,21 +145,7 @@ Point ParseJsonPoint(const nlohmann::json& json) {
   return Point(GetInt(json, "x"), GetInt(json, "y"));
 }
 
-battlesnake::engine::Snake ParseJsonSnake(const nlohmann::json& json) {
-  // "id": "snake-508e96ac-94ad-11ea-bb37",
-  // "name": "My Snake",
-  // "health": 54,
-  // "body": [
-  //   {"x": 0, "y": 0},
-  //   {"x": 1, "y": 0},
-  //   {"x": 2, "y": 0}
-  // ],
-  // "latency": "111",
-  // "head": {"x": 0, "y": 0},
-  // "length": 3,
-  // "shout": "why are we shouting??",
-  // "squad": ""
-
+Snake ParseJsonSnake(const nlohmann::json& json) {
   if (!json.is_object()) {
     throw ParseException();
   }
@@ -167,6 +170,20 @@ battlesnake::engine::Snake ParseJsonSnake(const nlohmann::json& json) {
   }
 
   return snake;
+}
+
+BoardState ParseJsonBoard(const nlohmann::json& json) {
+  if (!json.is_object()) {
+    throw ParseException();
+  }
+
+  return BoardState{
+      .width = GetInt(json, "width"),
+      .height = GetInt(json, "height"),
+      .food = GetPointArray(json, "food"),
+      .snakes = GetSnakeArray(json, "snakes"),
+      .hazards = GetPointArray(json, "hazards"),
+  };
 }
 
 }  // namespace json

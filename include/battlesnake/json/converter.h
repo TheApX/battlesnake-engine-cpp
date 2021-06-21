@@ -29,9 +29,8 @@ nlohmann::json CreateJson(const battlesnake::engine::BoardState& state);
 battlesnake::engine::Point ParseJsonPoint(const nlohmann::json& json);
 // Parses Snake from json.
 battlesnake::engine::Snake ParseJsonSnake(const nlohmann::json& json);
-
-// TODO:
-// * ParseJsonBoard
+// Parses BoardState from json.
+battlesnake::engine::BoardState ParseJsonBoard(const nlohmann::json& json);
 
 }  // namespace json
 }  // namespace battlesnake
