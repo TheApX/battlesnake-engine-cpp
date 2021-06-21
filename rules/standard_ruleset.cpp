@@ -4,7 +4,7 @@
 #include <random>
 #include <unordered_set>
 
-#include "battlesnake/rules/ruleset_errors.h"
+#include "battlesnake/rules/errors.h"
 
 namespace battlesnake {
 namespace rules {

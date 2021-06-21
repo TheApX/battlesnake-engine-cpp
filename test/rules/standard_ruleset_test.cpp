@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <initializer_list>
 
-#include "battlesnake/rules/ruleset_errors.h"
+#include "battlesnake/rules/errors.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
