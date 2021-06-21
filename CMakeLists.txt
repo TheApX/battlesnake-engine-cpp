@@ -14,3 +14,4 @@ enable_testing()
 add_subdirectory(test)
 
 add_subdirectory(rules)
+add_subdirectory(json)

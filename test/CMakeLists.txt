@@ -12,3 +12,4 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 add_subdirectory(rules)
+add_subdirectory(json)
