@@ -69,10 +69,17 @@ struct PointHash {
 };
 
 struct Snake {
+  // Main values used by the engine.
   SnakeId id;
   std::vector<Point> body;
   int health = 0;
   EliminatedCause eliminated_cause;
+
+  // Additional values not necessarily used by ruleset, but used in API.
+  std::string name;
+  std::string latency;
+  std::string shout;
+  std::string squad;
 
   bool IsEliminated() const {
     return eliminated_cause.cause != EliminatedCause::NotEliminated;
