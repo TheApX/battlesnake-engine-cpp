@@ -98,6 +98,24 @@ struct BoardState {
   std::vector<Point> hazards;
 };
 
+struct RulesetInfo {
+  std::string name;
+  std::string version;
+};
+
+struct GameInfo {
+  std::string id;
+  RulesetInfo ruleset;
+  int timeout;
+};
+
+struct GameState {
+  GameInfo game;
+  int turn;
+  BoardState board;
+  Snake you;
+};
+
 std::ostream& operator<<(std::ostream& s, Move move);
 std::ostream& operator<<(std::ostream& s, EliminatedCause::Cause cause);
 std::ostream& operator<<(std::ostream& s, EliminatedCause cause);
