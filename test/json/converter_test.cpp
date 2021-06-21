@@ -8,9 +8,18 @@ namespace json {
 
 namespace {
 
+using ::testing::Eq;
+
+using namespace ::battlesnake::engine;
+
 class ConverterTest : public testing::Test {};
 
-// TODO
+class PointTest : public ConverterTest {};
+
+TEST_F(PointTest, CreateJson) {
+  nlohmann::json json = CreateJson(Point{.x = 123, .y = 456});
+  EXPECT_THAT(json, Eq(nlohmann::json::parse(R"json({"x":123,"y":456})json")));
+}
 
 }  // namespace
 

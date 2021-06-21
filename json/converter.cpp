@@ -9,7 +9,12 @@ using json = nlohmann::json;
 
 }  // namespace
 
-// TODO
+nlohmann::json CreateJson(const battlesnake::engine::Point& point) {
+  return json{
+      {"x", point.x},
+      {"y", point.y},
+  };
+}
 
 }  // namespace json
 }  // namespace battlesnake

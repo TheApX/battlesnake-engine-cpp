@@ -5,7 +5,7 @@
 namespace battlesnake {
 namespace json {
 
-// TODO
+nlohmann::json CreateJson(const battlesnake::engine::Point& point);
 
 }  // namespace json
 }  // namespace battlesnake
