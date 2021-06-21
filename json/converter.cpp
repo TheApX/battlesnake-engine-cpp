@@ -1,4 +1,7 @@
+
 #include "battlesnake/json/converter.h"
+
+#include "battlesnake/rules/ruleset_errors.h"
 
 namespace battlesnake {
 namespace json {
@@ -24,6 +27,46 @@ int GetInt(const nlohmann::json& json, const char* key) {
     throw ParseException();
   }
   return *v;
+}
+
+std::string GetString(const nlohmann::json& json, const char* key) {
+  auto v = json.find(key);
+  if (v == json.end()) {
+    throw ParseException();
+  }
+  if (!v->is_string()) {
+    throw ParseException();
+  }
+  return *v;
+}
+
+std::string GetString(const nlohmann::json& json, const char* key,
+                      const char* default_value) {
+  auto v = json.find(key);
+  if (v == json.end()) {
+    return default_value;
+  }
+  if (!v->is_string()) {
+    throw ParseException();
+  }
+  return *v;
+}
+
+std::vector<Point> GetPointArray(const nlohmann::json& json, const char* key) {
+  auto v = json.find(key);
+  if (v == json.end()) {
+    throw ParseException();
+  }
+  if (!v->is_array()) {
+    throw ParseException();
+  }
+
+  std::vector<Point> result;
+  result.reserve(v->size());
+  for (const nlohmann::json& p : *v) {
+    result.push_back(ParseJsonPoint(p));
+  }
+  return result;
 }
 
 }  // namespace
@@ -79,7 +122,51 @@ nlohmann::json CreateJson(const BoardState& state) {
 }
 
 Point ParseJsonPoint(const nlohmann::json& json) {
+  if (!json.is_object()) {
+    throw ParseException();
+  }
   return Point(GetInt(json, "x"), GetInt(json, "y"));
+}
+
+battlesnake::engine::Snake ParseJsonSnake(const nlohmann::json& json) {
+  // "id": "snake-508e96ac-94ad-11ea-bb37",
+  // "name": "My Snake",
+  // "health": 54,
+  // "body": [
+  //   {"x": 0, "y": 0},
+  //   {"x": 1, "y": 0},
+  //   {"x": 2, "y": 0}
+  // ],
+  // "latency": "111",
+  // "head": {"x": 0, "y": 0},
+  // "length": 3,
+  // "shout": "why are we shouting??",
+  // "squad": ""
+
+  if (!json.is_object()) {
+    throw ParseException();
+  }
+
+  Snake snake{
+      .id = GetString(json, "id"),
+      .body = GetPointArray(json, "body"),
+      .health = GetInt(json, "health"),
+      .name = GetString(json, "name", ""),
+      .latency = GetString(json, "latency", "0"),
+      .shout = GetString(json, "shout", ""),
+      .squad = GetString(json, "squad", ""),
+  };
+
+  Point head = ParseJsonPoint(json["head"]);
+  if (snake.body.empty()) {
+    throw ErrorZeroLengthSnake(snake.id);
+  }
+
+  if (head != snake.Head()) {
+    throw ParseException("Different head values");
+  }
+
+  return snake;
 }
 
 }  // namespace json
