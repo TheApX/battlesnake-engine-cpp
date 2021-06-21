@@ -97,6 +97,7 @@ struct BoardState {
   int height = 0;
   std::vector<Point> food;
   std::vector<Snake> snakes;
+  std::vector<Point> hazards;
 };
 
 std::ostream& operator<<(std::ostream& s, Move move);
