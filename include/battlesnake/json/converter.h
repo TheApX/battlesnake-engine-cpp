@@ -18,19 +18,19 @@ class ParseException : public std::exception {
 };
 
 // Create json for point.
-nlohmann::json CreateJson(const battlesnake::engine::Point& point);
+nlohmann::json CreateJson(const battlesnake::rules::Point& point);
 // Create json for non-eliminated snakes. Returns nullptr for eliminated snakes.
 std::unique_ptr<nlohmann::json> MaybeCreateJson(
-    const battlesnake::engine::Snake& snake);
+    const battlesnake::rules::Snake& snake);
 // Create json for board.
-nlohmann::json CreateJson(const battlesnake::engine::BoardState& state);
+nlohmann::json CreateJson(const battlesnake::rules::BoardState& state);
 
 // Parses Point from json.
-battlesnake::engine::Point ParseJsonPoint(const nlohmann::json& json);
+battlesnake::rules::Point ParseJsonPoint(const nlohmann::json& json);
 // Parses Snake from json.
-battlesnake::engine::Snake ParseJsonSnake(const nlohmann::json& json);
+battlesnake::rules::Snake ParseJsonSnake(const nlohmann::json& json);
 // Parses BoardState from json.
-battlesnake::engine::BoardState ParseJsonBoard(const nlohmann::json& json);
+battlesnake::rules::BoardState ParseJsonBoard(const nlohmann::json& json);
 
 }  // namespace json
 }  // namespace battlesnake

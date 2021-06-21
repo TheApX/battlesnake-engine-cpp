@@ -7,7 +7,7 @@
 #include "battlesnake/rules/ruleset_errors.h"
 
 namespace battlesnake {
-namespace engine {
+namespace rules {
 
 BoardState StandardRuleset::CreateInitialBoardState(
     int width, int height, std::vector<SnakeId> snake_ids) {
@@ -541,5 +541,5 @@ bool StandardRuleset::IsGameOver(const BoardState& state) {
   return num_snakes_remaining <= 1;
 }
 
-}  // namespace engine
+}  // namespace rules
 }  // namespace battlesnake

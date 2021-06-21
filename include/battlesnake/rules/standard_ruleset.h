@@ -3,7 +3,7 @@
 #include "battlesnake/rules/ruleset.h"
 
 namespace battlesnake {
-namespace engine {
+namespace rules {
 
 class StandardRuleset : public Ruleset {
  public:
@@ -72,5 +72,5 @@ class StandardRuleset : public Ruleset {
       const std::map<SnakeId, EliminatedCause>& eliminations) const;
 };
 
-}  // namespace engine
+}  // namespace rules
 }  // namespace battlesnake

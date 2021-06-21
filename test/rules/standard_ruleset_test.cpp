@@ -8,7 +8,7 @@
 #include "gtest/gtest.h"
 
 namespace battlesnake {
-namespace engine {
+namespace rules {
 
 namespace {
 
@@ -1976,5 +1976,5 @@ TEST_F(IsGameOverTest, ThreeOfFourEliminated) {
 
 }  // namespace
 
-}  // namespace engine
+}  // namespace rules
 }  // namespace battlesnake

@@ -7,7 +7,7 @@ namespace battlesnake {
 namespace json {
 namespace {
 
-using namespace ::battlesnake::engine;
+using namespace ::battlesnake::rules;
 
 template <class T>
 nlohmann::json CreateVectorJson(const std::vector<T>& values) {

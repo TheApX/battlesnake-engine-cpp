@@ -5,7 +5,7 @@
 #include <vector>
 
 namespace battlesnake {
-namespace engine {
+namespace rules {
 
 // Standard board sizes.
 static constexpr int kBoardSizeSmall = 7;
@@ -120,5 +120,5 @@ class Ruleset {
   virtual bool IsGameOver(const BoardState& state) = 0;
 };
 
-}  // namespace engine
+}  // namespace rules
 }  // namespace battlesnake

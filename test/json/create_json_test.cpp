@@ -1,5 +1,4 @@
 #include "battlesnake/json/converter.h"
-
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
@@ -12,7 +11,7 @@ using ::testing::Eq;
 using ::testing::IsNull;
 using ::testing::Pointee;
 
-using namespace ::battlesnake::engine;
+using namespace ::battlesnake::rules;
 
 class CreateJsonTest : public testing::Test {};
 

@@ -2,7 +2,7 @@
 #include <string>
 
 namespace battlesnake {
-namespace engine {
+namespace rules {
 
 class RulesetException : public std::exception {
  public:
@@ -44,5 +44,5 @@ class ErrorZeroLengthSnake : public RulesetException {
       : RulesetException("Snake is length zero: '" + snake_id + "'") {}
 };
 
-}  // namespace engine
+}  // namespace rules
 }  // namespace battlesnake

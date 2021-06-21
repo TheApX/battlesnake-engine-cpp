@@ -3,7 +3,7 @@
 #include "battlesnake/rules/ruleset_errors.h"
 
 namespace battlesnake {
-namespace engine {
+namespace rules {
 
 namespace {
 
@@ -121,5 +121,5 @@ std::ostream& operator<<(std::ostream& s, const Snake& snake) {
   return s;
 }
 
-}  // namespace engine
+}  // namespace rules
 }  // namespace battlesnake

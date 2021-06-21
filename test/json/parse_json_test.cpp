@@ -12,7 +12,7 @@ using ::testing::ElementsAreArray;
 using ::testing::Eq;
 using ::testing::Field;
 
-using namespace ::battlesnake::engine;
+using namespace ::battlesnake::rules;
 
 class ParseJsonTest : public testing::Test {};
 
