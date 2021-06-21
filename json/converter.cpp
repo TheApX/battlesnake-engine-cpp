@@ -7,6 +7,15 @@ namespace {
 using namespace ::battlesnake::engine;
 using json = nlohmann::json;
 
+template <class T>
+nlohmann::json CreateVectorJson(const std::vector<T>& values) {
+  json result = json::array();
+  for (const T& v : values) {
+    result.push_back(CreateJson(v));
+  }
+  return result;
+}
+
 }  // namespace
 
 nlohmann::json CreateJson(const battlesnake::engine::Point& point) {
@@ -16,7 +25,7 @@ nlohmann::json CreateJson(const battlesnake::engine::Point& point) {
   };
 }
 
-std::unique_ptr<nlohmann::json> MayCreateJson(
+std::unique_ptr<nlohmann::json> MaybeCreateJson(
     const battlesnake::engine::Snake& snake) {
   if (snake.IsEliminated()) {
     return nullptr;
@@ -28,12 +37,7 @@ std::unique_ptr<nlohmann::json> MayCreateJson(
   result["id"] = snake.id;
   result["health"] = snake.health;
   result["head"] = CreateJson(snake.Head());
-
-  json body = json::array();
-  for (const Point& p : snake.body) {
-    body.push_back(CreateJson(p));
-  }
-  result["body"] = std::move(body);
+  result["body"] = CreateVectorJson(snake.body);
   result["length"] = snake.body.size();
 
   result["name"] = snake.name;
@@ -42,6 +46,27 @@ std::unique_ptr<nlohmann::json> MayCreateJson(
   result["squad"] = snake.squad;
 
   return result_ptr;
+}
+
+nlohmann::json CreateJson(const battlesnake::engine::BoardState& state) {
+  nlohmann::json result;
+
+  result["width"] = state.width;
+  result["height"] = state.height;
+  result["food"] = CreateVectorJson(state.food);
+  result["hazards"] = CreateVectorJson(state.hazards);
+
+  auto snakes = json::array();
+  for (const Snake& snake : state.snakes) {
+    auto snake_json = MaybeCreateJson(snake);
+    if (snake_json == nullptr) {
+      continue;
+    }
+    snakes.push_back(*snake_json);
+  }
+  result["snakes"] = std::move(snakes);
+
+  return result;
 }
 
 }  // namespace json
