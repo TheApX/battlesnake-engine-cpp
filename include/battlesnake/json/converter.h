@@ -19,6 +19,8 @@ class ParseException : public std::exception {
 
 // Create json for point.
 nlohmann::json CreateJson(const battlesnake::rules::Point& point);
+// Create json for snake. Ignores elimination cause.
+nlohmann::json CreateJson(const battlesnake::rules::Snake& snake);
 // Create json for non-eliminated snakes. Returns nullptr for eliminated snakes.
 std::unique_ptr<nlohmann::json> MaybeCreateJson(
     const battlesnake::rules::Snake& snake);
@@ -28,6 +30,8 @@ nlohmann::json CreateJson(const battlesnake::rules::BoardState& state);
 nlohmann::json CreateJson(const battlesnake::rules::RulesetInfo& ruleset_info);
 // Create json for GameInfo.
 nlohmann::json CreateJson(const battlesnake::rules::GameInfo& game_info);
+// Create json for GameState.
+nlohmann::json CreateJson(const battlesnake::rules::GameState& game_state);
 
 // Parses Point from json.
 battlesnake::rules::Point ParseJsonPoint(const nlohmann::json& json);

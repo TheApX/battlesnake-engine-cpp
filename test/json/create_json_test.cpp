@@ -255,12 +255,71 @@ TEST_F(CreateJsonTest, GameInfo) {
       .timeout = 500,
   });
   EXPECT_THAT(json, Eq(nlohmann::json::parse(R"json({
-        "id": "totally-unique-game-id",
-        "ruleset": {
-            "name": "standard",
-            "version": "v1.2.3"
+      "id": "totally-unique-game-id",
+      "ruleset": {
+          "name": "standard",
+          "version": "v1.2.3"
+      },
+      "timeout": 500
+  })json")));
+}
+
+TEST_F(CreateJsonTest, GameState) {
+  nlohmann::json json = CreateJson(GameState{
+      .game{
+          .id = "totally-unique-game-id",
+          .ruleset{.name = "standard", .version = "v1.2.3"},
+          .timeout = 500,
+      },
+      .turn = 987,
+      .board{.width = 5, .height = 15},
+      .you{
+          .id = "snake_id",
+          .body =
+              {
+                  Point(10, 1),
+                  Point(10, 2),
+                  Point(10, 3),
+              },
+          .health = 75,
+          .name = "Test Caterpillar",
+          .latency = "123",
+          .shout = "Why are we shouting???",
+          .squad = "The Suicide Squad",
+      },
+  });
+  EXPECT_THAT(json, Eq(nlohmann::json::parse(R"json({
+        "game": {
+            "id": "totally-unique-game-id",
+            "ruleset": {
+                "name": "standard",
+                "version": "v1.2.3"
+            },
+            "timeout": 500
         },
-        "timeout": 500
+        "turn": 987,
+        "board": {
+            "width": 5,
+            "height": 15,
+            "food": [],
+            "snakes": [],
+            "hazards": []
+        },
+        "you": {
+            "id": "snake_id",
+            "body": [
+                {"x": 10, "y": 1},
+                {"x": 10, "y": 2},
+                {"x": 10, "y": 3}
+            ],
+            "length": 3,
+            "head": {"x": 10, "y": 1},
+            "health": 75,
+            "name": "Test Caterpillar",
+            "latency": "123",
+            "shout": "Why are we shouting???",
+            "squad": "The Suicide Squad"
+        }
   })json")));
 }
 

@@ -95,14 +95,8 @@ nlohmann::json CreateJson(const Point& point) {
   };
 }
 
-std::unique_ptr<nlohmann::json> MaybeCreateJson(const Snake& snake) {
-  if (snake.IsEliminated()) {
-    return nullptr;
-  }
-
-  auto result_ptr = std::make_unique<nlohmann::json>();
-
-  nlohmann::json& result = *result_ptr;
+nlohmann::json CreateJson(const battlesnake::rules::Snake& snake) {
+  nlohmann::json result;
   result["id"] = snake.id;
   result["health"] = snake.health;
   result["head"] = CreateJson(snake.Head());
@@ -114,7 +108,15 @@ std::unique_ptr<nlohmann::json> MaybeCreateJson(const Snake& snake) {
   result["shout"] = snake.shout;
   result["squad"] = snake.squad;
 
-  return result_ptr;
+  return result;
+}
+
+std::unique_ptr<nlohmann::json> MaybeCreateJson(const Snake& snake) {
+  if (snake.IsEliminated()) {
+    return nullptr;
+  }
+
+  return std::make_unique<nlohmann::json>(CreateJson(snake));
 }
 
 nlohmann::json CreateJson(const BoardState& state) {
@@ -150,6 +152,15 @@ nlohmann::json CreateJson(const battlesnake::rules::GameInfo& game_info) {
       {"id", game_info.id},
       {"ruleset", CreateJson(game_info.ruleset)},
       {"timeout", game_info.timeout},
+  };
+}
+
+nlohmann::json CreateJson(const battlesnake::rules::GameState& game_state) {
+  return nlohmann::json{
+      {"game", CreateJson(game_state.game)},
+      {"turn", game_state.turn},
+      {"board", CreateJson(game_state.board)},
+      {"you", CreateJson(game_state.you)},
   };
 }
 
