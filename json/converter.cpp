@@ -223,5 +223,17 @@ RulesetInfo ParseJsonRulesetInfo(const nlohmann::json& json) {
   };
 }
 
+GameInfo ParseJsonGameInfo(const nlohmann::json& json) {
+  if (!json.is_object()) {
+    throw ParseException();
+  }
+
+  return GameInfo{
+      .id = GetString(json, "id"),
+      .ruleset = ParseJsonRulesetInfo(json["ruleset"]),
+      .timeout = GetInt(json, "timeout"),
+  };
+}
+
 }  // namespace json
 }  // namespace battlesnake

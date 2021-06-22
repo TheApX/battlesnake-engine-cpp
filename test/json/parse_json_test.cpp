@@ -362,9 +362,53 @@ TEST_F(ParseJsonTest, RulesetInfoSucceeds) {
 TEST_F(ParseJsonTest, RulesetInfoWrongJsonType) {
   auto json = nlohmann::json::parse(
       R"json([{"name": "standard", "version": "v1.2.3"}])json");
-  RulesetInfo expected_result{.name = "standard", .version = "v1.2.3"};
 
   EXPECT_THROW(ParseJsonRulesetInfo(json), ParseException);
+}
+
+TEST_F(ParseJsonTest, GameInfoSucceeds) {
+  auto json = nlohmann::json::parse(R"json({
+      "id": "totally-unique-game-id",
+      "ruleset": {
+          "name": "standard",
+          "version": "v1.2.3"
+      },
+      "timeout": 500
+  })json");
+  GameInfo expected_result{
+      .id = "totally-unique-game-id",
+      .ruleset{.name = "standard", .version = "v1.2.3"},
+      .timeout = 500,
+  };
+
+  GameInfo result = ParseJsonGameInfo(json);
+
+  EXPECT_THAT(result.id, Eq(expected_result.id));
+  EXPECT_THAT(result.ruleset.name, Eq(expected_result.ruleset.name));
+  EXPECT_THAT(result.ruleset.version, Eq(expected_result.ruleset.version));
+  EXPECT_THAT(result.timeout, Eq(expected_result.timeout));
+}
+
+TEST_F(ParseJsonTest, GameInfoWrongJsonType) {
+  auto json = nlohmann::json::parse(R"json([{
+      "id": "totally-unique-game-id",
+      "ruleset": {
+          "name": "standard",
+          "version": "v1.2.3"
+      },
+      "timeout": 500
+  }])json");
+
+  EXPECT_THROW(ParseJsonGameInfo(json), ParseException);
+}
+
+TEST_F(ParseJsonTest, GameInfoNoRuleset) {
+  auto json = nlohmann::json::parse(R"json([{
+      "id": "totally-unique-game-id",
+      "timeout": 500
+  }])json");
+
+  EXPECT_THROW(ParseJsonGameInfo(json), ParseException);
 }
 
 }  // namespace

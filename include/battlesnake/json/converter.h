@@ -42,6 +42,8 @@ battlesnake::rules::BoardState ParseJsonBoard(const nlohmann::json& json);
 // Parses RulesetInfo from json.
 battlesnake::rules::RulesetInfo ParseJsonRulesetInfo(
     const nlohmann::json& json);
+// Parses GameInfo from json.
+battlesnake::rules::GameInfo ParseJsonGameInfo(const nlohmann::json& json);
 
 }  // namespace json
 }  // namespace battlesnake
