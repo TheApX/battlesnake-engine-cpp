@@ -95,7 +95,7 @@ nlohmann::json CreateJson(const Point& point) {
   };
 }
 
-nlohmann::json CreateJson(const battlesnake::rules::Snake& snake) {
+nlohmann::json CreateJson(const Snake& snake) {
   nlohmann::json result;
   result["id"] = snake.id;
   result["health"] = snake.health;
@@ -140,14 +140,14 @@ nlohmann::json CreateJson(const BoardState& state) {
   return result;
 }
 
-nlohmann::json CreateJson(const battlesnake::rules::RulesetInfo& ruleset_info) {
+nlohmann::json CreateJson(const RulesetInfo& ruleset_info) {
   return nlohmann::json{
       {"name", ruleset_info.name},
       {"version", ruleset_info.version},
   };
 }
 
-nlohmann::json CreateJson(const battlesnake::rules::GameInfo& game_info) {
+nlohmann::json CreateJson(const GameInfo& game_info) {
   return nlohmann::json{
       {"id", game_info.id},
       {"ruleset", CreateJson(game_info.ruleset)},
@@ -155,7 +155,7 @@ nlohmann::json CreateJson(const battlesnake::rules::GameInfo& game_info) {
   };
 }
 
-nlohmann::json CreateJson(const battlesnake::rules::GameState& game_state) {
+nlohmann::json CreateJson(const GameState& game_state) {
   return nlohmann::json{
       {"game", CreateJson(game_state.game)},
       {"turn", game_state.turn},
@@ -209,6 +209,17 @@ BoardState ParseJsonBoard(const nlohmann::json& json) {
       .food = GetPointArray(json, "food"),
       .snakes = GetSnakeArray(json, "snakes"),
       .hazards = GetPointArray(json, "hazards"),
+  };
+}
+
+RulesetInfo ParseJsonRulesetInfo(const nlohmann::json& json) {
+  if (!json.is_object()) {
+    throw ParseException();
+  }
+
+  return RulesetInfo{
+      .name = GetString(json, "name"),
+      .version = GetString(json, "version"),
   };
 }
 

@@ -348,6 +348,25 @@ TEST_F(ParseJsonTest, BoardStateWrongSnakesValueType) {
   EXPECT_THROW(ParseJsonBoard(json), ParseException);
 }
 
+TEST_F(ParseJsonTest, RulesetInfoSucceeds) {
+  auto json = nlohmann::json::parse(
+      R"json({"name": "standard", "version": "v1.2.3"})json");
+  RulesetInfo expected_result{.name = "standard", .version = "v1.2.3"};
+
+  RulesetInfo result = ParseJsonRulesetInfo(json);
+
+  EXPECT_THAT(result.name, Eq(expected_result.name));
+  EXPECT_THAT(result.version, Eq(expected_result.version));
+}
+
+TEST_F(ParseJsonTest, RulesetInfoWrongJsonType) {
+  auto json = nlohmann::json::parse(
+      R"json([{"name": "standard", "version": "v1.2.3"}])json");
+  RulesetInfo expected_result{.name = "standard", .version = "v1.2.3"};
+
+  EXPECT_THROW(ParseJsonRulesetInfo(json), ParseException);
+}
+
 }  // namespace
 
 }  // namespace json
