@@ -240,6 +240,14 @@ TEST_F(CreateJsonTest, BoardStateEliminatedSnake) {
   EXPECT_THAT(CreateJson(state), expected_json);
 }
 
+TEST_F(CreateJsonTest, RulesetInfo) {
+  nlohmann::json json =
+      CreateJson(RulesetInfo{.name = "standard", .version = "v1.2.3"});
+  EXPECT_THAT(json,
+              Eq(nlohmann::json::parse(
+                  R"json({"name": "standard", "version": "v1.2.3"})json")));
+}
+
 }  // namespace
 
 }  // namespace json

@@ -138,6 +138,13 @@ nlohmann::json CreateJson(const BoardState& state) {
   return result;
 }
 
+nlohmann::json CreateJson(const battlesnake::rules::RulesetInfo& ruleset_info) {
+  return nlohmann::json{
+      {"name", ruleset_info.name},
+      {"version", ruleset_info.version},
+  };
+}
+
 Point ParseJsonPoint(const nlohmann::json& json) {
   if (!json.is_object()) {
     throw ParseException();
