@@ -26,6 +26,8 @@ std::unique_ptr<nlohmann::json> MaybeCreateJson(
 nlohmann::json CreateJson(const battlesnake::rules::BoardState& state);
 // Create json for RulesetInfo.
 nlohmann::json CreateJson(const battlesnake::rules::RulesetInfo& ruleset_info);
+// Create json for GameInfo.
+nlohmann::json CreateJson(const battlesnake::rules::GameInfo& game_info);
 
 // Parses Point from json.
 battlesnake::rules::Point ParseJsonPoint(const nlohmann::json& json);

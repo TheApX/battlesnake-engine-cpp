@@ -248,6 +248,22 @@ TEST_F(CreateJsonTest, RulesetInfo) {
                   R"json({"name": "standard", "version": "v1.2.3"})json")));
 }
 
+TEST_F(CreateJsonTest, GameInfo) {
+  nlohmann::json json = CreateJson(GameInfo{
+      .id = "totally-unique-game-id",
+      .ruleset{.name = "standard", .version = "v1.2.3"},
+      .timeout = 500,
+  });
+  EXPECT_THAT(json, Eq(nlohmann::json::parse(R"json({
+        "id": "totally-unique-game-id",
+        "ruleset": {
+            "name": "standard",
+            "version": "v1.2.3"
+        },
+        "timeout": 500
+  })json")));
+}
+
 }  // namespace
 
 }  // namespace json
