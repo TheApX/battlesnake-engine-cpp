@@ -116,6 +116,15 @@ struct GameState {
   Snake you;
 };
 
+struct Customization {
+  std::string apiversion;
+  std::string author;
+  std::string color;
+  std::string head;
+  std::string tail;
+  std::string version;
+};
+
 std::ostream& operator<<(std::ostream& s, Move move);
 std::ostream& operator<<(std::ostream& s, EliminatedCause::Cause cause);
 std::ostream& operator<<(std::ostream& s, EliminatedCause cause);
