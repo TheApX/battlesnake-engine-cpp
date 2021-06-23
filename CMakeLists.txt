@@ -15,3 +15,4 @@ add_subdirectory(test)
 
 add_subdirectory(rules)
 add_subdirectory(json)
+add_subdirectory(interface)
