@@ -20,6 +20,7 @@ FetchContent_MakeAvailable(stduuid)
 
 set(battlesnakecli_SRCS
     main.cpp
+    cli_options.cpp
 )
 
 add_executable(battlesnakecli

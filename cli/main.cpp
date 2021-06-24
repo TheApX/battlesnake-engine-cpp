@@ -1,45 +1,13 @@
+#include <uuid.h>
+
 #include <argparse/argparse.hpp>
-#include <iostream>
 #include <string>
-#include <vector>
 
-#include "uuid.h"
+#include "cli_options.h"
 
-struct SnakeNameUrl {
-  std::string name;
-  std::string url;
-};
+namespace {
 
-struct CliOptions {
-  bool exit_immediately = false;
-  int ret_code = 0;
-
-  int width = 11;
-  int height = 11;
-  std::vector<SnakeNameUrl> snakes;
-  bool view_map = false;
-};
-
-std::ostream& operator<<(std::ostream& str, const CliOptions& options) {
-  if (options.exit_immediately || options.ret_code != 0) {
-    str << "Return code: " << options.ret_code;
-    if (!options.exit_immediately) {
-      str << " (not forced)";
-    }
-    str << std::endl;
-  }
-
-  str << "Size:          " << options.width << "x" << options.height
-      << std::endl;
-  str << "View map:      " << (options.view_map ? "true" : "false")
-      << std::endl;
-  str << "Snakes:" << std::endl;
-  for (const SnakeNameUrl& snake_info : options.snakes) {
-    str << "  " << snake_info.name << "    " << snake_info.url << std::endl;
-  }
-
-  return str;
-}
+using namespace battlesnake::cli;
 
 std::string GenerateName() {
   std::random_device rd;
@@ -124,6 +92,8 @@ CliOptions ParseOptions(int argc, const char* const argv[]) {
 
   return result;
 }
+
+}  // namespace
 
 int main(int argc, const char* const argv[]) {
   CliOptions options = ParseOptions(argc, argv);
