@@ -1,3 +1,5 @@
+#pragma once
+
 #include "battlesnake/rules/data_types.h"
 
 namespace battlesnake {
