@@ -14,7 +14,5 @@ int main(int argc, const char* const argv[]) {
 
   std::cout << options;
 
-  PlayGame(options);
-
-  return 0;
+  return PlayGame(options);
 }
