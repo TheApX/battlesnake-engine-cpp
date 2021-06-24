@@ -16,6 +16,7 @@ struct CliOptions {
   bool exit_immediately = false;
   int ret_code = 0;
 
+  std::string gametype = "standard";
   int width = 11;
   int height = 11;
   std::vector<SnakeNameUrl> snakes;
@@ -23,6 +24,8 @@ struct CliOptions {
 };
 
 std::ostream& operator<<(std::ostream& str, const CliOptions& options);
+
+CliOptions ParseOptions(int argc, const char* const argv[]);
 
 }  // namespace cli
 }  // namespace battlesnake
