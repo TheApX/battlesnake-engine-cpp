@@ -22,6 +22,7 @@ set(battlesnakecli_SRCS
     main.cpp
     cli_options.cpp
     cli_play.cpp
+    http_client_battlesnake.cpp
 )
 
 add_executable(battlesnakecli
@@ -32,6 +33,10 @@ target_include_directories(battlesnakecli PRIVATE
     ${uuid_v4_SOURCE_DIR}
 )
 
-target_link_libraries(battlesnakecli PUBLIC argparse)
-target_link_libraries(battlesnakecli PUBLIC stduuid)
-target_link_libraries(battlesnakecli PUBLIC libbattlesnakerules)
+target_link_libraries(battlesnakecli curl)
+target_link_libraries(battlesnakecli nlohmann_json::nlohmann_json)
+target_link_libraries(battlesnakecli argparse)
+target_link_libraries(battlesnakecli stduuid)
+target_link_libraries(battlesnakecli libbattlesnakerules)
+target_link_libraries(battlesnakecli libbattlesnakeinterface)
+target_link_libraries(battlesnakecli libbattlesnakejson)

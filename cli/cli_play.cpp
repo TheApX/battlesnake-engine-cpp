@@ -1,3 +1,5 @@
+#include <curl/curl.h>
+
 #include <memory>
 
 #include "battlesnake/rules/ruleset.h"
@@ -8,8 +10,16 @@ namespace battlesnake {
 namespace cli {
 
 namespace {
+
 using namespace battlesnake::rules;
-}
+
+class CurlInit {
+ public:
+  CurlInit() { curl_global_init(CURL_GLOBAL_ALL); }
+  ~CurlInit() { curl_global_cleanup(); }
+};
+
+}  // namespace
 
 std::unique_ptr<Ruleset> CreateRuleset(const std::string& name) {
   if (name == "standard") {
@@ -20,6 +30,8 @@ std::unique_ptr<Ruleset> CreateRuleset(const std::string& name) {
 }
 
 int PlayGame(const CliOptions& options) {
+  CurlInit curl_init;
+
   std::unique_ptr<Ruleset> ruleset = CreateRuleset(options.gametype);
   if (ruleset == nullptr) {
     std::cerr << "Unknown game type: " << options.gametype << std::endl;
