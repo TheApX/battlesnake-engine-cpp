@@ -411,6 +411,63 @@ TEST_F(ParseJsonTest, GameInfoNoRuleset) {
   EXPECT_THROW(ParseJsonGameInfo(json), ParseException);
 }
 
+TEST_F(ParseJsonTest, CustomizationSucceeds) {
+  auto json = nlohmann::json::parse(R"json({
+      "apiversion": "api_ver",
+      "author": "a",
+      "color": "#123456",
+      "head": "h",
+      "tail": "t",
+      "version": "v"
+    })json");
+
+  Customization expected_result{
+      .apiversion = "api_ver",
+      .author = "a",
+      .color = "#123456",
+      .head = "h",
+      .tail = "t",
+      .version = "v",
+  };
+
+  Customization result = ParseJsonCustomization(json);
+
+  EXPECT_THAT(result.apiversion, Eq(expected_result.apiversion));
+  EXPECT_THAT(result.author, Eq(expected_result.author));
+  EXPECT_THAT(result.color, Eq(expected_result.color));
+  EXPECT_THAT(result.head, Eq(expected_result.head));
+  EXPECT_THAT(result.tail, Eq(expected_result.tail));
+  EXPECT_THAT(result.version, Eq(expected_result.version));
+}
+
+TEST_F(ParseJsonTest, CustomizationEmpty) {
+  auto json = nlohmann::json::parse(R"json({})json");
+
+  Customization expected_result{
+      .apiversion = "",
+      .author = "",
+      .color = "",
+      .head = "",
+      .tail = "",
+      .version = "",
+  };
+
+  Customization result = ParseJsonCustomization(json);
+
+  EXPECT_THAT(result.apiversion, Eq(expected_result.apiversion));
+  EXPECT_THAT(result.author, Eq(expected_result.author));
+  EXPECT_THAT(result.color, Eq(expected_result.color));
+  EXPECT_THAT(result.head, Eq(expected_result.head));
+  EXPECT_THAT(result.tail, Eq(expected_result.tail));
+  EXPECT_THAT(result.version, Eq(expected_result.version));
+}
+
+TEST_F(ParseJsonTest, CustomizationWrongJsonType) {
+  auto json = nlohmann::json::parse(R"json([])json");
+
+  EXPECT_THROW(ParseJsonCustomization(json), ParseException);
+}
+
 }  // namespace
 
 }  // namespace json

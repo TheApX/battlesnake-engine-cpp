@@ -246,5 +246,20 @@ GameInfo ParseJsonGameInfo(const nlohmann::json& json) {
   };
 }
 
+Customization ParseJsonCustomization(const nlohmann::json& json) {
+  if (!json.is_object()) {
+    throw ParseException();
+  }
+
+  return Customization{
+      .apiversion = GetString(json, "apiversion", ""),
+      .author = GetString(json, "author", ""),
+      .color = GetString(json, "color", ""),
+      .head = GetString(json, "head", ""),
+      .tail = GetString(json, "tail", ""),
+      .version = GetString(json, "version", ""),
+  };
+}
+
 }  // namespace json
 }  // namespace battlesnake
