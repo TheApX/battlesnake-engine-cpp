@@ -12,11 +12,18 @@ class Battlesnake {
  public:
   virtual ~Battlesnake(){};
 
-  virtual battlesnake::rules::Customization GetCustomization() = 0;
-  virtual void Begin(const battlesnake::rules::GameState& game_state) = 0;
-  virtual void End(const battlesnake::rules::GameState& game_state) = 0;
+  virtual battlesnake::rules::Customization GetCustomization() {
+    return battlesnake::rules::Customization();
+  };
+
+  virtual void Begin(const battlesnake::rules::GameState& game_state){};
+
+  virtual void End(const battlesnake::rules::GameState& game_state){};
+
   virtual battlesnake::rules::Move Move(
-      const battlesnake::rules::GameState& game_state) = 0;
+      const battlesnake::rules::GameState& game_state) {
+    return battlesnake::rules::Move::Unknown;
+  };
 };
 
 }  // namespace interface
