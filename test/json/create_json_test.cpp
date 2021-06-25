@@ -323,6 +323,26 @@ TEST_F(CreateJsonTest, GameState) {
   })json")));
 }
 
+TEST_F(CreateJsonTest, Customization) {
+  Customization customization{
+      .apiversion = "api_ver",
+      .author = "a",
+      .color = "#123456",
+      .head = "h",
+      .tail = "t",
+      .version = "v",
+  };
+  nlohmann::json json = CreateJson(customization);
+  EXPECT_THAT(json, Eq(nlohmann::json::parse(R"json({
+      "apiversion": "api_ver",
+      "author": "a",
+      "color": "#123456",
+      "head": "h",
+      "tail": "t",
+      "version": "v"
+    })json")));
+}
+
 }  // namespace
 
 }  // namespace json

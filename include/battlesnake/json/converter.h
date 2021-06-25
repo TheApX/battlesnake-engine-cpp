@@ -34,6 +34,9 @@ nlohmann::json CreateJson(const battlesnake::rules::RulesetInfo& ruleset_info);
 nlohmann::json CreateJson(const battlesnake::rules::GameInfo& game_info);
 // Create json for GameState.
 nlohmann::json CreateJson(const battlesnake::rules::GameState& game_state);
+// Create json for Customization.
+nlohmann::json CreateJson(
+    const battlesnake::rules::Customization& customization);
 
 // Parses Point from json.
 battlesnake::rules::Point ParseJsonPoint(const nlohmann::json& json);

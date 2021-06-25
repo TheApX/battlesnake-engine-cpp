@@ -164,6 +164,17 @@ nlohmann::json CreateJson(const GameState& game_state) {
   };
 }
 
+nlohmann::json CreateJson(const Customization& customization) {
+  return nlohmann::json{
+      {"apiversion", customization.apiversion},
+      {"author", customization.author},
+      {"color", customization.color},
+      {"head", customization.head},
+      {"tail", customization.tail},
+      {"version", customization.version},
+  };
+}
+
 Point ParseJsonPoint(const nlohmann::json& json) {
   if (!json.is_object()) {
     throw ParseException();
