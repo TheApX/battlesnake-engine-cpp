@@ -119,11 +119,11 @@ struct GameState {
 };
 
 struct Customization {
-  std::string apiversion;
+  std::string apiversion = "1";
   std::string author;
-  std::string color;
-  std::string head;
-  std::string tail;
+  std::string color = "#888888";
+  std::string head = "default";
+  std::string tail = "default";
   std::string version;
 };
 
