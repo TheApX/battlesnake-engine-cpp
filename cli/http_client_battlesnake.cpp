@@ -53,8 +53,6 @@ std::string HttpRequest(const std::string& url, int timeout_ms,
   CURLcode res = curl_easy_perform(curl);
   curl_easy_cleanup(curl);
 
-  // TODO: handle errors and timeouts
-
   return readBuffer;
 }
 
