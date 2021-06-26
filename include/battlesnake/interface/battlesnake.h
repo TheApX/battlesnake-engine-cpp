@@ -10,6 +10,12 @@ namespace interface {
 // requests must send it with timeout.
 class Battlesnake {
  public:
+  // Response to the Move call.
+  struct MoveResponse {
+    battlesnake::rules::Move move = battlesnake::rules::Move::Unknown;
+    std::string shout;
+  };
+
   virtual ~Battlesnake(){};
 
   virtual battlesnake::rules::Customization GetCustomization() {
@@ -20,9 +26,8 @@ class Battlesnake {
 
   virtual void End(const battlesnake::rules::GameState& game_state){};
 
-  virtual battlesnake::rules::Move Move(
-      const battlesnake::rules::GameState& game_state) {
-    return battlesnake::rules::Move::Unknown;
+  virtual MoveResponse Move(const battlesnake::rules::GameState& game_state) {
+    return MoveResponse();
   };
 };
 

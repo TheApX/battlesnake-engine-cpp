@@ -85,27 +85,39 @@ void HttpClientBattlesnake::End(const GameState& game_state) {
   HttpRequest(url_ + "end", game_state.game.timeout, "POST", game_json_str);
 }
 
-Move HttpClientBattlesnake::Move(const GameState& game_state) {
+HttpClientBattlesnake::MoveResponse HttpClientBattlesnake::Move(
+    const GameState& game_state) {
   nlohmann::json game_json = battlesnake::json::CreateJson(game_state);
   std::string game_json_str = game_json.dump();
 
   std::string response = HttpRequest(url_ + "move", game_state.game.timeout,
                                      "POST", game_json_str);
+
   try {
     nlohmann::json r = nlohmann::json::parse(response);
     if (!r.is_object()) {
-      return Move::Unknown;
+      return MoveResponse();
     }
 
     std::string move = r["move"];
-    if (move == "up") return Move::Up;
-    if (move == "down") return Move::Down;
-    if (move == "left") return Move::Left;
-    if (move == "right") return Move::Right;
+
+    MoveResponse response;
+
+    if (move == "up") response.move = Move::Up;
+    if (move == "down") response.move = Move::Down;
+    if (move == "left") response.move = Move::Left;
+    if (move == "right") response.move = Move::Right;
+
+    auto shout = r.find("shout");
+    if (shout != r.end()) {
+      response.shout = *shout;
+    }
+
+    return response;
   } catch (std::exception) {
-    return Move::Unknown;
+    return MoveResponse();
   }
-  return Move::Unknown;
+  return MoveResponse();
 }
 
 }  // namespace cli

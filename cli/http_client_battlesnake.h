@@ -17,7 +17,7 @@ class HttpClientBattlesnake : public battlesnake::interface::Battlesnake {
   virtual battlesnake::rules::Customization GetCustomization() override;
   virtual void Start(const battlesnake::rules::GameState& game_state) override;
   virtual void End(const battlesnake::rules::GameState& game_state) override;
-  virtual battlesnake::rules::Move Move(
+  virtual MoveResponse Move(
       const battlesnake::rules::GameState& game_state) override;
 
  private:
