@@ -48,12 +48,16 @@ std::unique_ptr<Ruleset> CreateRuleset(const std::string& name) {
   return nullptr;
 }
 
-void PrintGame(const GameState& game, bool render,
+void PrintGame(const GameState& game, bool render, bool redraw_mode,
                const std::map<SnakeId, char>& snake_head_syms) {
-  nlohmann::json json = CreateJson(game);
-  std::cout << json.dump() << std::endl;
+  if (!redraw_mode) {
+    nlohmann::json json = CreateJson(game);
+    std::cout << json.dump() << std::endl;
+  } else {
+    std::cout << "\033[2J\033[H";
+  }
 
-  if (render) {
+  if (render || redraw_mode) {
     std::cout << RenderGame(game, snake_head_syms);
   }
 }
@@ -170,16 +174,16 @@ int PlayGame(const CliOptions& options) {
     ++head_sym;
   }
 
-  PrintGame(game, options.view_map, snake_head_syms);
+  PrintGame(game, options.view_map, options.view_map_only, snake_head_syms);
   StartAll(game, snakes);
 
   for (game.turn = 0; !ruleset->IsGameOver(game.board); ++game.turn) {
-    PrintGame(game, options.view_map, snake_head_syms);
+    PrintGame(game, options.view_map, options.view_map_only, snake_head_syms);
     std::map<SnakeId, Move> moves = GetMoves(game, snakes);
     game.board = ruleset->CreateNextBoardState(game.board, moves);
   }
 
-  PrintGame(game, options.view_map, snake_head_syms);
+  PrintGame(game, options.view_map, options.view_map_only, snake_head_syms);
   EndAll(game, snakes);
 
   return 0;

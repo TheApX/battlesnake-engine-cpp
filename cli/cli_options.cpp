@@ -68,9 +68,14 @@ CliOptions ParseOptions(int argc, const char* const argv[]) {
       .help("URL of snake")
       .default_value(std::vector<std::string>{})
       .append();
-  arguments.add_argument("-v", "--viewmap")
+  arguments.add_argument("-m", "--viewmap")
       .help("view map of each turn")
-      .default_value(false);
+      .default_value(false)
+      .implicit_value(true);
+  arguments.add_argument("-M", "--mapredraw")
+      .help("only view map of each turn and clear screen")
+      .default_value(false)
+      .implicit_value(true);
 
   try {
     arguments.parse_args(argc, argv);
@@ -88,7 +93,8 @@ CliOptions ParseOptions(int argc, const char* const argv[]) {
   result.gametype = arguments.get<std::string>("-g");
   result.width = arguments.get<int>("-W");
   result.height = arguments.get<int>("-H");
-  result.view_map = arguments.get<bool>("-v");
+  result.view_map = arguments.get<bool>("-m");
+  result.view_map_only = arguments.get<bool>("-M");
 
   std::vector<std::string> names =
       arguments.get<std::vector<std::string>>("-n");
