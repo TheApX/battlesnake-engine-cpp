@@ -77,7 +77,7 @@ struct Snake {
 
   // Additional values not necessarily used by ruleset, but used in API.
   std::string name;
-  std::string latency;
+  std::string latency = "0";
   std::string shout;
   std::string squad;
 
