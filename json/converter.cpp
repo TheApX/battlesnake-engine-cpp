@@ -156,12 +156,15 @@ nlohmann::json CreateJson(const GameInfo& game_info) {
 }
 
 nlohmann::json CreateJson(const GameState& game_state) {
-  return nlohmann::json{
+  auto result = nlohmann::json{
       {"game", CreateJson(game_state.game)},
       {"turn", game_state.turn},
       {"board", CreateJson(game_state.board)},
-      {"you", CreateJson(game_state.you)},
   };
+  if (game_state.you.Length() > 0 && !game_state.you.IsEliminated()) {
+    result["you"] = CreateJson(game_state.you);
+  }
+  return result;
 }
 
 nlohmann::json CreateJson(const Customization& customization) {

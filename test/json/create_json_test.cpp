@@ -323,6 +323,81 @@ TEST_F(CreateJsonTest, GameState) {
   })json")));
 }
 
+TEST_F(CreateJsonTest, GameStateYouEliminated) {
+  nlohmann::json json = CreateJson(GameState{
+      .game{
+          .id = "totally-unique-game-id",
+          .ruleset{.name = "standard", .version = "v1.2.3"},
+          .timeout = 500,
+      },
+      .turn = 987,
+      .board{.width = 5, .height = 15},
+      .you{
+          .id = "snake_id",
+          .body =
+              {
+                  Point(10, 1),
+                  Point(10, 2),
+                  Point(10, 3),
+              },
+          .health = 75,
+          .eliminated_cause{.cause = EliminatedCause::Collision},
+          .name = "Test Caterpillar",
+          .latency = "123",
+          .shout = "Why are we shouting???",
+          .squad = "The Suicide Squad",
+      },
+  });
+  EXPECT_THAT(json, Eq(nlohmann::json::parse(R"json({
+        "game": {
+            "id": "totally-unique-game-id",
+            "ruleset": {
+                "name": "standard",
+                "version": "v1.2.3"
+            },
+            "timeout": 500
+        },
+        "turn": 987,
+        "board": {
+            "width": 5,
+            "height": 15,
+            "food": [],
+            "snakes": [],
+            "hazards": []
+        }
+  })json")));
+}
+
+TEST_F(CreateJsonTest, GameStateNoYou) {
+  nlohmann::json json = CreateJson(GameState{
+      .game{
+          .id = "totally-unique-game-id",
+          .ruleset{.name = "standard", .version = "v1.2.3"},
+          .timeout = 500,
+      },
+      .turn = 987,
+      .board{.width = 5, .height = 15},
+  });
+  EXPECT_THAT(json, Eq(nlohmann::json::parse(R"json({
+        "game": {
+            "id": "totally-unique-game-id",
+            "ruleset": {
+                "name": "standard",
+                "version": "v1.2.3"
+            },
+            "timeout": 500
+        },
+        "turn": 987,
+        "board": {
+            "width": 5,
+            "height": 15,
+            "food": [],
+            "snakes": [],
+            "hazards": []
+        }
+  })json")));
+}
+
 TEST_F(CreateJsonTest, Customization) {
   Customization customization{
       .apiversion = "api_ver",
