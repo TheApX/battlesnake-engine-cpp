@@ -22,6 +22,7 @@ struct CliOptions {
   std::vector<SnakeNameUrl> snakes;
   bool view_map = false;
   bool view_map_only = false;
+  int timeout = 500;
 };
 
 std::ostream& operator<<(std::ostream& str, const CliOptions& options);

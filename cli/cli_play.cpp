@@ -168,7 +168,7 @@ int PlayGame(const CliOptions& options) {
                   .name = options.gametype,
                   .version = "v0.0.1",
               },
-              .timeout = 500,
+              .timeout = options.timeout,
           },
       .board =
           ruleset->CreateInitialBoardState(options.width, options.height, ids),

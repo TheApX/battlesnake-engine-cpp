@@ -76,6 +76,10 @@ CliOptions ParseOptions(int argc, const char* const argv[]) {
       .help("only view map of each turn and clear screen")
       .default_value(false)
       .implicit_value(true);
+  arguments.add_argument("-t", "--timeout")
+      .help("timeout (ms)")
+      .action([](const std::string& value) { return std::stoi(value); })
+      .default_value(result.timeout);
 
   try {
     arguments.parse_args(argc, argv);
@@ -95,6 +99,7 @@ CliOptions ParseOptions(int argc, const char* const argv[]) {
   result.height = arguments.get<int>("-H");
   result.view_map = arguments.get<bool>("-m");
   result.view_map_only = arguments.get<bool>("-M");
+  result.timeout = arguments.get<int>("-t");
 
   std::vector<std::string> names =
       arguments.get<std::vector<std::string>>("-n");
