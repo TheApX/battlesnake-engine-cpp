@@ -16,7 +16,7 @@ class Battlesnake {
     return battlesnake::rules::Customization();
   };
 
-  virtual void Begin(const battlesnake::rules::GameState& game_state){};
+  virtual void Start(const battlesnake::rules::GameState& game_state){};
 
   virtual void End(const battlesnake::rules::GameState& game_state){};
 

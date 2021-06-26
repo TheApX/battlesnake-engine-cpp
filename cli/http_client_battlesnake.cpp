@@ -73,10 +73,10 @@ Customization HttpClientBattlesnake::GetCustomization() {
   }
 }
 
-void HttpClientBattlesnake::Begin(const GameState& game_state) {
+void HttpClientBattlesnake::Start(const GameState& game_state) {
   nlohmann::json game_json = battlesnake::json::CreateJson(game_state);
   std::string game_json_str = game_json.dump();
-  HttpRequest(url_ + "begin", game_state.game.timeout, "POST", game_json_str);
+  HttpRequest(url_ + "start", game_state.game.timeout, "POST", game_json_str);
 }
 
 void HttpClientBattlesnake::End(const GameState& game_state) {
