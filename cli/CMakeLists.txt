@@ -34,6 +34,7 @@ target_include_directories(battlesnakecli PRIVATE
 )
 
 target_link_libraries(battlesnakecli curl)
+target_link_libraries(battlesnakecli pthread)
 target_link_libraries(battlesnakecli nlohmann_json::nlohmann_json)
 target_link_libraries(battlesnakecli argparse)
 target_link_libraries(battlesnakecli stduuid)

@@ -2,6 +2,7 @@
 #include <uuid.h>
 
 #include <chrono>
+#include <future>
 #include <memory>
 #include <unordered_map>
 
@@ -63,6 +64,41 @@ void PrintGame(const GameState& game, bool render, bool redraw_mode,
   }
 }
 
+struct MoveResult {
+  SnakeId snake_id;
+  Move move;
+  int latency;
+};
+
+MoveResult MoveSnake(const GameState& game, const Snake& snake,
+                     battlesnake::interface::Battlesnake* snake_interface) {
+  MoveResult result;
+
+  if (snake.IsEliminated()) {
+    // Move only non-eliminated snakes.
+    return result;
+  }
+
+  if (snake_interface == nullptr) {
+    // No snake interface.
+    return result;
+  }
+
+  GameState game_for_snake = game;
+  game_for_snake.you = snake;
+
+  result.snake_id = snake.id;
+
+  auto start = std::chrono::high_resolution_clock::now();
+  result.move = snake_interface->Move(game_for_snake);
+  auto end = std::chrono::high_resolution_clock::now();
+  result.latency =
+      std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
+          .count();
+
+  return result;
+}
+
 std::tuple<std::map<SnakeId, Move>, std::map<SnakeId, int>> GetMoves(
     const GameState& game,
     const std::unordered_map<
@@ -71,31 +107,40 @@ std::tuple<std::map<SnakeId, Move>, std::map<SnakeId, int>> GetMoves(
   std::map<SnakeId, Move> moves;
   std::map<SnakeId, int> latencies;
 
-  // TODO: send requests in parallel
-
+  // Send requests in parallel.
+  std::vector<std::future<MoveResult>> move_futures;
   for (const Snake& snake : game.board.snakes) {
     if (snake.IsEliminated()) {
       // Move only non-eliminated snakes.
       continue;
     }
 
-    GameState game_for_snake = game;
-    game_for_snake.you = snake;
     SnakeId id = snake.id;
-
     auto snake_it = snakes.find(id);
     if (snake_it == snakes.end()) {
       continue;
     }
 
-    const std::unique_ptr<Battlesnake>& snake_interface = snake_it->second;
-    auto start = std::chrono::high_resolution_clock::now();
-    moves[id] = snake_interface->Move(game_for_snake);
-    auto end = std::chrono::high_resolution_clock::now();
-    latencies[id] =
-        std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
-            .count();
+    move_futures.push_back(std::async(std::launch::async, MoveSnake, game,
+                                      snake, snake_it->second.get()));
   }
+
+  // Wait for and process responses.
+  for (std::future<MoveResult>& move_future : move_futures) {
+    move_future.wait();
+    if (!move_future.valid()) {
+      continue;
+    }
+
+    MoveResult move_result = move_future.get();
+    if (move_result.snake_id.empty()) {
+      continue;
+    }
+
+    moves[move_result.snake_id] = move_result.move;
+    latencies[move_result.snake_id] = move_result.latency;
+  }
+
   return std::tie(moves, latencies);
 }
 
@@ -186,11 +231,21 @@ int PlayGame(const CliOptions& options) {
   PrintGame(game, options.view_map, options.view_map_only, snake_head_syms);
   StartAll(game, snakes);
 
+  int total_latency = 0;
   for (game.turn = 0; !ruleset->IsGameOver(game.board); ++game.turn) {
     PrintGame(game, options.view_map, options.view_map_only, snake_head_syms);
+    std::cout << "Total latency: " << total_latency << std::endl;
+
     std::map<SnakeId, Move> moves;
     std::map<SnakeId, int> latencies;
+
+    auto start = std::chrono::high_resolution_clock::now();
     std::tie(moves, latencies) = GetMoves(game, snakes);
+    auto end = std::chrono::high_resolution_clock::now();
+    total_latency =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
+            .count();
+
     game.board = ruleset->CreateNextBoardState(game.board, moves);
 
     for (Snake& snake : game.board.snakes) {
