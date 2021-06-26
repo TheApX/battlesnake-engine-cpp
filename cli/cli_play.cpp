@@ -1,6 +1,7 @@
 #include <curl/curl.h>
 #include <uuid.h>
 
+#include <chrono>
 #include <memory>
 #include <unordered_map>
 
@@ -62,12 +63,13 @@ void PrintGame(const GameState& game, bool render, bool redraw_mode,
   }
 }
 
-std::map<SnakeId, Move> GetMoves(
+std::tuple<std::map<SnakeId, Move>, std::map<SnakeId, int>> GetMoves(
     const GameState& game,
     const std::unordered_map<
         SnakeId, std::unique_ptr<battlesnake::interface::Battlesnake>>&
         snakes) {
   std::map<SnakeId, Move> moves;
+  std::map<SnakeId, int> latencies;
 
   for (const Snake& snake : game.board.snakes) {
     if (snake.IsEliminated()) {
@@ -85,9 +87,14 @@ std::map<SnakeId, Move> GetMoves(
     }
 
     const std::unique_ptr<Battlesnake>& snake_interface = snake_it->second;
+    auto start = std::chrono::high_resolution_clock::now();
     moves[id] = snake_interface->Move(game_for_snake);
+    auto end = std::chrono::high_resolution_clock::now();
+    latencies[id] =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
+            .count();
   }
-  return moves;
+  return std::tie(moves, latencies);
 }
 
 void StartAll(
@@ -179,8 +186,19 @@ int PlayGame(const CliOptions& options) {
 
   for (game.turn = 0; !ruleset->IsGameOver(game.board); ++game.turn) {
     PrintGame(game, options.view_map, options.view_map_only, snake_head_syms);
-    std::map<SnakeId, Move> moves = GetMoves(game, snakes);
+    std::map<SnakeId, Move> moves;
+    std::map<SnakeId, int> latencies;
+    std::tie(moves, latencies) = GetMoves(game, snakes);
     game.board = ruleset->CreateNextBoardState(game.board, moves);
+
+    for (Snake& snake : game.board.snakes) {
+      auto latency_it = latencies.find(snake.id);
+      if (latency_it == latencies.end()) {
+        snake.latency = "0";
+      } else {
+        snake.latency = std::to_string(latency_it->second);
+      }
+    }
   }
 
   PrintGame(game, options.view_map, options.view_map_only, snake_head_syms);
