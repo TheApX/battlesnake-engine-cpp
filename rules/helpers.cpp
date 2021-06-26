@@ -122,6 +122,9 @@ std::string RenderGame(const GameState& state,
     if (snake.Length() == 0) {
       continue;
     }
+    if (snake.IsEliminated()) {
+      continue;
+    }
 
     Point last_pos = snake.Head();
     for (int i = 1; i < snake.Length() - 1; ++i) {
