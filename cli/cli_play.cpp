@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include "battlesnake/json/converter.h"
+#include "battlesnake/rules/helpers.h"
 #include "battlesnake/rules/ruleset.h"
 #include "battlesnake/rules/standard_ruleset.h"
 #include "cli_options.h"
@@ -47,9 +48,14 @@ std::unique_ptr<Ruleset> CreateRuleset(const std::string& name) {
   return nullptr;
 }
 
-void PrintGame(const GameState& game) {
+void PrintGame(const GameState& game, bool render,
+               const std::map<SnakeId, char>& snake_head_syms) {
   nlohmann::json json = CreateJson(game);
   std::cout << json.dump() << std::endl;
+
+  if (render) {
+    std::cout << RenderGame(game, snake_head_syms);
+  }
 }
 
 std::map<SnakeId, Move> GetMoves(
@@ -155,20 +161,25 @@ int PlayGame(const CliOptions& options) {
           ruleset->CreateInitialBoardState(options.width, options.height, ids),
   };
 
+  std::map<SnakeId, char> snake_head_syms;
+  char head_sym = 'A';
+
   for (Snake& snake : game.board.snakes) {
     snake.name = names[snake.id];
+    snake_head_syms[snake.id] = head_sym;
+    ++head_sym;
   }
 
-  PrintGame(game);
+  PrintGame(game, options.view_map, snake_head_syms);
   StartAll(game, snakes);
 
   for (game.turn = 0; !ruleset->IsGameOver(game.board); ++game.turn) {
-    PrintGame(game);
+    PrintGame(game, options.view_map, snake_head_syms);
     std::map<SnakeId, Move> moves = GetMoves(game, snakes);
     game.board = ruleset->CreateNextBoardState(game.board, moves);
   }
 
-  PrintGame(game);
+  PrintGame(game, options.view_map, snake_head_syms);
   EndAll(game, snakes);
 
   return 0;
