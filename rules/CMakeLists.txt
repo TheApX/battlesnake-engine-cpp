@@ -1,6 +1,7 @@
 set(libbattlesnakerules_SRCS
     data_types.cpp
     standard_ruleset.cpp
+    helpers.cpp
 )
 
 add_library(libbattlesnakerules STATIC
