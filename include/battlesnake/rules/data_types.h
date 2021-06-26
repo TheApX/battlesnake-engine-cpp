@@ -113,7 +113,7 @@ struct GameInfo {
 
 struct GameState {
   GameInfo game;
-  int turn;
+  int turn = 0;
   BoardState board;
   Snake you;
 };
