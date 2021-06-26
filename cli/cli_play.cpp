@@ -71,6 +71,8 @@ std::tuple<std::map<SnakeId, Move>, std::map<SnakeId, int>> GetMoves(
   std::map<SnakeId, Move> moves;
   std::map<SnakeId, int> latencies;
 
+  // TODO: send requests in parallel
+
   for (const Snake& snake : game.board.snakes) {
     if (snake.IsEliminated()) {
       // Move only non-eliminated snakes.
