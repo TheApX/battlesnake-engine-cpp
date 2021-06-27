@@ -23,8 +23,9 @@ class StandardRuleset : public Ruleset {
 
   virtual BoardState CreateInitialBoardState(
       int width, int height, std::vector<SnakeId> snake_ids) override;
-  virtual BoardState CreateNextBoardState(
-      const BoardState& prev_state, std::map<SnakeId, Move> moves) override;
+  virtual BoardState CreateNextBoardState(const BoardState& prev_state,
+                                          std::map<SnakeId, Move> moves,
+                                          int turn = 0) override;
   virtual bool IsGameOver(const BoardState& state) override;
 
  private:

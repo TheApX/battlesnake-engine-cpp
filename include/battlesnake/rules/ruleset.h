@@ -15,7 +15,8 @@ class Ruleset {
   virtual BoardState CreateInitialBoardState(int width, int height,
                                              std::vector<SnakeId> snakeIDs) = 0;
   virtual BoardState CreateNextBoardState(const BoardState& prev_state,
-                                          std::map<SnakeId, Move> moves) = 0;
+                                          std::map<SnakeId, Move> moves,
+                                          int turn) = 0;
   virtual bool IsGameOver(const BoardState& state) = 0;
 };
 

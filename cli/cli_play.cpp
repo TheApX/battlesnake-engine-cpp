@@ -255,7 +255,7 @@ int PlayGame(const CliOptions& options) {
       moves[id] = response.move;
     }
 
-    game.board = ruleset->CreateNextBoardState(game.board, moves);
+    game.board = ruleset->CreateNextBoardState(game.board, moves, game.turn);
 
     for (Snake& snake : game.board.snakes) {
       auto latency_it = latencies.find(snake.id);
