@@ -9,6 +9,7 @@
 #include "battlesnake/json/converter.h"
 #include "battlesnake/rules/helpers.h"
 #include "battlesnake/rules/ruleset.h"
+#include "battlesnake/rules/solo_ruleset.h"
 #include "battlesnake/rules/standard_ruleset.h"
 #include "cli_options.h"
 #include "http_client_battlesnake.h"
@@ -45,6 +46,10 @@ std::string GenerateId() {
 std::unique_ptr<Ruleset> CreateRuleset(const std::string& name) {
   if (name == "standard") {
     return std::make_unique<StandardRuleset>();
+  }
+
+  if (name == "solo") {
+    return std::make_unique<SoloRuleset>();
   }
 
   return nullptr;
