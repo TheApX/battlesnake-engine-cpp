@@ -30,6 +30,7 @@ class StandardRuleset : public Ruleset {
 
  protected:
   static int getRandomNumber(int max_value);
+  void growSnake(Snake& snake) const;
 
  private:
   Config config_;
@@ -62,7 +63,6 @@ class StandardRuleset : public Ruleset {
 
   void maybeFeedSnakes(BoardState& state) const;
   void feedSnake(Snake& snake) const;
-  void growSnake(Snake& snake) const;
 
   void maybeEliminateSnakes(BoardState& state) const;
   void eliminateOutOfHealthOrBoundsSnakes(BoardState& state) const;

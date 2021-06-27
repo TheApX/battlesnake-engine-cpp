@@ -3,6 +3,7 @@ set(libbattlesnakerules_SRCS
     standard_ruleset.cpp
     solo_ruleset.cpp
     royale_ruleset.cpp
+    constrictor_ruleset.cpp
     helpers.cpp
 )
 

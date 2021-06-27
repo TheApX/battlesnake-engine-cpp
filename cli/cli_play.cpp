@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 #include "battlesnake/json/converter.h"
+#include "battlesnake/rules/constrictor_ruleset.h"
 #include "battlesnake/rules/helpers.h"
 #include "battlesnake/rules/royale_ruleset.h"
 #include "battlesnake/rules/ruleset.h"
@@ -55,6 +56,10 @@ std::unique_ptr<Ruleset> CreateRuleset(const std::string& name) {
 
   if (name == "royale") {
     return std::make_unique<RoyaleRuleset>();
+  }
+
+  if (name == "constrictor") {
+    return std::make_unique<ConstrictorRuleset>();
   }
 
   return nullptr;
