@@ -28,10 +28,12 @@ class StandardRuleset : public Ruleset {
                                           int turn = 0) override;
   virtual bool IsGameOver(const BoardState& state) override;
 
+ protected:
+  static int getRandomNumber(int max_value);
+
  private:
   Config config_;
 
-  static int getRandomNumber(int max_value);
   static bool isKnownBoardSize(const BoardState& state);
 
   void placeSnakesFixed(BoardState& state) const;

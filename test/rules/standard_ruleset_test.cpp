@@ -385,9 +385,9 @@ TEST_F(StandardPlaceFoodTest, KnownSizeLarge) {
   ExpectFoodAroundSnakes(board_state);
 }
 
-class StandardTestCreateNextBoardState : public StandardRulesetTest {};
+class StandardCreateNextBoardStateTest : public StandardRulesetTest {};
 
-TEST_F(StandardTestCreateNextBoardState, NoMoveFound) {
+TEST_F(StandardCreateNextBoardStateTest, NoMoveFound) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -412,7 +412,7 @@ TEST_F(StandardTestCreateNextBoardState, NoMoveFound) {
                ErrorNoMoveFound);
 }
 
-TEST_F(StandardTestCreateNextBoardState, ZeroLengthSnake) {
+TEST_F(StandardCreateNextBoardStateTest, ZeroLengthSnake) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -433,7 +433,7 @@ TEST_F(StandardTestCreateNextBoardState, ZeroLengthSnake) {
       ErrorZeroLengthSnake);
 }
 
-TEST_F(StandardTestCreateNextBoardState, MovesTail) {
+TEST_F(StandardCreateNextBoardStateTest, MovesTail) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -463,7 +463,7 @@ TEST_F(StandardTestCreateNextBoardState, MovesTail) {
       ElementsAre(SnakeBodyIs(ElementsAre(_, Point(1, 1), Point(1, 2)))));
 }
 
-TEST_F(StandardTestCreateNextBoardState, MovesHeadUp) {
+TEST_F(StandardCreateNextBoardStateTest, MovesHeadUp) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -490,7 +490,7 @@ TEST_F(StandardTestCreateNextBoardState, MovesHeadUp) {
               ElementsAre(SnakeBodyIs(ElementsAre(Point(1, 2), _, _))));
 }
 
-TEST_F(StandardTestCreateNextBoardState, MovesHeadDown) {
+TEST_F(StandardCreateNextBoardStateTest, MovesHeadDown) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -517,7 +517,7 @@ TEST_F(StandardTestCreateNextBoardState, MovesHeadDown) {
               ElementsAre(SnakeBodyIs(ElementsAre(Point(1, 0), _, _))));
 }
 
-TEST_F(StandardTestCreateNextBoardState, MovesHeadLeft) {
+TEST_F(StandardCreateNextBoardStateTest, MovesHeadLeft) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -544,7 +544,7 @@ TEST_F(StandardTestCreateNextBoardState, MovesHeadLeft) {
               ElementsAre(SnakeBodyIs(ElementsAre(Point(0, 1), _, _))));
 }
 
-TEST_F(StandardTestCreateNextBoardState, MovesHeadRight) {
+TEST_F(StandardCreateNextBoardStateTest, MovesHeadRight) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -571,7 +571,7 @@ TEST_F(StandardTestCreateNextBoardState, MovesHeadRight) {
               ElementsAre(SnakeBodyIs(ElementsAre(Point(2, 1), _, _))));
 }
 
-TEST_F(StandardTestCreateNextBoardState, MovesHeadUnknownContinue) {
+TEST_F(StandardCreateNextBoardStateTest, MovesHeadUnknownContinue) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -599,7 +599,7 @@ TEST_F(StandardTestCreateNextBoardState, MovesHeadUnknownContinue) {
               ElementsAre(SnakeBodyIs(ElementsAre(Point(1, 0), _, _))));
 }
 
-TEST_F(StandardTestCreateNextBoardState, MovesHeadUnknownUp) {
+TEST_F(StandardCreateNextBoardStateTest, MovesHeadUnknownUp) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -627,7 +627,7 @@ TEST_F(StandardTestCreateNextBoardState, MovesHeadUnknownUp) {
               ElementsAre(SnakeBodyIs(ElementsAre(Point(1, 2), _, _))));
 }
 
-TEST_F(StandardTestCreateNextBoardState, MovesTwoSnakes) {
+TEST_F(StandardCreateNextBoardStateTest, MovesTwoSnakes) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -673,7 +673,7 @@ TEST_F(StandardTestCreateNextBoardState, MovesTwoSnakes) {
       }));
 }
 
-TEST_F(StandardTestCreateNextBoardState, MoveReducesHealth) {
+TEST_F(StandardCreateNextBoardStateTest, MoveReducesHealth) {
   int initial_health = 75;
 
   BoardState initial_state{
@@ -702,7 +702,7 @@ TEST_F(StandardTestCreateNextBoardState, MoveReducesHealth) {
   EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(Lt(initial_health))));
 }
 
-TEST_F(StandardTestCreateNextBoardState, FoodGrowsSnake) {
+TEST_F(StandardCreateNextBoardStateTest, FoodGrowsSnake) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -734,7 +734,7 @@ TEST_F(StandardTestCreateNextBoardState, FoodGrowsSnake) {
                                                   Point(1, 2), Point(1, 2)))));
 }
 
-TEST_F(StandardTestCreateNextBoardState, FoodRestoresHealth) {
+TEST_F(StandardCreateNextBoardStateTest, FoodRestoresHealth) {
   int max_health = StandardRuleset::Config::Default().snake_max_health;
 
   BoardState initial_state{
@@ -766,7 +766,7 @@ TEST_F(StandardTestCreateNextBoardState, FoodRestoresHealth) {
   EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(max_health)));
 }
 
-TEST_F(StandardTestCreateNextBoardState, DontEatFoodOtherPosition) {
+TEST_F(StandardCreateNextBoardStateTest, DontEatFoodOtherPosition) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -797,7 +797,7 @@ TEST_F(StandardTestCreateNextBoardState, DontEatFoodOtherPosition) {
                                 Point(0, 1), Point(1, 1), Point(1, 2)))));
 }
 
-TEST_F(StandardTestCreateNextBoardState, EatenFoodDisappears) {
+TEST_F(StandardCreateNextBoardStateTest, EatenFoodDisappears) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -828,7 +828,7 @@ TEST_F(StandardTestCreateNextBoardState, EatenFoodDisappears) {
   EXPECT_THAT(state.food, ElementsAre(Point(10, 10)));
 }
 
-TEST_F(StandardTestCreateNextBoardState, HeadToHeadFoodDisappears) {
+TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodDisappears) {
   int max_health = StandardRuleset::Config::Default().snake_max_health;
 
   BoardState initial_state{
@@ -877,7 +877,7 @@ TEST_F(StandardTestCreateNextBoardState, HeadToHeadFoodDisappears) {
   EXPECT_THAT(state.food, ElementsAre());
 }
 
-TEST_F(StandardTestCreateNextBoardState, ZeroChanceNeverSpawnsFood) {
+TEST_F(StandardCreateNextBoardStateTest, ZeroChanceNeverSpawnsFood) {
   int max_health = StandardRuleset::Config::Default().snake_max_health;
 
   BoardState initial_state{
@@ -897,7 +897,7 @@ TEST_F(StandardTestCreateNextBoardState, ZeroChanceNeverSpawnsFood) {
   }
 }
 
-TEST_F(StandardTestCreateNextBoardState, HundredChanceAlwaysSpawnsFood) {
+TEST_F(StandardCreateNextBoardStateTest, HundredChanceAlwaysSpawnsFood) {
   int max_health = StandardRuleset::Config::Default().snake_max_health;
 
   BoardState initial_state{
@@ -917,7 +917,7 @@ TEST_F(StandardTestCreateNextBoardState, HundredChanceAlwaysSpawnsFood) {
   }
 }
 
-TEST_F(StandardTestCreateNextBoardState, SpawnFoodMinimum) {
+TEST_F(StandardCreateNextBoardStateTest, SpawnFoodMinimum) {
   int max_health = StandardRuleset::Config::Default().snake_max_health;
 
   BoardState initial_state{
@@ -937,7 +937,7 @@ TEST_F(StandardTestCreateNextBoardState, SpawnFoodMinimum) {
   EXPECT_THAT(state.food.size(), Eq(7));
 }
 
-TEST_F(StandardTestCreateNextBoardState, EatingOnLastMove) {
+TEST_F(StandardCreateNextBoardStateTest, EatingOnLastMove) {
   // We want to specifically ensure that snakes eating food on their last turn
   // survive.
   int max_health = StandardRuleset::Config::Default().snake_max_health;
@@ -971,7 +971,7 @@ TEST_F(StandardTestCreateNextBoardState, EatingOnLastMove) {
   EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(max_health)));
 }
 
-TEST_F(StandardTestCreateNextBoardState, IgnoresEliminatedSnakes) {
+TEST_F(StandardCreateNextBoardStateTest, IgnoresEliminatedSnakes) {
   // We want to specifically ensure that snakes eating food on their last turn
   // survive.
   int max_health = StandardRuleset::Config::Default().snake_max_health;
@@ -1013,9 +1013,9 @@ TEST_F(StandardTestCreateNextBoardState, IgnoresEliminatedSnakes) {
   EXPECT_THAT(state.food, ElementsAre(Point(0, 1)));
 }
 
-class StandardTestEliminateSnakes : public StandardTestCreateNextBoardState {};
+class StandardEliminateSnakesTest : public StandardCreateNextBoardStateTest {};
 
-TEST_F(StandardTestEliminateSnakes, OutOfHealth) {
+TEST_F(StandardEliminateSnakesTest, OutOfHealth) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -1042,7 +1042,7 @@ TEST_F(StandardTestEliminateSnakes, OutOfHealth) {
               ElementsAre(SnakeIs("one", _, 0, EliminatedCause::OutOfHealth)));
 }
 
-TEST_F(StandardTestEliminateSnakes, OutOfBoundsUp) {
+TEST_F(StandardEliminateSnakesTest, OutOfBoundsUp) {
   BoardState initial_state{
       .width = 1,
       .height = 1,
@@ -1067,7 +1067,7 @@ TEST_F(StandardTestEliminateSnakes, OutOfBoundsUp) {
               ElementsAre(SnakeIs("one", _, _, EliminatedCause::OutOfBounds)));
 }
 
-TEST_F(StandardTestEliminateSnakes, OutOfBoundsDown) {
+TEST_F(StandardEliminateSnakesTest, OutOfBoundsDown) {
   BoardState initial_state{
       .width = 1,
       .height = 1,
@@ -1092,7 +1092,7 @@ TEST_F(StandardTestEliminateSnakes, OutOfBoundsDown) {
               ElementsAre(SnakeIs("one", _, _, EliminatedCause::OutOfBounds)));
 }
 
-TEST_F(StandardTestEliminateSnakes, OutOfBoundsLeft) {
+TEST_F(StandardEliminateSnakesTest, OutOfBoundsLeft) {
   BoardState initial_state{
       .width = 1,
       .height = 1,
@@ -1117,7 +1117,7 @@ TEST_F(StandardTestEliminateSnakes, OutOfBoundsLeft) {
               ElementsAre(SnakeIs("one", _, _, EliminatedCause::OutOfBounds)));
 }
 
-TEST_F(StandardTestEliminateSnakes, OutOfBoundsRight) {
+TEST_F(StandardEliminateSnakesTest, OutOfBoundsRight) {
   BoardState initial_state{
       .width = 1,
       .height = 1,
@@ -1142,7 +1142,7 @@ TEST_F(StandardTestEliminateSnakes, OutOfBoundsRight) {
               ElementsAre(SnakeIs("one", _, _, EliminatedCause::OutOfBounds)));
 }
 
-TEST_F(StandardTestEliminateSnakes, NoSelfCollision) {
+TEST_F(StandardEliminateSnakesTest, NoSelfCollision) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -1169,7 +1169,7 @@ TEST_F(StandardTestEliminateSnakes, NoSelfCollision) {
                                 "one", _, _, EliminatedCause::NotEliminated)));
 }
 
-TEST_F(StandardTestEliminateSnakes, NeckSelfCollision) {
+TEST_F(StandardEliminateSnakesTest, NeckSelfCollision) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -1196,7 +1196,7 @@ TEST_F(StandardTestEliminateSnakes, NeckSelfCollision) {
                                 "one", _, _, EliminatedCause::SelfCollision)));
 }
 
-TEST_F(StandardTestEliminateSnakes, RegularSelfCollision) {
+TEST_F(StandardEliminateSnakesTest, RegularSelfCollision) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -1225,7 +1225,7 @@ TEST_F(StandardTestEliminateSnakes, RegularSelfCollision) {
                                 "one", _, _, EliminatedCause::SelfCollision)));
 }
 
-TEST_F(StandardTestEliminateSnakes, OwnTailChase) {
+TEST_F(StandardEliminateSnakesTest, OwnTailChase) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -1253,7 +1253,7 @@ TEST_F(StandardTestEliminateSnakes, OwnTailChase) {
                                 "one", _, _, EliminatedCause::NotEliminated)));
 }
 
-TEST_F(StandardTestEliminateSnakes, OtherNoCollision) {
+TEST_F(StandardEliminateSnakesTest, OtherNoCollision) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -1295,7 +1295,7 @@ TEST_F(StandardTestEliminateSnakes, OtherNoCollision) {
                   SnakeIs("two", _, _, EliminatedCause::NotEliminated)));
 }
 
-TEST_F(StandardTestEliminateSnakes, OtherBodyCollision) {
+TEST_F(StandardEliminateSnakesTest, OtherBodyCollision) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -1337,7 +1337,7 @@ TEST_F(StandardTestEliminateSnakes, OtherBodyCollision) {
                   SnakeIs("two", _, _, EliminatedCause::Collision, "one")));
 }
 
-TEST_F(StandardTestEliminateSnakes, OtherTailChase) {
+TEST_F(StandardEliminateSnakesTest, OtherTailChase) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -1379,7 +1379,7 @@ TEST_F(StandardTestEliminateSnakes, OtherTailChase) {
                   SnakeIs("two", _, _, EliminatedCause::NotEliminated)));
 }
 
-TEST_F(StandardTestEliminateSnakes, HeadToHeadDifferentLength) {
+TEST_F(StandardEliminateSnakesTest, HeadToHeadDifferentLength) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -1423,7 +1423,7 @@ TEST_F(StandardTestEliminateSnakes, HeadToHeadDifferentLength) {
           SnakeIs("two", _, _, EliminatedCause::HeadToHeadCollision, "one")));
 }
 
-TEST_F(StandardTestEliminateSnakes, HeadToHeadEqualLength) {
+TEST_F(StandardEliminateSnakesTest, HeadToHeadEqualLength) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -1466,7 +1466,7 @@ TEST_F(StandardTestEliminateSnakes, HeadToHeadEqualLength) {
           SnakeIs("two", _, _, EliminatedCause::HeadToHeadCollision, "one")));
 }
 
-TEST_F(StandardTestEliminateSnakes, PriorityOutOfHealthOutOfBounds) {
+TEST_F(StandardEliminateSnakesTest, PriorityOutOfHealthOutOfBounds) {
   BoardState initial_state{
       .width = 1,
       .height = 1,
@@ -1491,7 +1491,7 @@ TEST_F(StandardTestEliminateSnakes, PriorityOutOfHealthOutOfBounds) {
               ElementsAre(SnakeIs("one", _, _, EliminatedCause::OutOfHealth)));
 }
 
-TEST_F(StandardTestEliminateSnakes, PriorityOutOfHealthSelfCollision) {
+TEST_F(StandardEliminateSnakesTest, PriorityOutOfHealthSelfCollision) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -1518,7 +1518,7 @@ TEST_F(StandardTestEliminateSnakes, PriorityOutOfHealthSelfCollision) {
               ElementsAre(SnakeIs("one", _, _, EliminatedCause::OutOfHealth)));
 }
 
-TEST_F(StandardTestEliminateSnakes, PriorityOutOfHealthOtherBodyCollision) {
+TEST_F(StandardEliminateSnakesTest, PriorityOutOfHealthOtherBodyCollision) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -1561,7 +1561,7 @@ TEST_F(StandardTestEliminateSnakes, PriorityOutOfHealthOtherBodyCollision) {
           SnakeIs("two", _, _, EliminatedCause::OutOfHealth, Not("one"))));
 }
 
-TEST_F(StandardTestEliminateSnakes, PrioritySelfCollisionHeadToHead) {
+TEST_F(StandardEliminateSnakesTest, PrioritySelfCollisionHeadToHead) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -1605,7 +1605,7 @@ TEST_F(StandardTestEliminateSnakes, PrioritySelfCollisionHeadToHead) {
           SnakeIs("two", _, _, EliminatedCause::SelfCollision, Not("one"))));
 }
 
-TEST_F(StandardTestEliminateSnakes, PriorityOtherCollisionHeadToHead) {
+TEST_F(StandardEliminateSnakesTest, PriorityOtherCollisionHeadToHead) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
@@ -1649,7 +1649,7 @@ TEST_F(StandardTestEliminateSnakes, PriorityOtherCollisionHeadToHead) {
           SnakeIs("two", _, _, EliminatedCause::SelfCollision, Not("one"))));
 }
 
-TEST_F(StandardTestEliminateSnakes, OutOfHealthDoesntEliminateOthers) {
+TEST_F(StandardEliminateSnakesTest, OutOfHealthDoesntEliminateOthers) {
   // Snake Two can eliminate snake One for multiple reasons:
   // * One collided into Two's body.
   // * Two wins head-to-head.
@@ -1697,7 +1697,7 @@ TEST_F(StandardTestEliminateSnakes, OutOfHealthDoesntEliminateOthers) {
           SnakeIs("two", _, _, EliminatedCause::OutOfHealth, Not("one"))));
 }
 
-TEST_F(StandardTestEliminateSnakes, OutOfBoundsDoesntEliminateOthers) {
+TEST_F(StandardEliminateSnakesTest, OutOfBoundsDoesntEliminateOthers) {
   // Snake Two can eliminate snake One because One collided into Two's body.
   // But snake Two is out of bounds, so One doesn't get eliminated.
   BoardState initial_state{
@@ -1743,7 +1743,7 @@ TEST_F(StandardTestEliminateSnakes, OutOfBoundsDoesntEliminateOthers) {
           SnakeIs("two", _, _, EliminatedCause::OutOfBounds, Not("one"))));
 }
 
-TEST_F(StandardTestCreateNextBoardState, HeadToHeadFoodBothEliminated) {
+TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodBothEliminated) {
   int max_health = StandardRuleset::Config::Default().snake_max_health;
 
   BoardState initial_state{
@@ -1798,7 +1798,7 @@ TEST_F(StandardTestCreateNextBoardState, HeadToHeadFoodBothEliminated) {
           SnakeIs("two", _, _, EliminatedCause::HeadToHeadCollision, "one")));
 }
 
-TEST_F(StandardTestCreateNextBoardState, HeadToHeadFoodOneEliminated) {
+TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodOneEliminated) {
   int max_health = StandardRuleset::Config::Default().snake_max_health;
 
   BoardState initial_state{

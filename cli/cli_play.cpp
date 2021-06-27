@@ -8,6 +8,7 @@
 
 #include "battlesnake/json/converter.h"
 #include "battlesnake/rules/helpers.h"
+#include "battlesnake/rules/royale_ruleset.h"
 #include "battlesnake/rules/ruleset.h"
 #include "battlesnake/rules/solo_ruleset.h"
 #include "battlesnake/rules/standard_ruleset.h"
@@ -50,6 +51,10 @@ std::unique_ptr<Ruleset> CreateRuleset(const std::string& name) {
 
   if (name == "solo") {
     return std::make_unique<SoloRuleset>();
+  }
+
+  if (name == "royale") {
+    return std::make_unique<RoyaleRuleset>();
   }
 
   return nullptr;
@@ -236,7 +241,7 @@ int PlayGame(const CliOptions& options) {
   StartAll(game, snakes);
 
   int total_latency = 0;
-  for (game.turn = 0; !ruleset->IsGameOver(game.board); ++game.turn) {
+  for (game.turn = 1; !ruleset->IsGameOver(game.board); ++game.turn) {
     PrintGame(game, options.view_map, options.view_map_only, snake_head_syms);
     std::cout << "Total latency: " << total_latency << std::endl;
 
