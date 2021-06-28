@@ -46,5 +46,13 @@ class ErrorZeroLengthSnake : public RulesetException {
       : RulesetException("Snake is length zero: '" + snake_id + "'") {}
 };
 
+class ErrorInvalidEliminatedById : public RulesetException {
+ public:
+  ErrorInvalidEliminatedById(const std::string& snake_id,
+                             const std::string& eliminated_by_id)
+      : RulesetException("Invalid eliminated by id value '" + eliminated_by_id +
+                         "' on snake '" + snake_id + "'") {}
+};
+
 }  // namespace rules
 }  // namespace battlesnake

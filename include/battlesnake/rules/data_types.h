@@ -30,6 +30,7 @@ struct EliminatedCause {
     OutOfHealth,
     HeadToHeadCollision,
     OutOfBounds,
+    BySquad,
   };
 
   Cause cause = NotEliminated;
