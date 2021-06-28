@@ -12,6 +12,7 @@
 #include "battlesnake/rules/royale_ruleset.h"
 #include "battlesnake/rules/ruleset.h"
 #include "battlesnake/rules/solo_ruleset.h"
+#include "battlesnake/rules/squad_ruleset.h"
 #include "battlesnake/rules/standard_ruleset.h"
 #include "cli_options.h"
 #include "http_client_battlesnake.h"
@@ -60,6 +61,10 @@ std::unique_ptr<Ruleset> CreateRuleset(const std::string& name) {
 
   if (name == "constrictor") {
     return std::make_unique<ConstrictorRuleset>();
+  }
+
+  if (name == "squad") {
+    return std::make_unique<SquadRuleset>();
   }
 
   return nullptr;
@@ -232,6 +237,13 @@ int PlayGame(const CliOptions& options) {
       .board =
           ruleset->CreateInitialBoardState(options.width, options.height, ids),
   };
+
+  if (options.gametype == "squad") {
+    for (int i = 0; i < game.board.snakes.size(); ++i) {
+      Snake& snake = game.board.snakes[i];
+      snake.squad = (i % 2 == 0) ? "red" : "blue";
+    }
+  }
 
   std::map<SnakeId, char> snake_head_syms;
   char head_sym = 'A';

@@ -190,7 +190,7 @@ std::string RenderGame(const GameState& state,
     AppendLine(lines, board_len, n++,
                head_char + ":  " + std::to_string(snake.health) + "  " +
                    std::to_string(snake.Length()) + "  " + snake.name + "  " +
-                   snake.latency + "ms");
+                   snake.latency + "ms  " + snake.squad);
   }
 
   std::string result;
