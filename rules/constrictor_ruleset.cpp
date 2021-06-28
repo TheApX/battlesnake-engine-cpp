@@ -3,6 +3,16 @@
 namespace battlesnake {
 namespace rules {
 
+BoardState ConstrictorRuleset::CreateInitialBoardState(
+    int width, int height, std::vector<SnakeId> snake_ids) {
+  BoardState next_state =
+      StandardRuleset::CreateInitialBoardState(width, height, snake_ids);
+
+  applyConstrictorRules(next_state);
+
+  return next_state;
+}
+
 BoardState ConstrictorRuleset::CreateNextBoardState(
     const BoardState& prev_state, std::map<SnakeId, Move> moves, int turn) {
   BoardState next_state =

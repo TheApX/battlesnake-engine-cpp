@@ -54,6 +54,15 @@ TEST_F(ConstrictorRulesetTest, Sanity) {
   EXPECT_THAT(ruleset.IsGameOver(state), IsTrue());
 }
 
+TEST_F(ConstrictorRulesetTest, NoFoodInitially) {
+  ConstrictorRuleset ruleset;
+
+  BoardState state =
+      ruleset.CreateInitialBoardState(11, 11, {"snake1", "snake2"});
+
+  EXPECT_THAT(state.food, ElementsAre());
+}
+
 class ConstrictorCreateNextBoardStateTest : public ConstrictorRulesetTest {};
 
 TEST_F(ConstrictorCreateNextBoardStateTest, KeepsHealth) {
