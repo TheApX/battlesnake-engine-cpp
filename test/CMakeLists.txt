@@ -13,3 +13,4 @@ FetchContent_MakeAvailable(googletest)
 
 add_subdirectory(rules)
 add_subdirectory(json)
+add_subdirectory(server)
