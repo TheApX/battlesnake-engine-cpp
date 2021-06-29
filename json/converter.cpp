@@ -249,6 +249,25 @@ GameInfo ParseJsonGameInfo(const nlohmann::json& json) {
   };
 }
 
+battlesnake::rules::GameState ParseJsonGameState(const nlohmann::json& json) {
+  if (!json.is_object()) {
+    throw ParseException();
+  }
+
+  GameState game_state{
+      .game = ParseJsonGameInfo(json["game"]),
+      .turn = GetInt(json, "turn"),
+      .board = ParseJsonBoard(json["board"]),
+  };
+
+  auto you_it = json.find("you");
+  if (you_it != json.end()) {
+    game_state.you = ParseJsonSnake(*you_it);
+  }
+
+  return game_state;
+}
+
 Customization ParseJsonCustomization(const nlohmann::json& json) {
   if (!json.is_object()) {
     throw ParseException();

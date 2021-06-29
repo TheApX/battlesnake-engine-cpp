@@ -411,6 +411,117 @@ TEST_F(ParseJsonTest, GameInfoNoRuleset) {
   EXPECT_THROW(ParseJsonGameInfo(json), ParseException);
 }
 
+TEST_F(ParseJsonTest, GameStateSucceeds) {
+  auto json = nlohmann::json::parse(R"json({
+        "game": {
+            "id": "totally-unique-game-id",
+            "ruleset": {
+                "name": "standard",
+                "version": "v1.2.3"
+            },
+            "timeout": 500
+        },
+        "turn": 987,
+        "board": {
+            "width": 5,
+            "height": 15,
+            "food": [],
+            "snakes": [],
+            "hazards": []
+        },
+        "you": {
+            "id": "snake_id",
+            "body": [
+                {"x": 10, "y": 1},
+                {"x": 10, "y": 2},
+                {"x": 10, "y": 3}
+            ],
+            "length": 3,
+            "head": {"x": 10, "y": 1},
+            "health": 75,
+            "name": "Test Caterpillar",
+            "latency": "123",
+            "shout": "Why are we shouting???",
+            "squad": "The Suicide Squad"
+        }
+  })json");
+  GameState expected_result{
+      .game{
+          .id = "totally-unique-game-id",
+          .ruleset{.name = "standard", .version = "v1.2.3"},
+          .timeout = 500,
+      },
+      .turn = 987,
+      .board{.width = 5, .height = 15},
+      .you{
+          .id = "snake_id",
+          .body =
+              {
+                  Point(10, 1),
+                  Point(10, 2),
+                  Point(10, 3),
+              },
+          .health = 75,
+          .name = "Test Caterpillar",
+          .latency = "123",
+          .shout = "Why are we shouting???",
+          .squad = "The Suicide Squad",
+      },
+  };
+
+  GameState result = ParseJsonGameState(json);
+
+  // Check one subfield from each field.
+  EXPECT_THAT(result.game.id, Eq(expected_result.game.id));
+  EXPECT_THAT(result.turn, Eq(expected_result.turn));
+  EXPECT_THAT(result.board.width, Eq(expected_result.board.width));
+  EXPECT_THAT(result.you.id, Eq(expected_result.you.id));
+}
+
+TEST_F(ParseJsonTest, GameStateNoYou) {
+  auto json = nlohmann::json::parse(R"json({
+        "game": {
+            "id": "totally-unique-game-id",
+            "ruleset": {
+                "name": "standard",
+                "version": "v1.2.3"
+            },
+            "timeout": 500
+        },
+        "turn": 987,
+        "board": {
+            "width": 5,
+            "height": 15,
+            "food": [],
+            "snakes": [],
+            "hazards": []
+        }
+  })json");
+  GameState expected_result{
+      .game{
+          .id = "totally-unique-game-id",
+          .ruleset{.name = "standard", .version = "v1.2.3"},
+          .timeout = 500,
+      },
+      .turn = 987,
+      .board{.width = 5, .height = 15},
+  };
+
+  GameState result = ParseJsonGameState(json);
+
+  // Check one subfield from each field.
+  EXPECT_THAT(result.game.id, Eq(expected_result.game.id));
+  EXPECT_THAT(result.turn, Eq(expected_result.turn));
+  EXPECT_THAT(result.board.width, Eq(expected_result.board.width));
+  EXPECT_THAT(result.you.id, Eq(expected_result.you.id));
+}
+
+TEST_F(ParseJsonTest, GameStateWrongJsonType) {
+  auto json = nlohmann::json::parse(R"json([])json");
+
+  EXPECT_THROW(ParseJsonGameState(json), ParseException);
+}
+
 TEST_F(ParseJsonTest, CustomizationSucceeds) {
   auto json = nlohmann::json::parse(R"json({
       "apiversion": "api_ver",
