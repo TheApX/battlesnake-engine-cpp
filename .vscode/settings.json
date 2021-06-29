@@ -67,6 +67,9 @@
         "bitset": "cpp",
         "charconv": "cpp",
         "regex": "cpp",
-        "shared_mutex": "cpp"
+        "shared_mutex": "cpp",
+        "strstream": "cpp",
+        "cinttypes": "cpp",
+        "source_location": "cpp"
     }
 }
