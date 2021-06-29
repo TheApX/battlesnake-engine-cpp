@@ -11,9 +11,9 @@ add_executable(testbattlesnakeserver ${testbattlesnakeserver_SRCS})
 target_link_libraries(testbattlesnakeserver
     libbattlesnakeserver
     libbattlesnakejson
+    simple-web-server
     gtest_main
     gmock_main
-    simple-web-server
 )
 
 add_test(NAME testbattlesnakeserver
