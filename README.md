@@ -46,6 +46,19 @@ Start battlesnake
 ./build/snakes/random/battlesnake_random
 ```
 
+## Platforms supported
+
+The only tested platform is Linux. CPU architectures tested are:
+* x86_64
+* AArch64 (arm64)
+* armv7l
+
+The battlesnake engine itself is written vanilla C++17 and all libraries are cross-platform, so there should be no problems running it on Windows or Mac (including both Intel and ARM).
+
+The only potential problem is that CLI uses some unicode characters to render snakes, which may not be supported on Windows. It definitely works fine in Windows Terminal + WSL2 + Ubuntu 20.04 though.
+
+If any adjustments needed to build and run on other platforms, contributions are welcome!
+
 # Credits
 
 These libraries are pulled from their official repositories and built from source during build:
@@ -57,3 +70,15 @@ These libraries are pulled from their official repositories and built from sourc
 * https://github.com/kingsamchen/asio-cmake
   * https://github.com/chriskohlhoff/asio
 * https://gitlab.com/eidheim/Simple-Web-Server
+
+# Q&A
+
+* Why?
+  * Because I need Battlesnake rules implemented in C++ for my future snakes.
+* Why C++?
+  * It is fast. During the same 500ms code written in vanilla C++ can compute much more than vanilla Python, for example.
+  * It's the language I've been using at my main job for over 10 years.
+* Can I use it as a starter project?
+  * Yes, but I wouldn't recommend. It is a bit overly complicated for a starter project. Though there is an [example](snakes/random/snake_random.cpp) that you can use.
+* I want to make contribution!
+  * You are more than welcome! Please send a pull request and I will respond in a couple days.
