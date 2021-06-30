@@ -59,18 +59,6 @@ The only potential problem is that CLI uses some unicode characters to render sn
 
 If any adjustments needed to build and run on other platforms, contributions are welcome!
 
-# Credits
-
-These libraries are pulled from their official repositories and built from source during build:
-
-* https://github.com/google/googletest
-* https://github.com/ArthurSonzogni/nlohmann_json_cmake_fetchcontent
-* https://github.com/p-ranav/argparse
-* https://github.com/mariusbancila/stduuid
-* https://github.com/kingsamchen/asio-cmake
-  * https://github.com/chriskohlhoff/asio
-* https://gitlab.com/eidheim/Simple-Web-Server
-
 # Q&A
 
 * Why?
@@ -82,3 +70,15 @@ These libraries are pulled from their official repositories and built from sourc
   * Yes, but I wouldn't recommend. It is a bit overly complicated for a starter project. Though there is an [example](snakes/random/README.md) that you can use.
 * I want to make contribution!
   * You are more than welcome! Please send a pull request and I will respond in a couple days.
+
+# Credits
+
+These libraries are pulled from their official repositories and built from source during build:
+
+* https://github.com/google/googletest
+* https://github.com/ArthurSonzogni/nlohmann_json_cmake_fetchcontent
+* https://github.com/p-ranav/argparse
+* https://github.com/mariusbancila/stduuid
+* https://github.com/kingsamchen/asio-cmake
+  * https://github.com/chriskohlhoff/asio
+* https://gitlab.com/eidheim/Simple-Web-Server
