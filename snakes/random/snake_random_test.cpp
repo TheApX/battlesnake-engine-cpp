@@ -17,10 +17,6 @@ using ::testing::AnyOf;
 using ::testing::Ne;
 
 GameState LoadState(const std::string& test_name) {
-  char buf[1024];
-  std::cout << getcwd(buf, 1024) << "/"
-            << "testdata/" + test_name + ".json" << std::endl;
-
   std::ifstream file_in("testdata/" + test_name + ".json");
   std::string str((std::istreambuf_iterator<char>(file_in)),
                   std::istreambuf_iterator<char>());
