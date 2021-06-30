@@ -45,3 +45,15 @@ Start battlesnake
 ```
 ./build/snakes/random/battlesnake_random
 ```
+
+# Credits
+
+These libraries are pulled from their official repositories and built from source during build:
+
+* https://github.com/google/googletest
+* https://github.com/ArthurSonzogni/nlohmann_json_cmake_fetchcontent
+* https://github.com/p-ranav/argparse
+* https://github.com/mariusbancila/stduuid
+* https://github.com/kingsamchen/asio-cmake
+  * https://github.com/chriskohlhoff/asio
+* https://gitlab.com/eidheim/Simple-Web-Server
