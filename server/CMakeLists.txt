@@ -1,4 +1,4 @@
-include(${CMAKE_SOURCE_DIR}/simplewebserver.cmake)
+include(${BATTLESNAKE_ROOT_DIR}/simplewebserver.cmake)
 
 set(libbattlesnakeserver_SRCS
     server.cpp
