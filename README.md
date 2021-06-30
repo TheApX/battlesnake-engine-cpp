@@ -79,6 +79,6 @@ These libraries are pulled from their official repositories and built from sourc
   * It is fast. During the same 500ms code written in vanilla C++ can compute much more than vanilla Python, for example.
   * It's the language I've been using at my main job for over 10 years.
 * Can I use it as a starter project?
-  * Yes, but I wouldn't recommend. It is a bit overly complicated for a starter project. Though there is an [example](snakes/random/snake_random.cpp) that you can use.
+  * Yes, but I wouldn't recommend. It is a bit overly complicated for a starter project. Though there is an [example](snakes/random/README.md) that you can use.
 * I want to make contribution!
   * You are more than welcome! Please send a pull request and I will respond in a couple days.
