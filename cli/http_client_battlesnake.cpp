@@ -36,11 +36,13 @@ std::string HttpRequest(const std::string& url, int timeout_ms,
   std::string readBuffer;
 
   struct curl_slist* headers = NULL;
+  headers = curl_slist_append(headers, "Expect:");
   headers = curl_slist_append(headers, "Accept: application/json");
   headers = curl_slist_append(headers, "Content-Type: application/json");
   headers = curl_slist_append(headers, "charset: utf-8");
 
   curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+  curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
   curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method.c_str());
   curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, timeout_ms);
   curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
@@ -52,6 +54,11 @@ std::string HttpRequest(const std::string& url, int timeout_ms,
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
   CURLcode res = curl_easy_perform(curl);
   curl_easy_cleanup(curl);
+
+  if (res != CURLE_OK) {
+    std::cerr << "res = " << res << std::endl;
+    // abort();
+  }
 
   return readBuffer;
 }
