@@ -21,6 +21,7 @@ C++ implementation of https://github.com/BattlesnakeOfficial/rules - official ba
 * Simple random battlesnake.
   * Demonstrates how to use web-server and build your battlesnakes.
   * Fast unit tests that don't use web-server.
+* Battlesnake [game downloader](gamedownloader/README.md).
 
 # Building and running
 
