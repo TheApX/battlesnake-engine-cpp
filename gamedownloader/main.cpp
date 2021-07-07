@@ -1,5 +1,8 @@
+#include <curl/curl.h>
+
 #include <client_wss.hpp>
 #include <exception>
+#include <fstream>
 #include <future>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -20,12 +23,65 @@ class DownloaderException : public std::exception {
   std::string error_;
 };
 
-}  // namespace
+class CurlInit {
+ public:
+  CurlInit() { curl_global_init(CURL_GLOBAL_ALL); }
+  ~CurlInit() { curl_global_cleanup(); }
+};
 
-std::vector<nlohmann::json> DownloadGameData(const DownloaderOptions& options) {
+static size_t WriteCallback(void* contents, size_t size, size_t nmemb,
+                            void* userp) {
+  ((std::string*)userp)->append((char*)contents, size * nmemb);
+  return size * nmemb;
+}
+
+std::string HttpRequest(const std::string& url, int timeout_ms,
+                        const std::string& method = "GET",
+                        const std::string& data = "") {
+  CURL* curl = curl_easy_init();
+  if (curl == nullptr) {
+    throw std::runtime_error("Can't initialize curl");
+  }
+
+  std::string readBuffer;
+
+  struct curl_slist* headers = NULL;
+  headers = curl_slist_append(headers, "Expect:");
+  headers = curl_slist_append(headers, "Accept: application/json");
+  headers = curl_slist_append(headers, "Content-Type: application/json");
+  headers = curl_slist_append(headers, "charset: utf-8");
+
+  curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+  curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+  curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method.c_str());
+  curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, timeout_ms);
+  curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+  if (method != "GET") {
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
+  }
+  curl_easy_setopt(curl, CURLOPT_USERAGENT, "battlesnakecpp-cli/0.1");
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+  CURLcode res = curl_easy_perform(curl);
+  curl_easy_cleanup(curl);
+
+  if (res != CURLE_OK) {
+    std::cerr << "res = " << res << std::endl;
+    // abort();
+  }
+
+  return readBuffer;
+}
+
+nlohmann::json DownloadGameInfo(const std::string& game_id) {
+  return nlohmann::json::parse(
+      HttpRequest("https://engine.battlesnake.com/games/" + game_id, 60000));
+}
+
+std::vector<nlohmann::json> DownloadGameData(const std::string& game_id) {
   std::vector<nlohmann::json> result;
 
-  WssClient client("engine.battlesnake.com/socket/" + options.game_id,
+  WssClient client("engine.battlesnake.com/socket/" + game_id,
                    false);  // Second Client() parameter set to false: no
                             // certificate verification
   client.on_message = [&result](
@@ -77,7 +133,83 @@ nlohmann::json FindTurnData(const std::vector<nlohmann::json>& all_turns,
   throw DownloaderException("Turn not found: " + std::to_string(turn));
 }
 
-nlohmann::json ConvertToSnakeData(const nlohmann::json& turn_data,
+nlohmann::json ConvertGameInfo(const nlohmann::json& info) {
+  return nlohmann::json{
+      {"id", info["ID"]},
+      {"timeout", info["SnakeTimeout"]},
+      {"ruleset",
+       {
+           {"name", info["Ruleset"]["name"]},
+           {"version", "v1.0.0"},  // Version is not available, use fake.
+       }},
+  };
+}
+
+nlohmann::json ConvertPoint(const nlohmann::json& p) {
+  return nlohmann::json{
+      {"x", p["X"]},
+      {"y", p["Y"]},
+  };
+}
+
+nlohmann::json ConvertPointArray(const nlohmann::json& info) {
+  nlohmann::json result = nlohmann::json::array();
+
+  for (const nlohmann::json& p : info) {
+    result.push_back(ConvertPoint(p));
+  }
+
+  return result;
+}
+
+nlohmann::json ConvertSnake(const nlohmann::json& info) {
+  return nlohmann::json{
+      {"body", ConvertPointArray(info["Body"])},
+      {"head", ConvertPoint(info["Body"].front())},
+      {"health", info["Health"]},
+      {"id", info["ID"]},
+      {"latency", info["Latency"]},
+      {"length", info["Body"].size()},
+      {"name", info["Name"]},
+      {"shout", info["Shout"]},
+      {"squad", info["Squad"]},
+  };
+}
+
+nlohmann::json ConvertSnakesArray(const nlohmann::json& info) {
+  nlohmann::json result = nlohmann::json::array();
+
+  for (const nlohmann::json& s : info) {
+    result.push_back(ConvertSnake(s));
+  }
+
+  return result;
+}
+
+nlohmann::json ConvertBoard(const nlohmann::json& info,
+                            const nlohmann::json& game_info) {
+  return nlohmann::json{
+      {"food", ConvertPointArray(info["Food"])},
+      {"hazards", ConvertPointArray(info["Hazards"])},
+      {"width", game_info["Width"]},
+      {"height", game_info["Height"]},
+      {"snakes", ConvertSnakesArray(info["Snakes"])},
+  };
+}
+
+nlohmann::json ConvertToSnakeData(const nlohmann::json& game_info,
+                                  const nlohmann::json& turn_data,
+                                  const nlohmann::json& snake_data) {
+  return nlohmann::json{
+      {"turn", turn_data["Turn"]},
+      {"game", ConvertGameInfo(game_info["Game"])},
+      {"you", ConvertSnake(snake_data)},
+      {"board", ConvertBoard(turn_data, game_info["Game"])},
+  };
+}
+
+nlohmann::json ConvertToSnakeData(const nlohmann::json& game_info,
+                                  const nlohmann::json& turn_data,
                                   const std::string& snake_id) {
   std::cout << "Snakes:" << std::endl;
   for (const auto& snake : turn_data["Snakes"]) {
@@ -109,11 +241,15 @@ nlohmann::json ConvertToSnakeData(const nlohmann::json& turn_data,
     throw DownloaderException("Snake not found: " + snake_id);
   }
 
-  throw DownloaderException("Not implemented");
+  return ConvertToSnakeData(game_info, turn_data, snake_data);
 }
+
+}  // namespace
 
 int main(int argc, const char* const argv[]) {
   try {
+    CurlInit curl_init;
+
     DownloaderOptions options = ParseDownloaderOptions(argc, argv);
     if (options.exit_immediately) {
       return options.ret_code;
@@ -121,11 +257,22 @@ int main(int argc, const char* const argv[]) {
 
     std::cout << options;
 
-    auto turns_data = DownloadGameData(options);
+    auto game_info = DownloadGameInfo(options.game_id);
+    auto turns_data = DownloadGameData(options.game_id);
     std::cout << "Got " << turns_data.size() << " turns" << std::endl;
 
     nlohmann::json turn_data = FindTurnData(turns_data, options.turn);
-    nlohmann::json snake_data = ConvertToSnakeData(turn_data, options.snake);
+    nlohmann::json snake_data =
+        ConvertToSnakeData(game_info, turn_data, options.snake);
+
+    {
+      std::ofstream out(options.filename);
+      if (!out.good()) {
+        throw DownloaderException("Can't open file: " + options.filename);
+      }
+      out << snake_data.dump(4);
+      std::cout << "Saved game state to: " << options.filename << std::endl;
+    }
 
     return 0;
   } catch (DownloaderException e) {

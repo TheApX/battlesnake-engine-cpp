@@ -28,6 +28,7 @@ target_include_directories(battlesnakedownloader PRIVATE
     ${uuid_v4_SOURCE_DIR}
 )
 
+target_link_libraries(battlesnakedownloader curl)
 target_link_libraries(battlesnakedownloader simple-websocket-server)
 target_link_libraries(battlesnakedownloader nlohmann_json::nlohmann_json)
 target_link_libraries(battlesnakedownloader argparse)
