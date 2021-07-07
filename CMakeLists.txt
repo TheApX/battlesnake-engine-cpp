@@ -18,5 +18,6 @@ add_subdirectory(json)
 add_subdirectory(interface)
 add_subdirectory(server)
 add_subdirectory(cli)
+add_subdirectory(gamedownloader)
 
 add_subdirectory(snakes)
