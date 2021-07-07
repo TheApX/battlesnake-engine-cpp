@@ -31,7 +31,8 @@ sudo apt install \
     build-essential \
     cmake \
     clang \
-    libcurl4-openssl-dev
+    libcurl4-openssl-dev \
+    libssl-dev
 ```
 
 Build everything and run tests:

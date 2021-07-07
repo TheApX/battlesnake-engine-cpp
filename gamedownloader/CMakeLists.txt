@@ -12,6 +12,9 @@ FetchContent_Declare(argparse
   GIT_TAG master)
 FetchContent_MakeAvailable(argparse)
 
+# Import simple-websocket-server library
+include(${CMAKE_CURRENT_SOURCE_DIR}/simplewebsocketserver.cmake)
+
 set(battlesnakedownloader_SRCS
     main.cpp
     options.cpp
@@ -25,6 +28,7 @@ target_include_directories(battlesnakedownloader PRIVATE
     ${uuid_v4_SOURCE_DIR}
 )
 
+target_link_libraries(battlesnakedownloader simple-websocket-server)
 target_link_libraries(battlesnakedownloader nlohmann_json::nlohmann_json)
 target_link_libraries(battlesnakedownloader argparse)
 target_link_libraries(battlesnakedownloader libbattlesnakerules)
