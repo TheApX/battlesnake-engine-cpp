@@ -20,9 +20,9 @@ class RoyaleRuleset : public StandardRuleset {
                 const RoyaleConfig& royale_config = RoyaleConfig::Default())
       : StandardRuleset(config), royale_config_(royale_config) {}
 
-  virtual BoardState CreateNextBoardState(const BoardState& prev_state,
-                                          std::map<SnakeId, Move> moves,
-                                          int turn) override;
+  virtual BoardState CreateNextBoardState(
+      const BoardState& prev_state,
+      const std::unordered_map<SnakeId, Move>& moves, int turn) override;
 
  private:
   RoyaleConfig royale_config_;

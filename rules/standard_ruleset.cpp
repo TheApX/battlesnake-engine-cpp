@@ -235,9 +235,9 @@ std::vector<Point> StandardRuleset::getEvenUnoccupiedPoints(
       state, false, [](const Point& p) { return (p.x + p.y) % 2 == 0; });
 }
 
-BoardState StandardRuleset::CreateNextBoardState(const BoardState& prev_state,
-                                                 std::map<SnakeId, Move> moves,
-                                                 int turn) {
+BoardState StandardRuleset::CreateNextBoardState(
+    const BoardState& prev_state,
+    const std::unordered_map<SnakeId, Move>& moves, int turn) {
   BoardState next_state = prev_state;
 
   moveSnakes(next_state, moves);
@@ -249,15 +249,19 @@ BoardState StandardRuleset::CreateNextBoardState(const BoardState& prev_state,
   return next_state;
 }
 
-void StandardRuleset::moveSnakes(BoardState& state,
-                                 std::map<SnakeId, Move> moves) const {
+void StandardRuleset::moveSnakes(
+    BoardState& state, const std::unordered_map<SnakeId, Move>& moves) const {
   checkSnakesForMove(state, moves);
 
   for (Snake& snake : state.snakes) {
     if (snake.IsEliminated()) {
       continue;
     }
-    Move move = moves[snake.id];
+    auto move_it = moves.find(snake.id);
+    if (move_it == moves.end()) {
+      throw ErrorNoMoveFound(snake.id);
+    }
+    Move move = move_it->second;
 
     Point old_head = snake.body.front();
     // Default direction is Up.
@@ -307,8 +311,8 @@ void StandardRuleset::moveSnakes(BoardState& state,
   }
 }
 
-void StandardRuleset::checkSnakesForMove(BoardState& state,
-                                         std::map<SnakeId, Move> moves) const {
+void StandardRuleset::checkSnakesForMove(
+    BoardState& state, const std::unordered_map<SnakeId, Move>& moves) const {
   // Check that all non-eliminated snakes have moves and bodies.
   for (const Snake& snake : state.snakes) {
     if (snake.IsEliminated()) {
@@ -386,7 +390,7 @@ void StandardRuleset::maybeEliminateSnakes(BoardState& state) const {
   // that are out of health or have moved out of bounds.
   eliminateOutOfHealthOrBoundsSnakes(state);
 
-  std::map<SnakeId, EliminatedCause> collision_eliminations =
+  std::unordered_map<SnakeId, EliminatedCause> collision_eliminations =
       findCollisionEliminations(state, snake_indices_by_length);
   applyCollisionEliminations(state, collision_eliminations);
 }
@@ -427,10 +431,11 @@ bool StandardRuleset::snakeOutOfBounds(const BoardState& state,
   return false;
 }
 
-std::map<SnakeId, EliminatedCause> StandardRuleset::findCollisionEliminations(
+std::unordered_map<SnakeId, EliminatedCause>
+StandardRuleset::findCollisionEliminations(
     const BoardState& state,
     const std::vector<int>& snake_indices_by_length) const {
-  std::map<SnakeId, EliminatedCause> result;
+  std::unordered_map<SnakeId, EliminatedCause> result;
   for (const Snake& snake : state.snakes) {
     if (snake.IsEliminated()) {
       continue;
@@ -521,7 +526,7 @@ bool StandardRuleset::snakeHasLostHeadToHead(const Snake& snake,
 
 void StandardRuleset::applyCollisionEliminations(
     BoardState& state,
-    const std::map<SnakeId, EliminatedCause>& eliminations) const {
+    const std::unordered_map<SnakeId, EliminatedCause>& eliminations) const {
   for (Snake& snake : state.snakes) {
     auto elimination = eliminations.find(snake.id);
     if (elimination == eliminations.end()) {

@@ -14,7 +14,8 @@ BoardState ConstrictorRuleset::CreateInitialBoardState(
 }
 
 BoardState ConstrictorRuleset::CreateNextBoardState(
-    const BoardState& prev_state, std::map<SnakeId, Move> moves, int turn) {
+    const BoardState& prev_state,
+    const std::unordered_map<SnakeId, Move>& moves, int turn) {
   BoardState next_state =
       StandardRuleset::CreateNextBoardState(prev_state, moves, turn);
 

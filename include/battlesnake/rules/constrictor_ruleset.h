@@ -12,9 +12,9 @@ class ConstrictorRuleset : public StandardRuleset {
 
   virtual BoardState CreateInitialBoardState(
       int width, int height, std::vector<SnakeId> snake_ids) override;
-  virtual BoardState CreateNextBoardState(const BoardState& prev_state,
-                                          std::map<SnakeId, Move> moves,
-                                          int turn) override;
+  virtual BoardState CreateNextBoardState(
+      const BoardState& prev_state,
+      const std::unordered_map<SnakeId, Move>& moves, int turn) override;
 
  private:
   int snake_max_health_ = 0;

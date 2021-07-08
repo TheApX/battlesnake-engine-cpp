@@ -23,9 +23,9 @@ class StandardRuleset : public Ruleset {
 
   virtual BoardState CreateInitialBoardState(
       int width, int height, std::vector<SnakeId> snake_ids) override;
-  virtual BoardState CreateNextBoardState(const BoardState& prev_state,
-                                          std::map<SnakeId, Move> moves,
-                                          int turn = 0) override;
+  virtual BoardState CreateNextBoardState(
+      const BoardState& prev_state,
+      const std::unordered_map<SnakeId, Move>& moves, int turn = 0) override;
   virtual bool IsGameOver(const BoardState& state) override;
 
  protected:
@@ -55,9 +55,10 @@ class StandardRuleset : public Ruleset {
       });
   static std::vector<Point> getEvenUnoccupiedPoints(const BoardState& state);
 
-  void moveSnakes(BoardState& state, std::map<SnakeId, Move> moves) const;
+  void moveSnakes(BoardState& state,
+                  const std::unordered_map<SnakeId, Move>& moves) const;
   void checkSnakesForMove(BoardState& state,
-                          std::map<SnakeId, Move> moves) const;
+                          const std::unordered_map<SnakeId, Move>& moves) const;
 
   void reduceSnakeHealth(BoardState& state) const;
 
@@ -67,14 +68,14 @@ class StandardRuleset : public Ruleset {
   void maybeEliminateSnakes(BoardState& state) const;
   void eliminateOutOfHealthOrBoundsSnakes(BoardState& state) const;
   bool snakeOutOfBounds(const BoardState& state, const Snake& snake) const;
-  std::map<SnakeId, EliminatedCause> findCollisionEliminations(
+  std::unordered_map<SnakeId, EliminatedCause> findCollisionEliminations(
       const BoardState& state,
       const std::vector<int>& snake_indices_by_length) const;
   bool snakeHasBodyCollided(const Snake& snake, const Snake& other) const;
   bool snakeHasLostHeadToHead(const Snake& snake, const Snake& other) const;
   void applyCollisionEliminations(
       BoardState& state,
-      const std::map<SnakeId, EliminatedCause>& eliminations) const;
+      const std::unordered_map<SnakeId, EliminatedCause>& eliminations) const;
 };
 
 }  // namespace rules

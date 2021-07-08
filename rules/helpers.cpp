@@ -1,8 +1,8 @@
 #include "battlesnake/rules/helpers.h"
 
 #include <algorithm>
-#include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace battlesnake {
@@ -104,8 +104,9 @@ void AppendLine(std::vector<std::string>& lines, int len, int n,
 
 }  // namespace
 
-std::string RenderGame(const GameState& state,
-                       const std::map<SnakeId, char>& snake_head_syms) {
+std::string RenderGame(
+    const GameState& state,
+    const std::unordered_map<SnakeId, char>& snake_head_syms) {
   auto ind = [&](int x, int y) -> int { return y * state.board.width + x; };
 
   std::vector<std::string> board(state.board.width * state.board.height,

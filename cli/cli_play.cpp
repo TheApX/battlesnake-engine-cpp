@@ -71,7 +71,7 @@ std::unique_ptr<Ruleset> CreateRuleset(const std::string& name) {
 }
 
 void PrintGame(const GameState& game, bool render, bool redraw_mode,
-               const std::map<SnakeId, char>& snake_head_syms) {
+               const std::unordered_map<SnakeId, char>& snake_head_syms) {
   if (!redraw_mode) {
     nlohmann::json json = CreateJson(game);
     std::cout << json.dump() << std::endl;
@@ -119,12 +119,13 @@ MoveResult MoveSnake(const GameState& game, const Snake& snake,
   return result;
 }
 
-std::tuple<std::map<SnakeId, Battlesnake::MoveResponse>, std::map<SnakeId, int>>
+std::tuple<std::unordered_map<SnakeId, Battlesnake::MoveResponse>,
+           std::unordered_map<SnakeId, int>>
 GetMoves(
     const GameState& game,
     const std::unordered_map<SnakeId, std::unique_ptr<Battlesnake>>& snakes) {
-  std::map<SnakeId, Battlesnake::MoveResponse> move_responses;
-  std::map<SnakeId, int> latencies;
+  std::unordered_map<SnakeId, Battlesnake::MoveResponse> move_responses;
+  std::unordered_map<SnakeId, int> latencies;
 
   // Send requests in parallel.
   std::vector<std::future<MoveResult>> move_futures;
@@ -245,7 +246,7 @@ int PlayGame(const CliOptions& options) {
     }
   }
 
-  std::map<SnakeId, char> snake_head_syms;
+  std::unordered_map<SnakeId, char> snake_head_syms;
   char head_sym = 'A';
 
   for (Snake& snake : game.board.snakes) {
@@ -262,8 +263,8 @@ int PlayGame(const CliOptions& options) {
     PrintGame(game, options.view_map, options.view_map_only, snake_head_syms);
     std::cout << "Total latency: " << total_latency << std::endl;
 
-    std::map<SnakeId, Battlesnake::MoveResponse> move_responses;
-    std::map<SnakeId, int> latencies;
+    std::unordered_map<SnakeId, Battlesnake::MoveResponse> move_responses;
+    std::unordered_map<SnakeId, int> latencies;
 
     auto start = std::chrono::high_resolution_clock::now();
     std::tie(move_responses, latencies) = GetMoves(game, snakes);
@@ -272,7 +273,7 @@ int PlayGame(const CliOptions& options) {
         std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
             .count();
 
-    std::map<SnakeId, Move> moves;
+    std::unordered_map<SnakeId, Move> moves;
     for (const auto& [id, response] : move_responses) {
       moves[id] = response.move;
     }
