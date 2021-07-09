@@ -374,7 +374,7 @@ void StandardRuleset::growSnake(Snake& snake) const {
 }
 
 void StandardRuleset::maybeEliminateSnakes(BoardState& state) const {
-  std::vector<int> snake_indices_by_length;
+  SnakeIndicesVector snake_indices_by_length;
   snake_indices_by_length.reserve(state.snakes.size());
   for (int i = 0; i < state.snakes.size(); ++i) {
     snake_indices_by_length.push_back(i);
@@ -434,7 +434,7 @@ bool StandardRuleset::snakeOutOfBounds(const BoardState& state,
 std::unordered_map<SnakeId, EliminatedCause>
 StandardRuleset::findCollisionEliminations(
     const BoardState& state,
-    const std::vector<int>& snake_indices_by_length) const {
+    const SnakeIndicesVector& snake_indices_by_length) const {
   std::unordered_map<SnakeId, EliminatedCause> result;
   for (const Snake& snake : state.snakes) {
     if (snake.IsEliminated()) {

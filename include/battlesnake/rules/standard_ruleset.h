@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <itlib/small_vector.hpp>
 
 #include "battlesnake/rules/ruleset.h"
 
@@ -33,6 +34,8 @@ class StandardRuleset : public Ruleset {
   void growSnake(Snake& snake) const;
 
  private:
+  using SnakeIndicesVector = ::itlib::small_vector<int, kMaxSnakesCount>;
+
   Config config_;
 
   static bool isKnownBoardSize(const BoardState& state);
@@ -70,7 +73,7 @@ class StandardRuleset : public Ruleset {
   bool snakeOutOfBounds(const BoardState& state, const Snake& snake) const;
   std::unordered_map<SnakeId, EliminatedCause> findCollisionEliminations(
       const BoardState& state,
-      const std::vector<int>& snake_indices_by_length) const;
+      const SnakeIndicesVector& snake_indices_by_length) const;
   bool snakeHasBodyCollided(const Snake& snake, const Snake& other) const;
   bool snakeHasLostHeadToHead(const Snake& snake, const Snake& other) const;
   void applyCollisionEliminations(
