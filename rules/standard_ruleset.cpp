@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <random>
 #include <unordered_set>
+#include <vector>
 
 #include "battlesnake/rules/errors.h"
 
@@ -28,7 +29,7 @@ BoardState StandardRuleset::CreateInitialBoardState(
     placeSnakesFixed(initial_board_state);
     placeFoodFixed(initial_board_state);
   } else {
-    std::vector<Point> unoccupied_points =
+    PointsVector unoccupied_points =
         getEvenUnoccupiedPoints(initial_board_state);
     placeSnakesRandomly(initial_board_state, unoccupied_points);
     placeFoodRandomly(initial_board_state, unoccupied_points);
@@ -86,7 +87,7 @@ void StandardRuleset::placeSnakesFixed(BoardState& state) const {
 }
 
 void StandardRuleset::placeSnakesRandomly(
-    BoardState& state, std::vector<Point>& unoccupied_points) const {
+    BoardState& state, PointsVector& unoccupied_points) const {
   for (Snake& snake : state.snakes) {
     if (unoccupied_points.empty()) {
       throw ErrorNoRoomForSnake();
@@ -122,7 +123,7 @@ void StandardRuleset::placeFoodFixed(BoardState& state) const {
         Point{.x = snake_head.x + 1, .y = snake_head.y + 1},
     };
 
-    std::vector<Point> available_food_locations;
+    PointsVector available_food_locations;
     for (const Point& p : possible_food_locations) {
       if (food_locations.find(p) != food_locations.end()) {
         // Already occupied by a food.
@@ -149,8 +150,8 @@ void StandardRuleset::placeFoodFixed(BoardState& state) const {
   state.food.push_back(center_coordinates);
 }
 
-void StandardRuleset::placeFoodRandomly(
-    BoardState& state, std::vector<Point>& unoccupied_points) const {
+void StandardRuleset::placeFoodRandomly(BoardState& state,
+                                        PointsVector& unoccupied_points) const {
   spawnFood(state, state.snakes.size(), unoccupied_points);
 }
 
@@ -171,7 +172,7 @@ void StandardRuleset::maybeSpawnFood(BoardState& state) const {
 }
 
 void StandardRuleset::spawnFood(BoardState& state, int count,
-                                std::vector<Point>& unoccupied_points) const {
+                                PointsVector& unoccupied_points) const {
   for (int i = 0; i < count; ++i) {
     if (unoccupied_points.empty()) {
       return;
@@ -189,7 +190,7 @@ void StandardRuleset::spawnFood(BoardState& state, int count,
   }
 }
 
-std::vector<Point> StandardRuleset::getUnoccupiedPoints(
+PointsVector StandardRuleset::getUnoccupiedPoints(
     const BoardState& state, bool include_possible_moves,
     const std::function<bool(const Point&)>& filter) {
   std::unordered_set<Point, PointHash> occupied_points;
@@ -212,7 +213,7 @@ std::vector<Point> StandardRuleset::getUnoccupiedPoints(
     }
   }
 
-  std::vector<Point> unoccupied_points;
+  PointsVector unoccupied_points;
   for (int y = 0; y < state.height; ++y) {
     for (int x = 0; x < state.width; ++x) {
       Point p{x, y};
@@ -229,8 +230,7 @@ std::vector<Point> StandardRuleset::getUnoccupiedPoints(
   return unoccupied_points;
 }
 
-std::vector<Point> StandardRuleset::getEvenUnoccupiedPoints(
-    const BoardState& state) {
+PointsVector StandardRuleset::getEvenUnoccupiedPoints(const BoardState& state) {
   return getUnoccupiedPoints(
       state, false, [](const Point& p) { return (p.x + p.y) % 2 == 0; });
 }

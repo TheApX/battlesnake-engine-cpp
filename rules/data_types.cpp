@@ -8,10 +8,10 @@ namespace rules {
 namespace {
 
 template <class T>
-std::ostream& PrintVector(std::ostream& s, const std::vector<T>& v) {
+std::ostream& PrintContainer(std::ostream& s, const T& v) {
   s << "[";
   bool first = true;
-  for (const T& t : v) {
+  for (const auto& t : v) {
     if (!first) {
       s << ",";
     }
@@ -113,7 +113,7 @@ std::ostream& operator<<(std::ostream& s, const Snake& snake) {
   s << "{";
   s << "id: '" << snake.id << "'";
   s << " body: ";
-  PrintVector(s, snake.body);
+  PrintContainer(s, snake.body);
   s << " health: " << snake.health;
   s << " eliminated: " << snake.eliminated_cause;
   s << "}";

@@ -19,5 +19,5 @@ target_include_directories(libbattlesnakejson PUBLIC
     ${BATTLESNAKE_ROOT_DIR}/include
 )
 
-target_link_libraries(libbattlesnakejson PUBLIC nlohmann_json::nlohmann_json)
-target_link_libraries(libbattlesnakejson PUBLIC libbattlesnakerules)
+target_link_libraries(libbattlesnakejson LINK_PUBLIC nlohmann_json::nlohmann_json)
+target_link_libraries(libbattlesnakejson LINK_PUBLIC libbattlesnakerules)

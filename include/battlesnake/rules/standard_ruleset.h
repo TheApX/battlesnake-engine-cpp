@@ -39,21 +39,21 @@ class StandardRuleset : public Ruleset {
 
   void placeSnakesFixed(BoardState& state) const;
   void placeSnakesRandomly(BoardState& state,
-                           std::vector<Point>& unoccupied_points) const;
+                           PointsVector& unoccupied_points) const;
 
   void placeFoodFixed(BoardState& state) const;
   void placeFoodRandomly(BoardState& state,
-                         std::vector<Point>& unoccupied_points) const;
+                         PointsVector& unoccupied_points) const;
   void maybeSpawnFood(BoardState& state) const;
   void spawnFood(BoardState& state, int count,
-                 std::vector<Point>& unoccupied_points) const;
+                 PointsVector& unoccupied_points) const;
 
-  static std::vector<Point> getUnoccupiedPoints(
+  static PointsVector getUnoccupiedPoints(
       const BoardState& state, bool include_possible_moves,
       const std::function<bool(const Point&)>& filter = [](const Point&) {
         return true;
       });
-  static std::vector<Point> getEvenUnoccupiedPoints(const BoardState& state);
+  static PointsVector getEvenUnoccupiedPoints(const BoardState& state);
 
   void moveSnakes(BoardState& state,
                   const std::unordered_map<SnakeId, Move>& moves) const;

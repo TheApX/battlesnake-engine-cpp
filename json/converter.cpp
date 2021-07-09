@@ -10,9 +10,9 @@ namespace {
 using namespace ::battlesnake::rules;
 
 template <class T>
-nlohmann::json CreateVectorJson(const std::vector<T>& values) {
+nlohmann::json CreateContainerJson(const T& values) {
   nlohmann::json result = nlohmann::json::array();
-  for (const T& v : values) {
+  for (const auto& v : values) {
     result.push_back(CreateJson(v));
   }
   return result;
@@ -52,7 +52,7 @@ std::string GetString(const nlohmann::json& json, const char* key,
   return *v;
 }
 
-std::vector<Point> GetPointArray(const nlohmann::json& json, const char* key) {
+PointsVector GetPointArray(const nlohmann::json& json, const char* key) {
   auto v = json.find(key);
   if (v == json.end()) {
     throw ParseException();
@@ -61,7 +61,7 @@ std::vector<Point> GetPointArray(const nlohmann::json& json, const char* key) {
     throw ParseException();
   }
 
-  std::vector<Point> result;
+  PointsVector result;
   result.reserve(v->size());
   for (const nlohmann::json& p : *v) {
     result.push_back(ParseJsonPoint(p));
@@ -69,7 +69,7 @@ std::vector<Point> GetPointArray(const nlohmann::json& json, const char* key) {
   return result;
 }
 
-std::vector<Snake> GetSnakeArray(const nlohmann::json& json, const char* key) {
+SnakesVector GetSnakeArray(const nlohmann::json& json, const char* key) {
   auto v = json.find(key);
   if (v == json.end()) {
     throw ParseException();
@@ -78,7 +78,7 @@ std::vector<Snake> GetSnakeArray(const nlohmann::json& json, const char* key) {
     throw ParseException();
   }
 
-  std::vector<Snake> result;
+  SnakesVector result;
   result.reserve(v->size());
   for (const nlohmann::json& s : *v) {
     result.push_back(ParseJsonSnake(s));
@@ -100,7 +100,7 @@ nlohmann::json CreateJson(const Snake& snake) {
   result["id"] = snake.id;
   result["health"] = snake.health;
   result["head"] = CreateJson(snake.Head());
-  result["body"] = CreateVectorJson(snake.body);
+  result["body"] = CreateContainerJson(snake.body);
   result["length"] = snake.body.size();
 
   result["name"] = snake.name;
@@ -124,8 +124,8 @@ nlohmann::json CreateJson(const BoardState& state) {
 
   result["width"] = state.width;
   result["height"] = state.height;
-  result["food"] = CreateVectorJson(state.food);
-  result["hazards"] = CreateVectorJson(state.hazards);
+  result["food"] = CreateContainerJson(state.food);
+  result["hazards"] = CreateContainerJson(state.hazards);
 
   auto snakes = nlohmann::json::array();
   for (const Snake& snake : state.snakes) {
