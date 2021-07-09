@@ -445,7 +445,7 @@ StandardRuleset::findCollisionEliminations(
     if (snakeHasBodyCollided(snake, snake)) {
       result[snake.id] = EliminatedCause{
           .cause = EliminatedCause::SelfCollision,
-          .by_id = snake.id,
+          .by_id = config_.optimize_strings ? std::string() : snake.id,
       };
       continue;
     }
