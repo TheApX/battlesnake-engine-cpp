@@ -182,7 +182,7 @@ Point ParseJsonPoint(const nlohmann::json& json) {
   if (!json.is_object()) {
     throw ParseException();
   }
-  return Point(GetInt(json, "x"), GetInt(json, "y"));
+  return Point{GetInt(json, "x"), GetInt(json, "y")};
 }
 
 Snake ParseJsonSnake(const nlohmann::json& json) {

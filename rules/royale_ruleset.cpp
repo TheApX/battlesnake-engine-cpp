@@ -135,7 +135,7 @@ void RoyaleRuleset::fillHazards(const Bounds& bounds, BoardState& state) const {
         continue;
       }
 
-      state.hazards.push_back(Point(x, y));
+      state.hazards.push_back(Point{x, y});
     }
   }
 }

@@ -16,7 +16,7 @@ using namespace ::battlesnake::rules;
 class CreateJsonTest : public testing::Test {};
 
 TEST_F(CreateJsonTest, Point) {
-  nlohmann::json json = CreateJson(Point(123, 456));
+  nlohmann::json json = CreateJson(Point{123, 456});
   EXPECT_THAT(json, Eq(nlohmann::json::parse(R"json({"x":123,"y":456})json")));
 }
 
@@ -32,9 +32,9 @@ TEST_F(CreateJsonTest, NotEliminatedSnake) {
       .id = "snake_id",
       .body =
           {
-              Point(10, 1),
-              Point(10, 2),
-              Point(10, 3),
+              Point{10, 1},
+              Point{10, 2},
+              Point{10, 3},
           },
       .health = 75,
       .name = "Test Caterpillar",
@@ -92,8 +92,8 @@ TEST_F(CreateJsonTest, BoardStateFood) {
       .height = 15,
       .food =
           {
-              Point(0, 1),
-              Point(4, 14),
+              Point{0, 1},
+              Point{4, 14},
           },
       .snakes = {},
       .hazards = {},
@@ -123,9 +123,9 @@ TEST_F(CreateJsonTest, BoardStateHazards) {
       .snakes = {},
       .hazards =
           {
-              Point(1, 0),
-              Point(3, 10),
-              Point(2, 5),
+              Point{1, 0},
+              Point{3, 10},
+              Point{2, 5},
           },
   };
 
@@ -157,9 +157,9 @@ TEST_F(CreateJsonTest, BoardStateSnakes) {
                   .id = "snake_id",
                   .body =
                       {
-                          Point(10, 1),
-                          Point(10, 2),
-                          Point(10, 3),
+                          Point{10, 1},
+                          Point{10, 2},
+                          Point{10, 3},
                       },
                   .health = 75,
                   .name = "Test Caterpillar",
@@ -209,9 +209,9 @@ TEST_F(CreateJsonTest, BoardStateEliminatedSnake) {
                   .id = "snake_id",
                   .body =
                       {
-                          Point(10, 1),
-                          Point(10, 2),
-                          Point(10, 3),
+                          Point{10, 1},
+                          Point{10, 2},
+                          Point{10, 3},
                       },
                   .health = 75,
                   .eliminated_cause =
@@ -277,9 +277,9 @@ TEST_F(CreateJsonTest, GameState) {
           .id = "snake_id",
           .body =
               {
-                  Point(10, 1),
-                  Point(10, 2),
-                  Point(10, 3),
+                  Point{10, 1},
+                  Point{10, 2},
+                  Point{10, 3},
               },
           .health = 75,
           .name = "Test Caterpillar",
@@ -336,9 +336,9 @@ TEST_F(CreateJsonTest, GameStateYouEliminated) {
           .id = "snake_id",
           .body =
               {
-                  Point(10, 1),
-                  Point(10, 2),
-                  Point(10, 3),
+                  Point{10, 1},
+                  Point{10, 2},
+                  Point{10, 3},
               },
           .health = 75,
           .eliminated_cause{.cause = EliminatedCause::Collision},

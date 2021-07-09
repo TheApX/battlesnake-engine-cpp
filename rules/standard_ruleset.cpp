@@ -116,10 +116,10 @@ void StandardRuleset::placeFoodFixed(BoardState& state) const {
   for (const Snake& snake : state.snakes) {
     const Point& snake_head = snake.body.front();
     std::initializer_list<Point> possible_food_locations{
-        Point(snake_head.x - 1, snake_head.y - 1),
-        Point(snake_head.x - 1, snake_head.y + 1),
-        Point(snake_head.x + 1, snake_head.y - 1),
-        Point(snake_head.x + 1, snake_head.y + 1),
+        Point{.x = snake_head.x - 1, .y = snake_head.y - 1},
+        Point{.x = snake_head.x - 1, .y = snake_head.y + 1},
+        Point{.x = snake_head.x + 1, .y = snake_head.y - 1},
+        Point{.x = snake_head.x + 1, .y = snake_head.y + 1},
     };
 
     std::vector<Point> available_food_locations;

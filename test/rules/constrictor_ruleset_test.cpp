@@ -75,9 +75,9 @@ TEST_F(ConstrictorCreateNextBoardStateTest, KeepsHealth) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -103,9 +103,9 @@ TEST_F(ConstrictorCreateNextBoardStateTest, GrowsSnake) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -119,10 +119,10 @@ TEST_F(ConstrictorCreateNextBoardStateTest, GrowsSnake) {
 
   // Body should grow.
   EXPECT_THAT(state.snakes, ElementsAre(SnakeBodyIs(ElementsAreArray({
-                                Point(1, 0),
-                                Point(1, 1),
-                                Point(1, 2),
-                                Point(1, 2),
+                                Point{1, 0},
+                                Point{1, 1},
+                                Point{1, 2},
+                                Point{1, 2},
                             }))));
 }
 
@@ -136,9 +136,9 @@ TEST_F(ConstrictorCreateNextBoardStateTest, DoesnGrowInitialSnake) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 1),
-                          Point(1, 1),
+                          Point{1, 1},
+                          Point{1, 1},
+                          Point{1, 1},
                       },
                   .health = 100,
               },
@@ -152,9 +152,9 @@ TEST_F(ConstrictorCreateNextBoardStateTest, DoesnGrowInitialSnake) {
 
   // Body shouldn't grow.
   EXPECT_THAT(state.snakes, ElementsAre(SnakeBodyIs(ElementsAreArray({
-                                Point(1, 0),
-                                Point(1, 1),
-                                Point(1, 1),
+                                Point{1, 0},
+                                Point{1, 1},
+                                Point{1, 1},
                             }))));
 }
 

@@ -40,9 +40,9 @@ TEST(BattlesnakeRandomTest, SnakeMoves) {
           .width = kBoardSizeSmall,
           .height = kBoardSizeSmall,
           .food{
-              Point(2, 2),
-              Point(10, 7),
-              Point(0, 0),
+              Point{2, 2},
+              Point{10, 7},
+              Point{0, 0},
           },
           .snakes =
               {
@@ -50,9 +50,9 @@ TEST(BattlesnakeRandomTest, SnakeMoves) {
                       .id = "one",
                       .body =
                           {
-                              Point(1, 1),
-                              Point(1, 2),
-                              Point(1, 3),
+                              Point{1, 1},
+                              Point{1, 2},
+                              Point{1, 3},
                           },
                       .health = 100,
                   },
@@ -60,9 +60,9 @@ TEST(BattlesnakeRandomTest, SnakeMoves) {
                       .id = "two",
                       .body =
                           {
-                              Point(5, 1),
-                              Point(5, 2),
-                              Point(5, 3),
+                              Point{5, 1},
+                              Point{5, 2},
+                              Point{5, 3},
                           },
                       .health = 75,
                   },

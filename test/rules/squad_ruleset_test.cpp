@@ -105,9 +105,9 @@ TEST_F(SquadCreateNextBoardStateTest, SameSquadDontCollide) {
                   .id = "one",
                   .body =
                       {
-                          Point(0, 1),
-                          Point(0, 2),
-                          Point(0, 3),
+                          Point{0, 1},
+                          Point{0, 2},
+                          Point{0, 3},
                       },
                   .health = 100,
                   .squad = "s",
@@ -116,9 +116,9 @@ TEST_F(SquadCreateNextBoardStateTest, SameSquadDontCollide) {
                   .id = "two",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(2, 1),
-                          Point(3, 1),
+                          Point{1, 1},
+                          Point{2, 1},
+                          Point{3, 1},
                       },
                   .health = 100,
                   .squad = "s",
@@ -148,9 +148,9 @@ TEST_F(SquadCreateNextBoardStateTest, DifferentSquadCollide) {
                   .id = "one",
                   .body =
                       {
-                          Point(0, 1),
-                          Point(0, 2),
-                          Point(0, 3),
+                          Point{0, 1},
+                          Point{0, 2},
+                          Point{0, 3},
                       },
                   .health = 100,
                   .squad = "s1",
@@ -159,9 +159,9 @@ TEST_F(SquadCreateNextBoardStateTest, DifferentSquadCollide) {
                   .id = "two",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(2, 1),
-                          Point(3, 1),
+                          Point{1, 1},
+                          Point{2, 1},
+                          Point{3, 1},
                       },
                   .health = 100,
                   .squad = "s2",
@@ -191,9 +191,9 @@ TEST_F(SquadCreateNextBoardStateTest, ShareHealth) {
                   .id = "one",
                   .body =
                       {
-                          Point(0, 1),
-                          Point(0, 2),
-                          Point(0, 3),
+                          Point{0, 1},
+                          Point{0, 2},
+                          Point{0, 3},
                       },
                   .health = 10,
                   .squad = "s",
@@ -202,9 +202,9 @@ TEST_F(SquadCreateNextBoardStateTest, ShareHealth) {
                   .id = "two",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(2, 1),
-                          Point(3, 1),
+                          Point{1, 1},
+                          Point{2, 1},
+                          Point{3, 1},
                       },
                   .health = 100,
                   .squad = "s",
@@ -234,11 +234,11 @@ TEST_F(SquadCreateNextBoardStateTest, ShareLength) {
                   .id = "one",
                   .body =
                       {
-                          Point(0, 1),
-                          Point(0, 2),
-                          Point(0, 3),
-                          Point(0, 4),
-                          Point(0, 5),
+                          Point{0, 1},
+                          Point{0, 2},
+                          Point{0, 3},
+                          Point{0, 4},
+                          Point{0, 5},
                       },
                   .health = 10,
                   .squad = "s",
@@ -247,9 +247,9 @@ TEST_F(SquadCreateNextBoardStateTest, ShareLength) {
                   .id = "two",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(2, 1),
-                          Point(3, 1),
+                          Point{1, 1},
+                          Point{2, 1},
+                          Point{3, 1},
                       },
                   .health = 100,
                   .squad = "s",
@@ -279,11 +279,11 @@ TEST_F(SquadCreateNextBoardStateTest, ShareElimination) {
                   .id = "one",
                   .body =
                       {
-                          Point(0, 1),
-                          Point(0, 2),
-                          Point(0, 3),
-                          Point(0, 4),
-                          Point(0, 5),
+                          Point{0, 1},
+                          Point{0, 2},
+                          Point{0, 3},
+                          Point{0, 4},
+                          Point{0, 5},
                       },
                   .health = 10,
                   .squad = "s",
@@ -292,10 +292,10 @@ TEST_F(SquadCreateNextBoardStateTest, ShareElimination) {
                   .id = "two",
                   .body =
                       {
-                          Point(0, 1),
-                          Point(1, 1),
-                          Point(2, 1),
-                          Point(3, 1),
+                          Point{0, 1},
+                          Point{1, 1},
+                          Point{2, 1},
+                          Point{3, 1},
                       },
                   .health = 100,
                   .squad = "s",
@@ -341,9 +341,9 @@ TEST_F(SquadIsGameOverTest, TwoSnakesSameSquad) {
                   .id = "one",
                   .body =
                       {
-                          Point(0, 1),
-                          Point(0, 2),
-                          Point(0, 3),
+                          Point{0, 1},
+                          Point{0, 2},
+                          Point{0, 3},
                       },
                   .health = 100,
                   .squad = "s",
@@ -352,9 +352,9 @@ TEST_F(SquadIsGameOverTest, TwoSnakesSameSquad) {
                   .id = "two",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(2, 1),
-                          Point(3, 1),
+                          Point{1, 1},
+                          Point{2, 1},
+                          Point{3, 1},
                       },
                   .health = 100,
                   .squad = "s",
@@ -377,9 +377,9 @@ TEST_F(SquadIsGameOverTest, TwoSnakesDifferentSquad) {
                   .id = "one",
                   .body =
                       {
-                          Point(0, 1),
-                          Point(0, 2),
-                          Point(0, 3),
+                          Point{0, 1},
+                          Point{0, 2},
+                          Point{0, 3},
                       },
                   .health = 100,
                   .squad = "s1",
@@ -388,9 +388,9 @@ TEST_F(SquadIsGameOverTest, TwoSnakesDifferentSquad) {
                   .id = "two",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(2, 1),
-                          Point(3, 1),
+                          Point{1, 1},
+                          Point{2, 1},
+                          Point{3, 1},
                       },
                   .health = 100,
                   .squad = "s2",

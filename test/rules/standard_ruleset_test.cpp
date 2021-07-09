@@ -306,10 +306,10 @@ class StandardPlaceFoodTest : public StandardRulesetTest {
       const Point& head = snake.body.front();
 
       auto accepted_food_pos = {
-          Point(head.x - 1, head.y - 1),
-          Point(head.x - 1, head.y + 1),
-          Point(head.x + 1, head.y - 1),
-          Point(head.x + 1, head.y + 1),
+          Point{head.x - 1, head.y - 1},
+          Point{head.x - 1, head.y + 1},
+          Point{head.x + 1, head.y - 1},
+          Point{head.x + 1, head.y + 1},
       };
 
       bool snake_has_food = false;
@@ -397,9 +397,9 @@ TEST_F(StandardCreateNextBoardStateTest, NoMoveFound) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -443,9 +443,9 @@ TEST_F(StandardCreateNextBoardStateTest, MovesTail) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -460,7 +460,7 @@ TEST_F(StandardCreateNextBoardStateTest, MovesTail) {
   // Don't care about head in this test, only about the rest of the body.
   EXPECT_THAT(
       state.snakes,
-      ElementsAre(SnakeBodyIs(ElementsAre(_, Point(1, 1), Point(1, 2)))));
+      ElementsAre(SnakeBodyIs(ElementsAre(_, Point{1, 1}, Point{1, 2}))));
 }
 
 TEST_F(StandardCreateNextBoardStateTest, MovesHeadUp) {
@@ -473,9 +473,9 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUp) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -487,7 +487,7 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUp) {
       ruleset.CreateNextBoardState(initial_state, {{"one", Move::Up}});
 
   EXPECT_THAT(state.snakes,
-              ElementsAre(SnakeBodyIs(ElementsAre(Point(1, 2), _, _))));
+              ElementsAre(SnakeBodyIs(ElementsAre(Point{1, 2}, _, _))));
 }
 
 TEST_F(StandardCreateNextBoardStateTest, MovesHeadDown) {
@@ -500,9 +500,9 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadDown) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -514,7 +514,7 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadDown) {
       ruleset.CreateNextBoardState(initial_state, {{"one", Move::Down}});
 
   EXPECT_THAT(state.snakes,
-              ElementsAre(SnakeBodyIs(ElementsAre(Point(1, 0), _, _))));
+              ElementsAre(SnakeBodyIs(ElementsAre(Point{1, 0}, _, _))));
 }
 
 TEST_F(StandardCreateNextBoardStateTest, MovesHeadLeft) {
@@ -527,9 +527,9 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadLeft) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -541,7 +541,7 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadLeft) {
       ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
 
   EXPECT_THAT(state.snakes,
-              ElementsAre(SnakeBodyIs(ElementsAre(Point(0, 1), _, _))));
+              ElementsAre(SnakeBodyIs(ElementsAre(Point{0, 1}, _, _))));
 }
 
 TEST_F(StandardCreateNextBoardStateTest, MovesHeadRight) {
@@ -554,9 +554,9 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadRight) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -568,7 +568,7 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadRight) {
       ruleset.CreateNextBoardState(initial_state, {{"one", Move::Right}});
 
   EXPECT_THAT(state.snakes,
-              ElementsAre(SnakeBodyIs(ElementsAre(Point(2, 1), _, _))));
+              ElementsAre(SnakeBodyIs(ElementsAre(Point{2, 1}, _, _))));
 }
 
 TEST_F(StandardCreateNextBoardStateTest, MovesHeadUnknownContinue) {
@@ -581,9 +581,9 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUnknownContinue) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -596,7 +596,7 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUnknownContinue) {
 
   // Unknown move should move snake to its old direction.
   EXPECT_THAT(state.snakes,
-              ElementsAre(SnakeBodyIs(ElementsAre(Point(1, 0), _, _))));
+              ElementsAre(SnakeBodyIs(ElementsAre(Point{1, 0}, _, _))));
 }
 
 TEST_F(StandardCreateNextBoardStateTest, MovesHeadUnknownUp) {
@@ -609,9 +609,9 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUnknownUp) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 1),
-                          Point(1, 1),
+                          Point{1, 1},
+                          Point{1, 1},
+                          Point{1, 1},
                       },
                   .health = 100,
               },
@@ -624,7 +624,7 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUnknownUp) {
 
   // Unknown move should move snake up if previous move is also unknown.
   EXPECT_THAT(state.snakes,
-              ElementsAre(SnakeBodyIs(ElementsAre(Point(1, 2), _, _))));
+              ElementsAre(SnakeBodyIs(ElementsAre(Point{1, 2}, _, _))));
 }
 
 TEST_F(StandardCreateNextBoardStateTest, MovesTwoSnakes) {
@@ -637,9 +637,9 @@ TEST_F(StandardCreateNextBoardStateTest, MovesTwoSnakes) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -647,10 +647,10 @@ TEST_F(StandardCreateNextBoardStateTest, MovesTwoSnakes) {
                   .id = "two",
                   .body =
                       {
-                          Point(3, 8),
-                          Point(3, 7),
-                          Point(3, 6),
-                          Point(3, 5),
+                          Point{3, 8},
+                          Point{3, 7},
+                          Point{3, 6},
+                          Point{3, 5},
                       },
                   .health = 100,
               },
@@ -667,9 +667,9 @@ TEST_F(StandardCreateNextBoardStateTest, MovesTwoSnakes) {
   EXPECT_THAT(
       state.snakes,
       UnorderedElementsAreArray({
-          SnakeIs("one", ElementsAre(Point(0, 1), Point(1, 1), Point(1, 2))),
-          SnakeIs("two", ElementsAre(Point(4, 8), Point(3, 8), Point(3, 7),
-                                     Point(3, 6))),
+          SnakeIs("one", ElementsAre(Point{0, 1}, Point{1, 1}, Point{1, 2})),
+          SnakeIs("two", ElementsAre(Point{4, 8}, Point{3, 8}, Point{3, 7},
+                                     Point{3, 6})),
       }));
 }
 
@@ -685,9 +685,9 @@ TEST_F(StandardCreateNextBoardStateTest, MoveReducesHealth) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = initial_health,
               },
@@ -708,7 +708,7 @@ TEST_F(StandardCreateNextBoardStateTest, FoodGrowsSnake) {
       .height = kBoardSizeSmall,
       .food =
           {
-              Point(0, 1),
+              Point{0, 1},
           },
       .snakes =
           {
@@ -716,9 +716,9 @@ TEST_F(StandardCreateNextBoardStateTest, FoodGrowsSnake) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 50,
               },
@@ -730,8 +730,8 @@ TEST_F(StandardCreateNextBoardStateTest, FoodGrowsSnake) {
       ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
 
   EXPECT_THAT(state.snakes,
-              ElementsAre(SnakeBodyIs(ElementsAre(Point(0, 1), Point(1, 1),
-                                                  Point(1, 2), Point(1, 2)))));
+              ElementsAre(SnakeBodyIs(ElementsAre(Point{0, 1}, Point{1, 1},
+                                                  Point{1, 2}, Point{1, 2}))));
 }
 
 TEST_F(StandardCreateNextBoardStateTest, FoodRestoresHealth) {
@@ -742,7 +742,7 @@ TEST_F(StandardCreateNextBoardStateTest, FoodRestoresHealth) {
       .height = kBoardSizeSmall,
       .food =
           {
-              Point(0, 1),
+              Point{0, 1},
           },
       .snakes =
           {
@@ -750,9 +750,9 @@ TEST_F(StandardCreateNextBoardStateTest, FoodRestoresHealth) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = max_health / 2,
               },
@@ -772,7 +772,7 @@ TEST_F(StandardCreateNextBoardStateTest, DontEatFoodOtherPosition) {
       .height = kBoardSizeSmall,
       .food =
           {
-              Point(10, 10),
+              Point{10, 10},
           },
       .snakes =
           {
@@ -780,9 +780,9 @@ TEST_F(StandardCreateNextBoardStateTest, DontEatFoodOtherPosition) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 50,
               },
@@ -794,7 +794,7 @@ TEST_F(StandardCreateNextBoardStateTest, DontEatFoodOtherPosition) {
       ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
 
   EXPECT_THAT(state.snakes, ElementsAre(SnakeBodyIs(ElementsAre(
-                                Point(0, 1), Point(1, 1), Point(1, 2)))));
+                                Point{0, 1}, Point{1, 1}, Point{1, 2}))));
 }
 
 TEST_F(StandardCreateNextBoardStateTest, EatenFoodDisappears) {
@@ -803,8 +803,8 @@ TEST_F(StandardCreateNextBoardStateTest, EatenFoodDisappears) {
       .height = kBoardSizeSmall,
       .food =
           {
-              Point(0, 1),
-              Point(10, 10),
+              Point{0, 1},
+              Point{10, 10},
           },
       .snakes =
           {
@@ -812,9 +812,9 @@ TEST_F(StandardCreateNextBoardStateTest, EatenFoodDisappears) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 50,
               },
@@ -825,7 +825,7 @@ TEST_F(StandardCreateNextBoardStateTest, EatenFoodDisappears) {
   BoardState state =
       ruleset.CreateNextBoardState(initial_state, {{"one", Move::Left}});
 
-  EXPECT_THAT(state.food, ElementsAre(Point(10, 10)));
+  EXPECT_THAT(state.food, ElementsAre(Point{10, 10}));
 }
 
 TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodDisappears) {
@@ -836,7 +836,7 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodDisappears) {
       .height = kBoardSizeSmall,
       .food =
           {
-              Point(1, 1),
+              Point{1, 1},
           },
       .snakes =
           {
@@ -844,9 +844,9 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodDisappears) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 2),
-                          Point(1, 3),
-                          Point(1, 4),
+                          Point{1, 2},
+                          Point{1, 3},
+                          Point{1, 4},
                       },
                   .health = max_health / 2,
               },
@@ -854,9 +854,9 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodDisappears) {
                   .id = "two",
                   .body =
                       {
-                          Point(2, 1),
-                          Point(3, 1),
-                          Point(4, 1),
+                          Point{2, 1},
+                          Point{3, 1},
+                          Point{4, 1},
                       },
                   .health = max_health / 2,
               },
@@ -925,7 +925,7 @@ TEST_F(StandardCreateNextBoardStateTest, SpawnFoodMinimum) {
       .height = kBoardSizeSmall,
       .food =
           {
-              Point(1, 1),
+              Point{1, 1},
           },
   };
 
@@ -947,7 +947,7 @@ TEST_F(StandardCreateNextBoardStateTest, EatingOnLastMove) {
       .height = kBoardSizeSmall,
       .food =
           {
-              Point(0, 1),
+              Point{0, 1},
           },
       .snakes =
           {
@@ -955,9 +955,9 @@ TEST_F(StandardCreateNextBoardStateTest, EatingOnLastMove) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 1,
               },
@@ -981,7 +981,7 @@ TEST_F(StandardCreateNextBoardStateTest, IgnoresEliminatedSnakes) {
       .height = kBoardSizeSmall,
       .food =
           {
-              Point(0, 1),
+              Point{0, 1},
           },
       .snakes =
           {
@@ -989,9 +989,9 @@ TEST_F(StandardCreateNextBoardStateTest, IgnoresEliminatedSnakes) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 10,
                   .eliminated_cause =
@@ -1008,9 +1008,9 @@ TEST_F(StandardCreateNextBoardStateTest, IgnoresEliminatedSnakes) {
   EXPECT_THAT(
       state.snakes,
       ElementsAre(SnakeIs(
-          "one", ElementsAre(Point(1, 1), Point(1, 2), Point(1, 3)), 10)));
+          "one", ElementsAre(Point{1, 1}, Point{1, 2}, Point{1, 3}), 10)));
   // Food hasn't disappeared.
-  EXPECT_THAT(state.food, ElementsAre(Point(0, 1)));
+  EXPECT_THAT(state.food, ElementsAre(Point{0, 1}));
 }
 
 class StandardEliminateSnakesTest : public StandardCreateNextBoardStateTest {};
@@ -1025,9 +1025,9 @@ TEST_F(StandardEliminateSnakesTest, OutOfHealth) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 1,
               },
@@ -1052,7 +1052,7 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsUp) {
                   .id = "one",
                   .body =
                       {
-                          Point(0, 0),
+                          Point{0, 0},
                       },
                   .health = 100,
               },
@@ -1077,7 +1077,7 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsDown) {
                   .id = "one",
                   .body =
                       {
-                          Point(0, 0),
+                          Point{0, 0},
                       },
                   .health = 100,
               },
@@ -1102,7 +1102,7 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsLeft) {
                   .id = "one",
                   .body =
                       {
-                          Point(0, 0),
+                          Point{0, 0},
                       },
                   .health = 100,
               },
@@ -1127,7 +1127,7 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsRight) {
                   .id = "one",
                   .body =
                       {
-                          Point(0, 0),
+                          Point{0, 0},
                       },
                   .health = 100,
               },
@@ -1152,9 +1152,9 @@ TEST_F(StandardEliminateSnakesTest, NoSelfCollision) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -1179,9 +1179,9 @@ TEST_F(StandardEliminateSnakesTest, NeckSelfCollision) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -1206,11 +1206,11 @@ TEST_F(StandardEliminateSnakesTest, RegularSelfCollision) {
                   .id = "one",
                   .body =
                       {
-                          Point(2, 2),
-                          Point(2, 1),
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{2, 2},
+                          Point{2, 1},
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -1235,10 +1235,10 @@ TEST_F(StandardEliminateSnakesTest, OwnTailChase) {
                   .id = "one",
                   .body =
                       {
-                          Point(2, 2),
-                          Point(2, 1),
-                          Point(1, 1),
-                          Point(1, 2),
+                          Point{2, 2},
+                          Point{2, 1},
+                          Point{1, 1},
+                          Point{1, 2},
                       },
                   .health = 100,
               },
@@ -1263,9 +1263,9 @@ TEST_F(StandardEliminateSnakesTest, OtherNoCollision) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -1273,9 +1273,9 @@ TEST_F(StandardEliminateSnakesTest, OtherNoCollision) {
                   .id = "two",
                   .body =
                       {
-                          Point(2, 1),
-                          Point(2, 2),
-                          Point(2, 3),
+                          Point{2, 1},
+                          Point{2, 2},
+                          Point{2, 3},
                       },
                   .health = 100,
               },
@@ -1305,9 +1305,9 @@ TEST_F(StandardEliminateSnakesTest, OtherBodyCollision) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -1315,9 +1315,9 @@ TEST_F(StandardEliminateSnakesTest, OtherBodyCollision) {
                   .id = "two",
                   .body =
                       {
-                          Point(2, 1),
-                          Point(2, 2),
-                          Point(2, 3),
+                          Point{2, 1},
+                          Point{2, 2},
+                          Point{2, 3},
                       },
                   .health = 100,
               },
@@ -1347,9 +1347,9 @@ TEST_F(StandardEliminateSnakesTest, OtherTailChase) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -1357,9 +1357,9 @@ TEST_F(StandardEliminateSnakesTest, OtherTailChase) {
                   .id = "two",
                   .body =
                       {
-                          Point(1, 4),
-                          Point(1, 5),
-                          Point(1, 6),
+                          Point{1, 4},
+                          Point{1, 5},
+                          Point{1, 6},
                       },
                   .health = 100,
               },
@@ -1389,10 +1389,10 @@ TEST_F(StandardEliminateSnakesTest, HeadToHeadDifferentLength) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 3),
-                          Point(1, 2),
-                          Point(1, 1),
-                          Point(1, 0),
+                          Point{1, 3},
+                          Point{1, 2},
+                          Point{1, 1},
+                          Point{1, 0},
                       },
                   .health = 100,
               },
@@ -1400,9 +1400,9 @@ TEST_F(StandardEliminateSnakesTest, HeadToHeadDifferentLength) {
                   .id = "two",
                   .body =
                       {
-                          Point(1, 5),
-                          Point(1, 6),
-                          Point(1, 7),
+                          Point{1, 5},
+                          Point{1, 6},
+                          Point{1, 7},
                       },
                   .health = 100,
               },
@@ -1433,9 +1433,9 @@ TEST_F(StandardEliminateSnakesTest, HeadToHeadEqualLength) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 3),
-                          Point(1, 2),
-                          Point(1, 1),
+                          Point{1, 3},
+                          Point{1, 2},
+                          Point{1, 1},
                       },
                   .health = 100,
               },
@@ -1443,9 +1443,9 @@ TEST_F(StandardEliminateSnakesTest, HeadToHeadEqualLength) {
                   .id = "two",
                   .body =
                       {
-                          Point(1, 5),
-                          Point(1, 6),
-                          Point(1, 7),
+                          Point{1, 5},
+                          Point{1, 6},
+                          Point{1, 7},
                       },
                   .health = 100,
               },
@@ -1476,7 +1476,7 @@ TEST_F(StandardEliminateSnakesTest, PriorityOutOfHealthOutOfBounds) {
                   .id = "one",
                   .body =
                       {
-                          Point(0, 0),
+                          Point{0, 0},
                       },
                   .health = 1,
               },
@@ -1501,9 +1501,9 @@ TEST_F(StandardEliminateSnakesTest, PriorityOutOfHealthSelfCollision) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 1,
               },
@@ -1528,9 +1528,9 @@ TEST_F(StandardEliminateSnakesTest, PriorityOutOfHealthOtherBodyCollision) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -1538,9 +1538,9 @@ TEST_F(StandardEliminateSnakesTest, PriorityOutOfHealthOtherBodyCollision) {
                   .id = "two",
                   .body =
                       {
-                          Point(2, 1),
-                          Point(2, 2),
-                          Point(2, 3),
+                          Point{2, 1},
+                          Point{2, 2},
+                          Point{2, 3},
                       },
                   .health = 1,
               },
@@ -1571,10 +1571,10 @@ TEST_F(StandardEliminateSnakesTest, PrioritySelfCollisionHeadToHead) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
-                          Point(1, 4),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
+                          Point{1, 4},
                       },
                   .health = 100,
               },
@@ -1582,9 +1582,9 @@ TEST_F(StandardEliminateSnakesTest, PrioritySelfCollisionHeadToHead) {
                   .id = "two",
                   .body =
                       {
-                          Point(0, 0),
-                          Point(1, 0),
-                          Point(2, 0),
+                          Point{0, 0},
+                          Point{1, 0},
+                          Point{2, 0},
                       },
                   .health = 100,
               },
@@ -1615,9 +1615,9 @@ TEST_F(StandardEliminateSnakesTest, PriorityOtherCollisionHeadToHead) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -1625,10 +1625,10 @@ TEST_F(StandardEliminateSnakesTest, PriorityOtherCollisionHeadToHead) {
                   .id = "two",
                   .body =
                       {
-                          Point(0, 0),
-                          Point(1, 0),
-                          Point(2, 0),
-                          Point(3, 0),
+                          Point{0, 0},
+                          Point{1, 0},
+                          Point{2, 0},
+                          Point{3, 0},
                       },
                   .health = 100,
               },
@@ -1663,9 +1663,9 @@ TEST_F(StandardEliminateSnakesTest, OutOfHealthDoesntEliminateOthers) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -1673,10 +1673,10 @@ TEST_F(StandardEliminateSnakesTest, OutOfHealthDoesntEliminateOthers) {
                   .id = "two",
                   .body =
                       {
-                          Point(0, 0),
-                          Point(1, 0),
-                          Point(2, 0),
-                          Point(3, 0),
+                          Point{0, 0},
+                          Point{1, 0},
+                          Point{2, 0},
+                          Point{3, 0},
                       },
                   .health = 1,
               },
@@ -1709,9 +1709,9 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsDoesntEliminateOthers) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 1),
-                          Point(1, 2),
-                          Point(1, 3),
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
                       },
                   .health = 100,
               },
@@ -1719,10 +1719,10 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsDoesntEliminateOthers) {
                   .id = "two",
                   .body =
                       {
-                          Point(0, 0),
-                          Point(1, 0),
-                          Point(2, 0),
-                          Point(3, 0),
+                          Point{0, 0},
+                          Point{1, 0},
+                          Point{2, 0},
+                          Point{3, 0},
                       },
                   .health = 100,
               },
@@ -1751,7 +1751,7 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodBothEliminated) {
       .height = kBoardSizeSmall,
       .food =
           {
-              Point(1, 1),
+              Point{1, 1},
           },
       .snakes =
           {
@@ -1759,9 +1759,9 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodBothEliminated) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 2),
-                          Point(1, 3),
-                          Point(1, 4),
+                          Point{1, 2},
+                          Point{1, 3},
+                          Point{1, 4},
                       },
                   .health = max_health / 2,
               },
@@ -1769,9 +1769,9 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodBothEliminated) {
                   .id = "two",
                   .body =
                       {
-                          Point(2, 1),
-                          Point(3, 1),
-                          Point(4, 1),
+                          Point{2, 1},
+                          Point{3, 1},
+                          Point{4, 1},
                       },
                   .health = max_health / 2,
               },
@@ -1806,7 +1806,7 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodOneEliminated) {
       .height = kBoardSizeSmall,
       .food =
           {
-              Point(1, 1),
+              Point{1, 1},
           },
       .snakes =
           {
@@ -1814,10 +1814,10 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodOneEliminated) {
                   .id = "one",
                   .body =
                       {
-                          Point(1, 2),
-                          Point(1, 3),
-                          Point(1, 4),
-                          Point(1, 5),
+                          Point{1, 2},
+                          Point{1, 3},
+                          Point{1, 4},
+                          Point{1, 5},
                       },
                   .health = max_health / 2,
               },
@@ -1825,9 +1825,9 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodOneEliminated) {
                   .id = "two",
                   .body =
                       {
-                          Point(2, 1),
-                          Point(3, 1),
-                          Point(4, 1),
+                          Point{2, 1},
+                          Point{3, 1},
+                          Point{4, 1},
                       },
                   .health = max_health / 2,
               },

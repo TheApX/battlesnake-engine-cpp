@@ -68,9 +68,9 @@ GameState CreateGameState() {
           .id = "snake_id",
           .body =
               {
-                  Point(10, 1),
-                  Point(10, 2),
-                  Point(10, 3),
+                  Point{10, 1},
+                  Point{10, 2},
+                  Point{10, 3},
               },
           .health = 75,
           .name = "Test Caterpillar",

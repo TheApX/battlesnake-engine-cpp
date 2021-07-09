@@ -19,7 +19,7 @@ class ParseJsonTest : public testing::Test {};
 TEST_F(ParseJsonTest, PointSucceeds) {
   EXPECT_THAT(
       ParseJsonPoint(nlohmann::json::parse(R"json({"x":123,"y":456})json")),
-      Eq(Point(123, 456)));
+      Eq(Point{123, 456}));
 }
 
 TEST_F(ParseJsonTest, PointNoValue) {
@@ -63,9 +63,9 @@ TEST_F(ParseJsonTest, SnakeSucceeds) {
       .id = "snake_id",
       .body =
           {
-              Point(10, 1),
-              Point(10, 2),
-              Point(10, 3),
+              Point{10, 1},
+              Point{10, 2},
+              Point{10, 3},
           },
       .health = 75,
       .name = "Test Caterpillar",
@@ -108,9 +108,9 @@ TEST_F(ParseJsonTest, SnakeNoOptional) {
       .id = "snake_id",
       .body =
           {
-              Point(10, 1),
-              Point(10, 2),
-              Point(10, 3),
+              Point{10, 1},
+              Point{10, 2},
+              Point{10, 3},
           },
       .health = 75,
       .latency = "0",
@@ -242,8 +242,8 @@ TEST_F(ParseJsonTest, BoardStateFood) {
       .height = 15,
       .food =
           {
-              Point(0, 1),
-              Point(4, 14),
+              Point{0, 1},
+              Point{4, 14},
           },
       .hazards = {},
   };
@@ -278,9 +278,9 @@ TEST_F(ParseJsonTest, BoardStateHazards) {
       .food = {},
       .hazards =
           {
-              Point(1, 0),
-              Point(3, 10),
-              Point(2, 5),
+              Point{1, 0},
+              Point{3, 10},
+              Point{2, 5},
           },
   };
 
@@ -457,9 +457,9 @@ TEST_F(ParseJsonTest, GameStateSucceeds) {
           .id = "snake_id",
           .body =
               {
-                  Point(10, 1),
-                  Point(10, 2),
-                  Point(10, 3),
+                  Point{10, 1},
+                  Point{10, 2},
+                  Point{10, 3},
               },
           .health = 75,
           .name = "Test Caterpillar",
