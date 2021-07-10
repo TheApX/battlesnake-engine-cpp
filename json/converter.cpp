@@ -29,7 +29,8 @@ int GetInt(const nlohmann::json& json, const char* key) {
   return *v;
 }
 
-std::string GetString(const nlohmann::json& json, const char* key) {
+std::string_view GetString(const nlohmann::json& json, const char* key,
+                           battlesnake::rules::StringPool& pool) {
   auto v = json.find(key);
   if (v == json.end()) {
     throw ParseException();
@@ -37,11 +38,24 @@ std::string GetString(const nlohmann::json& json, const char* key) {
   if (!v->is_string()) {
     throw ParseException();
   }
-  return *v;
+  return pool.Add(*v);
 }
 
-std::string GetString(const nlohmann::json& json, const char* key,
-                      const char* default_value) {
+std::string_view GetString(const nlohmann::json& json, const char* key,
+                           const char* default_value,
+                           battlesnake::rules::StringPool& pool) {
+  auto v = json.find(key);
+  if (v == json.end()) {
+    return pool.Add(default_value);
+  }
+  if (!v->is_string()) {
+    throw ParseException();
+  }
+  return pool.Add(*v);
+}
+
+std::string GetStringNoPool(const nlohmann::json& json, const char* key,
+                            const char* default_value) {
   auto v = json.find(key);
   if (v == json.end()) {
     return default_value;
@@ -69,7 +83,8 @@ PointsVector GetPointArray(const nlohmann::json& json, const char* key) {
   return result;
 }
 
-SnakesVector GetSnakeArray(const nlohmann::json& json, const char* key) {
+SnakesVector GetSnakeArray(const nlohmann::json& json, const char* key,
+                           battlesnake::rules::StringPool& pool) {
   auto v = json.find(key);
   if (v == json.end()) {
     throw ParseException();
@@ -81,7 +96,7 @@ SnakesVector GetSnakeArray(const nlohmann::json& json, const char* key) {
   SnakesVector result;
   result.reserve(v->size());
   for (const nlohmann::json& s : *v) {
-    result.push_back(ParseJsonSnake(s));
+    result.push_back(ParseJsonSnake(s, pool));
   }
   return result;
 }
@@ -185,24 +200,25 @@ Point ParseJsonPoint(const nlohmann::json& json) {
   return Point{GetInt(json, "x"), GetInt(json, "y")};
 }
 
-Snake ParseJsonSnake(const nlohmann::json& json) {
+Snake ParseJsonSnake(const nlohmann::json& json,
+                     battlesnake::rules::StringPool& pool) {
   if (!json.is_object()) {
     throw ParseException();
   }
 
   Snake snake{
-      .id = GetString(json, "id"),
+      .id = GetString(json, "id", pool),
       .body = GetPointArray(json, "body"),
       .health = GetInt(json, "health"),
-      .name = GetString(json, "name", ""),
-      .latency = GetString(json, "latency", "0"),
-      .shout = GetString(json, "shout", ""),
-      .squad = GetString(json, "squad", ""),
+      .name = GetString(json, "name", "", pool),
+      .latency = GetString(json, "latency", "0", pool),
+      .shout = GetString(json, "shout", "", pool),
+      .squad = GetString(json, "squad", "", pool),
   };
 
   Point head = ParseJsonPoint(json["head"]);
   if (snake.body.empty()) {
-    throw ErrorZeroLengthSnake(snake.id);
+    throw ErrorZeroLengthSnake(std::string(snake.id));
   }
 
   if (head != snake.Head()) {
@@ -212,7 +228,8 @@ Snake ParseJsonSnake(const nlohmann::json& json) {
   return snake;
 }
 
-BoardState ParseJsonBoard(const nlohmann::json& json) {
+BoardState ParseJsonBoard(const nlohmann::json& json,
+                          battlesnake::rules::StringPool& pool) {
   if (!json.is_object()) {
     throw ParseException();
   }
@@ -221,48 +238,51 @@ BoardState ParseJsonBoard(const nlohmann::json& json) {
       .width = GetInt(json, "width"),
       .height = GetInt(json, "height"),
       .food = GetPointArray(json, "food"),
-      .snakes = GetSnakeArray(json, "snakes"),
+      .snakes = GetSnakeArray(json, "snakes", pool),
       .hazards = GetPointArray(json, "hazards"),
   };
 }
 
-RulesetInfo ParseJsonRulesetInfo(const nlohmann::json& json) {
+RulesetInfo ParseJsonRulesetInfo(const nlohmann::json& json,
+                                 battlesnake::rules::StringPool& pool) {
   if (!json.is_object()) {
     throw ParseException();
   }
 
   return RulesetInfo{
-      .name = GetString(json, "name"),
-      .version = GetString(json, "version"),
+      .name = GetString(json, "name", pool),
+      .version = GetString(json, "version", pool),
   };
 }
 
-GameInfo ParseJsonGameInfo(const nlohmann::json& json) {
+GameInfo ParseJsonGameInfo(const nlohmann::json& json,
+                           battlesnake::rules::StringPool& pool) {
   if (!json.is_object()) {
     throw ParseException();
   }
 
   return GameInfo{
-      .id = GetString(json, "id"),
-      .ruleset = ParseJsonRulesetInfo(json["ruleset"]),
+      .id = GetString(json, "id", pool),
+      .ruleset = ParseJsonRulesetInfo(json["ruleset"], pool),
       .timeout = GetInt(json, "timeout"),
   };
 }
 
-battlesnake::rules::GameState ParseJsonGameState(const nlohmann::json& json) {
+battlesnake::rules::GameState ParseJsonGameState(
+    const nlohmann::json& json, battlesnake::rules::StringPool& pool) {
   if (!json.is_object()) {
     throw ParseException();
   }
 
   GameState game_state{
-      .game = ParseJsonGameInfo(json["game"]),
+      .game = ParseJsonGameInfo(json["game"], pool),
       .turn = GetInt(json, "turn"),
-      .board = ParseJsonBoard(json["board"]),
+      .board = ParseJsonBoard(json["board"], pool),
   };
 
   auto you_it = json.find("you");
   if (you_it != json.end()) {
-    game_state.you = ParseJsonSnake(*you_it);
+    game_state.you = ParseJsonSnake(*you_it, pool);
   }
 
   return game_state;
@@ -274,12 +294,12 @@ Customization ParseJsonCustomization(const nlohmann::json& json) {
   }
 
   return Customization{
-      .apiversion = GetString(json, "apiversion", ""),
-      .author = GetString(json, "author", ""),
-      .color = GetString(json, "color", ""),
-      .head = GetString(json, "head", ""),
-      .tail = GetString(json, "tail", ""),
-      .version = GetString(json, "version", ""),
+      .apiversion = GetStringNoPool(json, "apiversion", ""),
+      .author = GetStringNoPool(json, "author", ""),
+      .color = GetStringNoPool(json, "color", ""),
+      .head = GetStringNoPool(json, "head", ""),
+      .tail = GetStringNoPool(json, "tail", ""),
+      .version = GetStringNoPool(json, "version", ""),
   };
 }
 

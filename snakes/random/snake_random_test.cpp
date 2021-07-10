@@ -16,11 +16,12 @@ using namespace ::battlesnake::interface;
 using ::testing::AnyOf;
 using ::testing::Ne;
 
-GameState LoadState(const std::string& test_name) {
+GameState LoadState(const std::string& test_name, StringPool& pool) {
   std::ifstream file_in("testdata/" + test_name + ".json");
   std::string str((std::istreambuf_iterator<char>(file_in)),
                   std::istreambuf_iterator<char>());
-  return battlesnake::json::ParseJsonGameState(nlohmann::json::parse(str));
+  return battlesnake::json::ParseJsonGameState(nlohmann::json::parse(str),
+                                               pool);
 }
 
 TEST(BattlesnakeRandomTest, SnakeIsNotBoring) {
@@ -34,7 +35,8 @@ TEST(BattlesnakeRandomTest, SnakeIsNotBoring) {
 }
 
 TEST(BattlesnakeRandomTest, SnakeMoves) {
-  // Option 1: Construct board state manually.
+  // Option 1: Construct board state manually. Don't forget to pool strings!
+  StringPool pool;
   GameState state{
       .board{
           .width = kBoardSizeSmall,
@@ -47,7 +49,7 @@ TEST(BattlesnakeRandomTest, SnakeMoves) {
           .snakes =
               {
                   Snake{
-                      .id = "one",
+                      .id = pool.Add("one"),
                       .body =
                           {
                               Point{1, 1},
@@ -57,7 +59,7 @@ TEST(BattlesnakeRandomTest, SnakeMoves) {
                       .health = 100,
                   },
                   Snake{
-                      .id = "two",
+                      .id = pool.Add("two"),
                       .body =
                           {
                               Point{5, 1},
@@ -80,7 +82,8 @@ TEST(BattlesnakeRandomTest, SnakeMoves) {
 
 TEST(BattlesnakeRandomTest, LoadTestFromJson) {
   // Option 2: Load test case from a json file.
-  GameState state = LoadState("test001");
+  StringPool pool;
+  GameState state = LoadState("test001", pool);
 
   SnakeRandom battlesnake;
   Battlesnake::MoveResponse move = battlesnake.Move(state);

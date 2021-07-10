@@ -41,16 +41,20 @@ nlohmann::json CreateJson(
 // Parses Point from json.
 battlesnake::rules::Point ParseJsonPoint(const nlohmann::json& json);
 // Parses Snake from json.
-battlesnake::rules::Snake ParseJsonSnake(const nlohmann::json& json);
+battlesnake::rules::Snake ParseJsonSnake(const nlohmann::json& json,
+                                         battlesnake::rules::StringPool& pool);
 // Parses BoardState from json.
-battlesnake::rules::BoardState ParseJsonBoard(const nlohmann::json& json);
+battlesnake::rules::BoardState ParseJsonBoard(
+    const nlohmann::json& json, battlesnake::rules::StringPool& pool);
 // Parses RulesetInfo from json.
 battlesnake::rules::RulesetInfo ParseJsonRulesetInfo(
-    const nlohmann::json& json);
+    const nlohmann::json& json, battlesnake::rules::StringPool& pool);
 // Parses GameInfo from json.
-battlesnake::rules::GameInfo ParseJsonGameInfo(const nlohmann::json& json);
+battlesnake::rules::GameInfo ParseJsonGameInfo(
+    const nlohmann::json& json, battlesnake::rules::StringPool& pool);
 // Parses GameState from json.
-battlesnake::rules::GameState ParseJsonGameState(const nlohmann::json& json);
+battlesnake::rules::GameState ParseJsonGameState(
+    const nlohmann::json& json, battlesnake::rules::StringPool& pool);
 // Parses Customization from json.
 battlesnake::rules::Customization ParseJsonCustomization(
     const nlohmann::json& json);

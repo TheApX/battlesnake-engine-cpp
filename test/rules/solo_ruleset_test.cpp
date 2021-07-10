@@ -15,11 +15,11 @@ using ::testing::IsTrue;
 
 class SoloRulesetTest : public testing::Test {
  protected:
-  std::vector<SnakeId> CreateSnakeIds(int n) {
+  std::vector<SnakeId> CreateSnakeIds(int n, StringPool& pool) {
     std::vector<SnakeId> result;
     result.reserve(n);
     for (int i = 0; i < n; ++i) {
-      result.push_back("Snake" + std::to_string(n));
+      result.push_back(pool.Add("Snake" + std::to_string(n)));
     }
     return result;
   }

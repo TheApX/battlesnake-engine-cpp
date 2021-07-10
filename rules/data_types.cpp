@@ -26,14 +26,14 @@ std::ostream& PrintContainer(std::ostream& s, const T& v) {
 
 Point& Snake::Head() {
   if (body.empty()) {
-    throw ErrorZeroLengthSnake(id);
+    throw ErrorZeroLengthSnake(std::string(id));
   }
   return body.front();
 }
 
 const Point& Snake::Head() const {
   if (body.empty()) {
-    throw ErrorZeroLengthSnake(id);
+    throw ErrorZeroLengthSnake(std::string(id));
   }
   return body.front();
 }

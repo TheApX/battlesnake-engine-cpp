@@ -38,7 +38,8 @@ void SquadRuleset::resurrectSquadBodyCollisions(BoardState& state) const {
 
     auto eliminator_squad = snake_squads.find(snake.eliminated_cause.by_id);
     if (eliminator_squad == snake_squads.end()) {
-      throw ErrorInvalidEliminatedById(snake.id, snake.eliminated_cause.by_id);
+      throw ErrorInvalidEliminatedById(
+          std::string(snake.id), std::string(snake.eliminated_cause.by_id));
     }
 
     if (snake.squad != eliminator_squad->second) {
@@ -84,7 +85,7 @@ void SquadRuleset::shareSquadAttributes(BoardState& state) const {
 }
 
 bool SquadRuleset::IsGameOver(const BoardState& state) {
-  std::unordered_set<std::string> squads_not_eliminated;
+  std::unordered_set<std::string_view> squads_not_eliminated;
 
   for (const Snake& snake : state.snakes) {
     if (!snake.IsEliminated()) {

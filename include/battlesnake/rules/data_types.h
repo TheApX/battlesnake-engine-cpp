@@ -1,9 +1,11 @@
 #pragma once
 
 #include <cstdint>
+#include <forward_list>
 #include <itlib/small_vector.hpp>
 #include <ostream>
 #include <string>
+#include <string_view>
 
 namespace battlesnake {
 namespace rules {
@@ -22,7 +24,26 @@ static constexpr int kOptimizeForMaxBoardSize = kBoardSizeMedium;
 // Max number of snakes that memory optimizations will work for.
 static constexpr int kOptimizeForMaxSnakesCount = 4;
 
-using SnakeId = std::string;
+// All data types use std::string_view instead of strings. It allows to
+// eliminate expensive string operations when objects are copied. But it forces
+// all strings used to construct the objects to outlive all objects. Use
+// StringPool to keep all strings alive.
+class StringPool {
+ public:
+  std::string_view Add(const std::string& s) {
+    if (s.empty()) {
+      return std::string_view(empty_);
+    }
+    strings_.push_front(s);
+    return std::string_view(strings_.front());
+  }
+
+ private:
+  std::forward_list<std::string> strings_;
+  std::string empty_;
+};
+
+using SnakeId = std::string_view;
 
 enum class Move {
   Unknown,  // No move returned from snake.
@@ -86,10 +107,10 @@ struct Snake {
   EliminatedCause eliminated_cause;
 
   // Additional values not necessarily used by ruleset, but used in API.
-  std::string name;
-  std::string latency = "0";
-  std::string shout;
-  std::string squad;
+  std::string_view name;
+  std::string_view latency;
+  std::string_view shout;
+  std::string_view squad;
 
   bool IsEliminated() const {
     return eliminated_cause.cause != EliminatedCause::NotEliminated;
@@ -113,12 +134,12 @@ struct BoardState {
 };
 
 struct RulesetInfo {
-  std::string name;
-  std::string version;
+  std::string_view name;
+  std::string_view version;
 };
 
 struct GameInfo {
-  std::string id;
+  std::string_view id;
   RulesetInfo ruleset;
   int timeout;
 };

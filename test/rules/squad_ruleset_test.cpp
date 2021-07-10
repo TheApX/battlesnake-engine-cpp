@@ -67,11 +67,11 @@ auto SnakeIs(const A& m_id, const B& m_body) {
 
 class SquadRulesetTest : public testing::Test {
  protected:
-  std::vector<SnakeId> CreateSnakeIds(int n) {
+  std::vector<SnakeId> CreateSnakeIds(int n, StringPool& pool) {
     std::vector<SnakeId> result;
     result.reserve(n);
     for (int i = 0; i < n; ++i) {
-      result.push_back("Snake" + std::to_string(n));
+      result.push_back(pool.Add("Snake" + std::to_string(n)));
     }
     return result;
   }
@@ -96,13 +96,14 @@ TEST_F(SquadRulesetTest, Sanity) {
 class SquadCreateNextBoardStateTest : public SquadRulesetTest {};
 
 TEST_F(SquadCreateNextBoardStateTest, SameSquadDontCollide) {
+  StringPool pool;
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
       .snakes =
           {
               Snake{
-                  .id = "one",
+                  .id = pool.Add("one"),
                   .body =
                       {
                           Point{0, 1},
@@ -110,10 +111,10 @@ TEST_F(SquadCreateNextBoardStateTest, SameSquadDontCollide) {
                           Point{0, 3},
                       },
                   .health = 100,
-                  .squad = "s",
+                  .squad = pool.Add("s"),
               },
               Snake{
-                  .id = "two",
+                  .id = pool.Add("two"),
                   .body =
                       {
                           Point{1, 1},
@@ -121,31 +122,33 @@ TEST_F(SquadCreateNextBoardStateTest, SameSquadDontCollide) {
                           Point{3, 1},
                       },
                   .health = 100,
-                  .squad = "s",
+                  .squad = pool.Add("s"),
               },
           },
   };
 
   SquadRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state = ruleset.CreateNextBoardState(initial_state,
-                                                  {
-                                                      {"one", Move::Down},
-                                                      {"two", Move::Left},
-                                                  },
-                                                  1);
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state,
+                                   {
+                                       {pool.Add("one"), Move::Down},
+                                       {pool.Add("two"), Move::Left},
+                                   },
+                                   1);
 
   EXPECT_THAT(state.snakes, UnorderedElementsAre(SnakeIsNotEliminated("one"),
                                                  SnakeIsNotEliminated("two")));
 }
 
 TEST_F(SquadCreateNextBoardStateTest, DifferentSquadCollide) {
+  StringPool pool;
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
       .snakes =
           {
               Snake{
-                  .id = "one",
+                  .id = pool.Add("one"),
                   .body =
                       {
                           Point{0, 1},
@@ -153,10 +156,10 @@ TEST_F(SquadCreateNextBoardStateTest, DifferentSquadCollide) {
                           Point{0, 3},
                       },
                   .health = 100,
-                  .squad = "s1",
+                  .squad = pool.Add("s1"),
               },
               Snake{
-                  .id = "two",
+                  .id = pool.Add("two"),
                   .body =
                       {
                           Point{1, 1},
@@ -164,31 +167,33 @@ TEST_F(SquadCreateNextBoardStateTest, DifferentSquadCollide) {
                           Point{3, 1},
                       },
                   .health = 100,
-                  .squad = "s2",
+                  .squad = pool.Add("s2"),
               },
           },
   };
 
   SquadRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state = ruleset.CreateNextBoardState(initial_state,
-                                                  {
-                                                      {"one", Move::Down},
-                                                      {"two", Move::Left},
-                                                  },
-                                                  1);
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state,
+                                   {
+                                       {pool.Add("one"), Move::Down},
+                                       {pool.Add("two"), Move::Left},
+                                   },
+                                   1);
 
   EXPECT_THAT(state.snakes, UnorderedElementsAre(SnakeIsNotEliminated("one"),
                                                  SnakeIsEliminated("two")));
 }
 
 TEST_F(SquadCreateNextBoardStateTest, ShareHealth) {
+  StringPool pool;
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
       .snakes =
           {
               Snake{
-                  .id = "one",
+                  .id = pool.Add("one"),
                   .body =
                       {
                           Point{0, 1},
@@ -196,10 +201,10 @@ TEST_F(SquadCreateNextBoardStateTest, ShareHealth) {
                           Point{0, 3},
                       },
                   .health = 10,
-                  .squad = "s",
+                  .squad = pool.Add("s"),
               },
               Snake{
-                  .id = "two",
+                  .id = pool.Add("two"),
                   .body =
                       {
                           Point{1, 1},
@@ -207,31 +212,33 @@ TEST_F(SquadCreateNextBoardStateTest, ShareHealth) {
                           Point{3, 1},
                       },
                   .health = 100,
-                  .squad = "s",
+                  .squad = pool.Add("s"),
               },
           },
   };
 
   SquadRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state = ruleset.CreateNextBoardState(initial_state,
-                                                  {
-                                                      {"one", Move::Down},
-                                                      {"two", Move::Left},
-                                                  },
-                                                  1);
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state,
+                                   {
+                                       {pool.Add("one"), Move::Down},
+                                       {pool.Add("two"), Move::Left},
+                                   },
+                                   1);
 
   EXPECT_THAT(state.snakes, UnorderedElementsAre(SnakeIs("one", _, 99),
                                                  SnakeIs("two", _, 99)));
 }
 
 TEST_F(SquadCreateNextBoardStateTest, ShareLength) {
+  StringPool pool;
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
       .snakes =
           {
               Snake{
-                  .id = "one",
+                  .id = pool.Add("one"),
                   .body =
                       {
                           Point{0, 1},
@@ -241,10 +248,10 @@ TEST_F(SquadCreateNextBoardStateTest, ShareLength) {
                           Point{0, 5},
                       },
                   .health = 10,
-                  .squad = "s",
+                  .squad = pool.Add("s"),
               },
               Snake{
-                  .id = "two",
+                  .id = pool.Add("two"),
                   .body =
                       {
                           Point{1, 1},
@@ -252,31 +259,33 @@ TEST_F(SquadCreateNextBoardStateTest, ShareLength) {
                           Point{3, 1},
                       },
                   .health = 100,
-                  .squad = "s",
+                  .squad = pool.Add("s"),
               },
           },
   };
 
   SquadRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state = ruleset.CreateNextBoardState(initial_state,
-                                                  {
-                                                      {"one", Move::Down},
-                                                      {"two", Move::Left},
-                                                  },
-                                                  1);
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state,
+                                   {
+                                       {pool.Add("one"), Move::Down},
+                                       {pool.Add("two"), Move::Left},
+                                   },
+                                   1);
 
   EXPECT_THAT(state.snakes, UnorderedElementsAre(SnakeIs("one", SizeIs(5)),
                                                  SnakeIs("two", SizeIs(5))));
 }
 
 TEST_F(SquadCreateNextBoardStateTest, ShareElimination) {
+  StringPool pool;
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
       .snakes =
           {
               Snake{
-                  .id = "one",
+                  .id = pool.Add("one"),
                   .body =
                       {
                           Point{0, 1},
@@ -286,10 +295,10 @@ TEST_F(SquadCreateNextBoardStateTest, ShareElimination) {
                           Point{0, 5},
                       },
                   .health = 10,
-                  .squad = "s",
+                  .squad = pool.Add("s"),
               },
               Snake{
-                  .id = "two",
+                  .id = pool.Add("two"),
                   .body =
                       {
                           Point{0, 1},
@@ -298,18 +307,19 @@ TEST_F(SquadCreateNextBoardStateTest, ShareElimination) {
                           Point{3, 1},
                       },
                   .health = 100,
-                  .squad = "s",
+                  .squad = pool.Add("s"),
               },
           },
   };
 
   SquadRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state = ruleset.CreateNextBoardState(initial_state,
-                                                  {
-                                                      {"one", Move::Down},
-                                                      {"two", Move::Left},
-                                                  },
-                                                  1);
+  BoardState state =
+      ruleset.CreateNextBoardState(initial_state,
+                                   {
+                                       {pool.Add("one"), Move::Down},
+                                       {pool.Add("two"), Move::Left},
+                                   },
+                                   1);
 
   EXPECT_THAT(
       state.snakes,
@@ -332,13 +342,14 @@ TEST_F(SquadIsGameOverTest, ZeroSnakes) {
 }
 
 TEST_F(SquadIsGameOverTest, TwoSnakesSameSquad) {
+  StringPool pool;
   BoardState board_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
       .snakes =
           {
               Snake{
-                  .id = "one",
+                  .id = pool.Add("one"),
                   .body =
                       {
                           Point{0, 1},
@@ -346,10 +357,10 @@ TEST_F(SquadIsGameOverTest, TwoSnakesSameSquad) {
                           Point{0, 3},
                       },
                   .health = 100,
-                  .squad = "s",
+                  .squad = pool.Add("s"),
               },
               Snake{
-                  .id = "two",
+                  .id = pool.Add("two"),
                   .body =
                       {
                           Point{1, 1},
@@ -357,7 +368,7 @@ TEST_F(SquadIsGameOverTest, TwoSnakesSameSquad) {
                           Point{3, 1},
                       },
                   .health = 100,
-                  .squad = "s",
+                  .squad = pool.Add("s"),
               },
           },
   };
@@ -368,13 +379,14 @@ TEST_F(SquadIsGameOverTest, TwoSnakesSameSquad) {
 }
 
 TEST_F(SquadIsGameOverTest, TwoSnakesDifferentSquad) {
+  StringPool pool;
   BoardState board_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
       .snakes =
           {
               Snake{
-                  .id = "one",
+                  .id = pool.Add("one"),
                   .body =
                       {
                           Point{0, 1},
@@ -382,10 +394,10 @@ TEST_F(SquadIsGameOverTest, TwoSnakesDifferentSquad) {
                           Point{0, 3},
                       },
                   .health = 100,
-                  .squad = "s1",
+                  .squad = pool.Add("s1"),
               },
               Snake{
-                  .id = "two",
+                  .id = pool.Add("two"),
                   .body =
                       {
                           Point{1, 1},
@@ -393,7 +405,7 @@ TEST_F(SquadIsGameOverTest, TwoSnakesDifferentSquad) {
                           Point{3, 1},
                       },
                   .health = 100,
-                  .squad = "s2",
+                  .squad = pool.Add("s2"),
               },
           },
   };

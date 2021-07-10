@@ -259,7 +259,7 @@ void StandardRuleset::moveSnakes(
     }
     auto move_it = moves.find(snake.id);
     if (move_it == moves.end()) {
-      throw ErrorNoMoveFound(snake.id);
+      throw ErrorNoMoveFound(std::string(snake.id));
     }
     Move move = move_it->second;
 
@@ -320,11 +320,11 @@ void StandardRuleset::checkSnakesForMove(
     }
 
     if (snake.body.empty()) {
-      throw ErrorZeroLengthSnake(snake.id);
+      throw ErrorZeroLengthSnake(std::string(snake.id));
     }
 
     if (moves.find(snake.id) == moves.end()) {
-      throw ErrorNoMoveFound(snake.id);
+      throw ErrorNoMoveFound(std::string(snake.id));
     }
   }
 }
@@ -403,7 +403,7 @@ void StandardRuleset::eliminateOutOfHealthOrBoundsSnakes(
     }
 
     if (snake.body.empty()) {
-      throw ErrorZeroLengthSnake(snake.id);
+      throw ErrorZeroLengthSnake(std::string(snake.id));
     }
 
     if (snake.IsOutOfHealth()) {

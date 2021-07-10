@@ -55,17 +55,17 @@ std::string Post(const std::string& path, const std::string& content) {
   return Http(path, "POST", content);
 }
 
-GameState CreateGameState() {
+GameState CreateGameState(StringPool& pool) {
   return GameState{
       .game{
-          .id = "totally-unique-game-id",
-          .ruleset{.name = "standard", .version = "v1.2.3"},
+          .id = pool.Add("totally-unique-game-id"),
+          .ruleset{.name = pool.Add("standard"), .version = pool.Add("v1.2.3")},
           .timeout = 500,
       },
       .turn = 987,
       .board{.width = 5, .height = 15},
       .you{
-          .id = "snake_id",
+          .id = pool.Add("snake_id"),
           .body =
               {
                   Point{10, 1},
@@ -73,10 +73,10 @@ GameState CreateGameState() {
                   Point{10, 3},
               },
           .health = 75,
-          .name = "Test Caterpillar",
-          .latency = "123",
-          .shout = "Why are we shouting???",
-          .squad = "The Suicide Squad",
+          .name = pool.Add("Test Caterpillar"),
+          .latency = pool.Add("123"),
+          .shout = pool.Add("Why are we shouting???"),
+          .squad = pool.Add("The Suicide Squad"),
       },
   };
 }
@@ -136,10 +136,11 @@ TEST_F(ServerTest, Start) {
   BattlesnakeServer server(&battlesnake, kPortNumber, kThreadsCount);
   auto server_thread = server.RunOnNewThread();
 
-  auto game = CreateGameState();
-  GameState game_received;
+  StringPool pool;
+  auto game = CreateGameState(pool);
+  std::string received_game_id;
   EXPECT_CALL(battlesnake, Start(_)).WillOnce([&](const GameState& game_state) {
-    game_received = game_state;
+    received_game_id = game_state.game.id;
   });
 
   // Don't care about actual response.
@@ -148,7 +149,7 @@ TEST_F(ServerTest, Start) {
   server.Stop();
   server_thread->join();
 
-  EXPECT_THAT(game_received.game.id, Eq(game.game.id));
+  EXPECT_THAT(received_game_id, Eq(game.game.id));
 }
 
 TEST_F(ServerTest, End) {
@@ -156,10 +157,11 @@ TEST_F(ServerTest, End) {
   BattlesnakeServer server(&battlesnake, kPortNumber, kThreadsCount);
   auto server_thread = server.RunOnNewThread();
 
-  auto game = CreateGameState();
-  GameState game_received;
+  StringPool pool;
+  auto game = CreateGameState(pool);
+  std::string received_game_id;
   EXPECT_CALL(battlesnake, End(_)).WillOnce([&](const GameState& game_state) {
-    game_received = game_state;
+    received_game_id = game_state.game.id;
   });
 
   // Don't care about actual response.
@@ -168,7 +170,7 @@ TEST_F(ServerTest, End) {
   server.Stop();
   server_thread->join();
 
-  EXPECT_THAT(game_received.game.id, Eq(game.game.id));
+  EXPECT_THAT(received_game_id, Eq(game.game.id));
 }
 
 TEST_F(ServerTest, Move) {
@@ -176,11 +178,13 @@ TEST_F(ServerTest, Move) {
   BattlesnakeServer server(&battlesnake, kPortNumber, kThreadsCount);
   auto server_thread = server.RunOnNewThread();
 
-  auto game = CreateGameState();
-  GameState game_received;
+  StringPool pool;
+  auto game = CreateGameState(pool);
+  std::string received_game_id;
   EXPECT_CALL(battlesnake, Move(_))
       .WillOnce([&](const GameState& game_state) -> Battlesnake::MoveResponse {
-        game_received = game_state;
+        received_game_id = game_state.game.id;
+
         return Battlesnake::MoveResponse{
             .move = Move::Left,
             .shout = "Why are we shouting???",
@@ -192,7 +196,7 @@ TEST_F(ServerTest, Move) {
   server.Stop();
   server_thread->join();
 
-  EXPECT_THAT(game_received.game.id, Eq(game.game.id));
+  EXPECT_THAT(received_game_id, Eq(game.game.id));
   EXPECT_THAT(response["move"], Eq("left"));
   EXPECT_THAT(response["shout"], Eq("Why are we shouting???"));
 }

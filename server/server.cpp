@@ -98,9 +98,10 @@ void BattlesnakeServer::BattlesnakeServerImpl::onStart(
     std::shared_ptr<HttpServer::Response> response,
     std::shared_ptr<HttpServer::Request> request) {
   try {
+    battlesnake::rules::StringPool pool;
     auto content = request->content.string();
-    auto game_state =
-        battlesnake::json::ParseJsonGameState(nlohmann::json::parse(content));
+    auto game_state = battlesnake::json::ParseJsonGameState(
+        nlohmann::json::parse(content), pool);
     battlesnake_->Start(game_state);
     response->write("ok");
   } catch (std::exception) {
@@ -113,9 +114,10 @@ void BattlesnakeServer::BattlesnakeServerImpl::onEnd(
     std::shared_ptr<HttpServer::Response> response,
     std::shared_ptr<HttpServer::Request> request) {
   try {
+    battlesnake::rules::StringPool pool;
     auto content = request->content.string();
-    auto game_state =
-        battlesnake::json::ParseJsonGameState(nlohmann::json::parse(content));
+    auto game_state = battlesnake::json::ParseJsonGameState(
+        nlohmann::json::parse(content), pool);
     battlesnake_->End(game_state);
     response->write("ok");
   } catch (std::exception) {
@@ -128,9 +130,10 @@ void BattlesnakeServer::BattlesnakeServerImpl::onMove(
     std::shared_ptr<HttpServer::Response> response,
     std::shared_ptr<HttpServer::Request> request) {
   try {
+    battlesnake::rules::StringPool pool;
     auto content = request->content.string();
-    auto game_state =
-        battlesnake::json::ParseJsonGameState(nlohmann::json::parse(content));
+    auto game_state = battlesnake::json::ParseJsonGameState(
+        nlohmann::json::parse(content), pool);
 
     auto move = battlesnake_->Move(game_state);
     nlohmann::json json{{"shout", move.shout}};

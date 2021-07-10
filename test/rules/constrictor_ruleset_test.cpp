@@ -28,11 +28,11 @@ auto SnakeBodyIs(const M& m) {
 
 class ConstrictorRulesetTest : public testing::Test {
  protected:
-  std::vector<SnakeId> CreateSnakeIds(int n) {
+  std::vector<SnakeId> CreateSnakeIds(int n, StringPool& pool) {
     std::vector<SnakeId> result;
     result.reserve(n);
     for (int i = 0; i < n; ++i) {
-      result.push_back("Snake" + std::to_string(n));
+      result.push_back(pool.Add("Snake" + std::to_string(n)));
     }
     return result;
   }
@@ -57,8 +57,12 @@ TEST_F(ConstrictorRulesetTest, Sanity) {
 TEST_F(ConstrictorRulesetTest, NoFoodInitially) {
   ConstrictorRuleset ruleset;
 
-  BoardState state =
-      ruleset.CreateInitialBoardState(11, 11, {"snake1", "snake2"});
+  StringPool pool;
+  BoardState state = ruleset.CreateInitialBoardState(11, 11,
+                                                     {
+                                                         pool.Add("snake1"),
+                                                         pool.Add("snake2"),
+                                                     });
 
   EXPECT_THAT(state.food, ElementsAre());
 }
@@ -66,13 +70,14 @@ TEST_F(ConstrictorRulesetTest, NoFoodInitially) {
 class ConstrictorCreateNextBoardStateTest : public ConstrictorRulesetTest {};
 
 TEST_F(ConstrictorCreateNextBoardStateTest, KeepsHealth) {
+  StringPool pool;
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
       .snakes =
           {
               Snake{
-                  .id = "one",
+                  .id = pool.Add("one"),
                   .body =
                       {
                           Point{1, 1},
@@ -86,21 +91,22 @@ TEST_F(ConstrictorCreateNextBoardStateTest, KeepsHealth) {
 
   // Disable spawning random food so that it doesn't interfere with tests.
   ConstrictorRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Down}}, 1);
+  BoardState state = ruleset.CreateNextBoardState(
+      initial_state, {{pool.Add("one"), Move::Down}}, 1);
 
   // Health shouldn't decrease.
   EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(Eq(100))));
 }
 
 TEST_F(ConstrictorCreateNextBoardStateTest, GrowsSnake) {
+  StringPool pool;
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
       .snakes =
           {
               Snake{
-                  .id = "one",
+                  .id = pool.Add("one"),
                   .body =
                       {
                           Point{1, 1},
@@ -114,8 +120,8 @@ TEST_F(ConstrictorCreateNextBoardStateTest, GrowsSnake) {
 
   // Disable spawning random food so that it doesn't interfere with tests.
   ConstrictorRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Down}}, 1);
+  BoardState state = ruleset.CreateNextBoardState(
+      initial_state, {{pool.Add("one"), Move::Down}}, 1);
 
   // Body should grow.
   EXPECT_THAT(state.snakes, ElementsAre(SnakeBodyIs(ElementsAreArray({
@@ -127,13 +133,14 @@ TEST_F(ConstrictorCreateNextBoardStateTest, GrowsSnake) {
 }
 
 TEST_F(ConstrictorCreateNextBoardStateTest, DoesnGrowInitialSnake) {
+  StringPool pool;
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
       .snakes =
           {
               Snake{
-                  .id = "one",
+                  .id = pool.Add("one"),
                   .body =
                       {
                           Point{1, 1},
@@ -147,8 +154,8 @@ TEST_F(ConstrictorCreateNextBoardStateTest, DoesnGrowInitialSnake) {
 
   // Disable spawning random food so that it doesn't interfere with tests.
   ConstrictorRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state, {{"one", Move::Down}}, 1);
+  BoardState state = ruleset.CreateNextBoardState(
+      initial_state, {{pool.Add("one"), Move::Down}}, 1);
 
   // Body shouldn't grow.
   EXPECT_THAT(state.snakes, ElementsAre(SnakeBodyIs(ElementsAreArray({

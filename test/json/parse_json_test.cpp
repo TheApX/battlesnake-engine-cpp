@@ -74,7 +74,8 @@ TEST_F(ParseJsonTest, SnakeSucceeds) {
       .squad = "The Suicide Squad",
   };
 
-  Snake snake = ParseJsonSnake(json);
+  StringPool pool;
+  Snake snake = ParseJsonSnake(json, pool);
 
   EXPECT_THAT(snake.id, Eq(expected_snake.id));
   EXPECT_THAT(snake.body, ElementsAreArray(expected_snake.body));
@@ -116,7 +117,8 @@ TEST_F(ParseJsonTest, SnakeNoOptional) {
       .latency = "0",
   };
 
-  Snake snake = ParseJsonSnake(json);
+  StringPool pool;
+  Snake snake = ParseJsonSnake(json, pool);
 
   EXPECT_THAT(snake.id, Eq(expected_snake.id));
   EXPECT_THAT(snake.body, ElementsAreArray(expected_snake.body));
@@ -149,7 +151,8 @@ TEST_F(ParseJsonTest, SnakeNoId) {
       }
   )json");
 
-  EXPECT_THROW(ParseJsonSnake(json), ParseException);
+  StringPool pool;
+  EXPECT_THROW(ParseJsonSnake(json, pool), ParseException);
 }
 
 TEST_F(ParseJsonTest, SnakeInvalidValueType) {
@@ -171,7 +174,8 @@ TEST_F(ParseJsonTest, SnakeInvalidValueType) {
       }
   )json");
 
-  EXPECT_THROW(ParseJsonSnake(json), ParseException);
+  StringPool pool;
+  EXPECT_THROW(ParseJsonSnake(json, pool), ParseException);
 }
 
 TEST_F(ParseJsonTest, SnakeInvalidJsonType) {
@@ -193,7 +197,8 @@ TEST_F(ParseJsonTest, SnakeInvalidJsonType) {
       }]
   )json");
 
-  EXPECT_THROW(ParseJsonSnake(json), ParseException);
+  StringPool pool;
+  EXPECT_THROW(ParseJsonSnake(json, pool), ParseException);
 }
 
 TEST_F(ParseJsonTest, BoardStateBasic) {
@@ -214,7 +219,8 @@ TEST_F(ParseJsonTest, BoardStateBasic) {
       .hazards = {},
   };
 
-  BoardState state = ParseJsonBoard(json);
+  StringPool pool;
+  BoardState state = ParseJsonBoard(json, pool);
 
   EXPECT_THAT(state.width, Eq(expected_state.width));
   EXPECT_THAT(state.height, Eq(expected_state.height));
@@ -248,7 +254,8 @@ TEST_F(ParseJsonTest, BoardStateFood) {
       .hazards = {},
   };
 
-  BoardState state = ParseJsonBoard(json);
+  StringPool pool;
+  BoardState state = ParseJsonBoard(json, pool);
 
   EXPECT_THAT(state.width, Eq(expected_state.width));
   EXPECT_THAT(state.height, Eq(expected_state.height));
@@ -284,7 +291,8 @@ TEST_F(ParseJsonTest, BoardStateHazards) {
           },
   };
 
-  BoardState state = ParseJsonBoard(json);
+  StringPool pool;
+  BoardState state = ParseJsonBoard(json, pool);
 
   EXPECT_THAT(state.width, Eq(expected_state.width));
   EXPECT_THAT(state.height, Eq(expected_state.height));
@@ -325,7 +333,8 @@ TEST_F(ParseJsonTest, BoardStateSnakes) {
       .hazards = {},
   };
 
-  BoardState state = ParseJsonBoard(json);
+  StringPool pool;
+  BoardState state = ParseJsonBoard(json, pool);
 
   EXPECT_THAT(state.width, Eq(expected_state.width));
   EXPECT_THAT(state.height, Eq(expected_state.height));
@@ -345,7 +354,8 @@ TEST_F(ParseJsonTest, BoardStateWrongSnakesValueType) {
         }
     )json");
 
-  EXPECT_THROW(ParseJsonBoard(json), ParseException);
+  StringPool pool;
+  EXPECT_THROW(ParseJsonBoard(json, pool), ParseException);
 }
 
 TEST_F(ParseJsonTest, RulesetInfoSucceeds) {
@@ -353,7 +363,8 @@ TEST_F(ParseJsonTest, RulesetInfoSucceeds) {
       R"json({"name": "standard", "version": "v1.2.3"})json");
   RulesetInfo expected_result{.name = "standard", .version = "v1.2.3"};
 
-  RulesetInfo result = ParseJsonRulesetInfo(json);
+  StringPool pool;
+  RulesetInfo result = ParseJsonRulesetInfo(json, pool);
 
   EXPECT_THAT(result.name, Eq(expected_result.name));
   EXPECT_THAT(result.version, Eq(expected_result.version));
@@ -363,7 +374,8 @@ TEST_F(ParseJsonTest, RulesetInfoWrongJsonType) {
   auto json = nlohmann::json::parse(
       R"json([{"name": "standard", "version": "v1.2.3"}])json");
 
-  EXPECT_THROW(ParseJsonRulesetInfo(json), ParseException);
+  StringPool pool;
+  EXPECT_THROW(ParseJsonRulesetInfo(json, pool), ParseException);
 }
 
 TEST_F(ParseJsonTest, GameInfoSucceeds) {
@@ -381,7 +393,8 @@ TEST_F(ParseJsonTest, GameInfoSucceeds) {
       .timeout = 500,
   };
 
-  GameInfo result = ParseJsonGameInfo(json);
+  StringPool pool;
+  GameInfo result = ParseJsonGameInfo(json, pool);
 
   EXPECT_THAT(result.id, Eq(expected_result.id));
   EXPECT_THAT(result.ruleset.name, Eq(expected_result.ruleset.name));
@@ -399,7 +412,8 @@ TEST_F(ParseJsonTest, GameInfoWrongJsonType) {
       "timeout": 500
   }])json");
 
-  EXPECT_THROW(ParseJsonGameInfo(json), ParseException);
+  StringPool pool;
+  EXPECT_THROW(ParseJsonGameInfo(json, pool), ParseException);
 }
 
 TEST_F(ParseJsonTest, GameInfoNoRuleset) {
@@ -408,7 +422,8 @@ TEST_F(ParseJsonTest, GameInfoNoRuleset) {
       "timeout": 500
   }])json");
 
-  EXPECT_THROW(ParseJsonGameInfo(json), ParseException);
+  StringPool pool;
+  EXPECT_THROW(ParseJsonGameInfo(json, pool), ParseException);
 }
 
 TEST_F(ParseJsonTest, GameStateSucceeds) {
@@ -469,7 +484,8 @@ TEST_F(ParseJsonTest, GameStateSucceeds) {
       },
   };
 
-  GameState result = ParseJsonGameState(json);
+  StringPool pool;
+  GameState result = ParseJsonGameState(json, pool);
 
   // Check one subfield from each field.
   EXPECT_THAT(result.game.id, Eq(expected_result.game.id));
@@ -507,7 +523,8 @@ TEST_F(ParseJsonTest, GameStateNoYou) {
       .board{.width = 5, .height = 15},
   };
 
-  GameState result = ParseJsonGameState(json);
+  StringPool pool;
+  GameState result = ParseJsonGameState(json, pool);
 
   // Check one subfield from each field.
   EXPECT_THAT(result.game.id, Eq(expected_result.game.id));
@@ -519,7 +536,8 @@ TEST_F(ParseJsonTest, GameStateNoYou) {
 TEST_F(ParseJsonTest, GameStateWrongJsonType) {
   auto json = nlohmann::json::parse(R"json([])json");
 
-  EXPECT_THROW(ParseJsonGameState(json), ParseException);
+  StringPool pool;
+  EXPECT_THROW(ParseJsonGameState(json, pool), ParseException);
 }
 
 TEST_F(ParseJsonTest, CustomizationSucceeds) {
