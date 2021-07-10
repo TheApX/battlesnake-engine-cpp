@@ -36,7 +36,8 @@ class StandardRuleset : public Ruleset {
   void growSnake(Snake& snake) const;
 
  private:
-  using SnakeIndicesVector = ::itlib::small_vector<int, kMaxSnakesCount>;
+  using SnakeIndicesVector =
+      ::itlib::small_vector<int, kOptimizeForMaxSnakesCount>;
 
   Config config_;
 

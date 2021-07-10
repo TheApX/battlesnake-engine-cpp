@@ -13,10 +13,14 @@ static constexpr int kBoardSizeSmall = 7;
 static constexpr int kBoardSizeMedium = 11;
 static constexpr int kBoardSizeLarge = 19;
 
-// Max board size available in BattleSnake UI.
-static constexpr int kBoardSizeMax = 25;
-// Max number of snakes available in BattleSnake UI.
-static constexpr int kMaxSnakesCount = 8;
+// Optimize data structures for standard board sizes and numbers of snakes.
+// Larger numbers increase memory footprint. Boards with larger size or number
+// of snakes cause memory allocations.
+
+// Max board size that memory optimizations will work for.
+static constexpr int kOptimizeForMaxBoardSize = kBoardSizeMedium;
+// Max number of snakes that memory optimizations will work for.
+static constexpr int kOptimizeForMaxSnakesCount = 4;
 
 using SnakeId = std::string;
 
@@ -58,13 +62,13 @@ struct Point {
   Point Right() const { return Point{x + 1, y}; }
 };
 
-// Max board area is kBoardSizeMax^2, but snakes may have extra element at their
-// tail and may go out of bounds, so extra buffer of 2 elements. This vector
-// should never allocate memory on heap under normal conditions, thus improving
-// performance. Though it uses more memory than regular std::vector in most
-// cases.
-using PointsVector =
-    ::itlib::small_vector<Point, kBoardSizeMax * kBoardSizeMax + 2>;
+// Max optimized board area is kOptimizeForMaxBoardSize^2, but snakes may have
+// extra element at their tail and may go out of bounds, so extra buffer of 2
+// elements. This vector should never allocate memory on heap under normal
+// conditions, thus improving performance. Though it uses more memory than
+// regular std::vector in most cases.
+using PointsVector = ::itlib::small_vector<
+    Point, kOptimizeForMaxBoardSize * kOptimizeForMaxBoardSize + 2>;
 
 struct PointHash {
   size_t operator()(const Point& point) const {
@@ -98,11 +102,7 @@ struct Snake {
   size_t Length() const { return body.size(); }
 };
 
-// There are no more than kMaxSnakesCount snakes in a regular game. This vector
-// should never allocate memory on heap under normal conditions, thus improving
-// performance. Though it uses more memory than regular std::vector in most
-// cases.
-using SnakesVector = ::itlib::small_vector<Snake, kMaxSnakesCount>;
+using SnakesVector = ::itlib::small_vector<Snake, kOptimizeForMaxSnakesCount>;
 
 struct BoardState {
   int width = 0;
