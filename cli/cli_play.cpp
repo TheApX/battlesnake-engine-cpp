@@ -217,21 +217,22 @@ int PlayGame(const CliOptions& options) {
       snakes;
   std::unordered_map<SnakeId, std::string> names;
   std::vector<SnakeId> ids;
+  StringPool pool;
 
   for (const SnakeNameUrl& name_url : options.snakes) {
-    std::string id = GenerateId();
+    SnakeId id = pool.Add(GenerateId());
     ids.push_back(id);
     snakes[id] = std::make_unique<HttpClientBattlesnake>(name_url.url);
-    names[id] = name_url.name;
+    names[id] = pool.Add(name_url.name);
   }
 
   GameState game{
       .game =
           GameInfo{
-              .id = GenerateId(),
+              .id = pool.Add(GenerateId()),
               .ruleset{
-                  .name = options.gametype,
-                  .version = "v0.0.1",
+                  .name = pool.Add(options.gametype),
+                  .version = pool.Add("v0.0.1"),
               },
               .timeout = options.timeout,
           },
@@ -239,10 +240,11 @@ int PlayGame(const CliOptions& options) {
           ruleset->CreateInitialBoardState(options.width, options.height, ids),
   };
 
+  std::vector<std::string> squads = {"red", "blue"};
   if (options.gametype == "squad") {
     for (int i = 0; i < game.board.snakes.size(); ++i) {
       Snake& snake = game.board.snakes[i];
-      snake.squad = (i % 2 == 0) ? "red" : "blue";
+      snake.squad = squads[i % 2];
     }
   }
 
@@ -283,16 +285,16 @@ int PlayGame(const CliOptions& options) {
     for (Snake& snake : game.board.snakes) {
       auto latency_it = latencies.find(snake.id);
       if (latency_it == latencies.end()) {
-        snake.latency = "0";
+        snake.latency = pool.Add("0");
       } else {
-        snake.latency = std::to_string(latency_it->second);
+        snake.latency = pool.Add(std::to_string(latency_it->second));
       }
 
       auto move_response_it = move_responses.find(snake.id);
       if (move_response_it == move_responses.end()) {
-        snake.shout = "";
+        snake.shout = pool.Add("");
       } else {
-        snake.shout = move_response_it->second.shout;
+        snake.shout = pool.Add(move_response_it->second.shout);
       }
     }
   }
