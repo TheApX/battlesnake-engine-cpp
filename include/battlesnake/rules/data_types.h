@@ -69,8 +69,8 @@ struct EliminatedCause {
 };
 
 struct Point {
-  int x = 0;
-  int y = 0;
+  int x;
+  int y;
 
   bool operator==(const Point& other) const {
     return this->x == other.x && this->y == other.y;
