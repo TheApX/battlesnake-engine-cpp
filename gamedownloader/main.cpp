@@ -162,6 +162,15 @@ nlohmann::json ConvertPointArray(const nlohmann::json& info) {
   return result;
 }
 
+bool IsSnakeAlive(const nlohmann::json& info) {
+  auto death = info.find("Death");
+  if (death == info.end()) {
+    return true;
+  }
+
+  return death->is_null();
+}
+
 nlohmann::json ConvertSnake(const nlohmann::json& info) {
   return nlohmann::json{
       {"body", ConvertPointArray(info["Body"])},
@@ -180,6 +189,9 @@ nlohmann::json ConvertSnakesArray(const nlohmann::json& info) {
   nlohmann::json result = nlohmann::json::array();
 
   for (const nlohmann::json& s : info) {
+    if (!IsSnakeAlive(s)) {
+      continue;
+    }
     result.push_back(ConvertSnake(s));
   }
 
