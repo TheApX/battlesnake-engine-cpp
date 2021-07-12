@@ -1,6 +1,7 @@
 #include <battlesnake/json/converter.h>
 #include <battlesnake/server/server.h>
 
+#include <memory>
 #include <server_http.hpp>
 
 namespace battlesnake {
@@ -46,23 +47,23 @@ BattlesnakeServer::BattlesnakeServerImpl::BattlesnakeServerImpl(
   server_.config.thread_pool_size = threads;
 
   server_.default_resource["GET"] =
-      [&](std::shared_ptr<HttpServer::Response> response,
-          std::shared_ptr<HttpServer::Request> request) {
+      [this](std::shared_ptr<HttpServer::Response> response,
+             std::shared_ptr<HttpServer::Request> request) {
         this->onInfo(response, request);
       };
   server_.resource["/start"]["POST"] =
-      [&](std::shared_ptr<HttpServer::Response> response,
-          std::shared_ptr<HttpServer::Request> request) {
+      [this](std::shared_ptr<HttpServer::Response> response,
+             std::shared_ptr<HttpServer::Request> request) {
         this->onStart(response, request);
       };
   server_.resource["/end"]["POST"] =
-      [&](std::shared_ptr<HttpServer::Response> response,
-          std::shared_ptr<HttpServer::Request> request) {
+      [this](std::shared_ptr<HttpServer::Response> response,
+             std::shared_ptr<HttpServer::Request> request) {
         this->onEnd(response, request);
       };
   server_.resource["/move"]["POST"] =
-      [&](std::shared_ptr<HttpServer::Response> response,
-          std::shared_ptr<HttpServer::Request> request) {
+      [this](std::shared_ptr<HttpServer::Response> response,
+             std::shared_ptr<HttpServer::Request> request) {
         this->onMove(response, request);
       };
 }
@@ -86,8 +87,11 @@ void BattlesnakeServer::BattlesnakeServerImpl::onInfo(
     std::shared_ptr<HttpServer::Response> response,
     std::shared_ptr<HttpServer::Request> request) {
   try {
-    auto customization = battlesnake_->GetCustomization();
-    response->write(battlesnake::json::CreateJson(customization).dump());
+    battlesnake_->GetCustomization(
+        [response](const battlesnake::rules::Customization& customization) {
+          response->write(battlesnake::json::CreateJson(customization).dump());
+          response->send();
+        });
   } catch (std::exception) {
     response->write(SimpleWeb::StatusCode::server_error_internal_server_error,
                     "Internal server error");
@@ -98,12 +102,14 @@ void BattlesnakeServer::BattlesnakeServerImpl::onStart(
     std::shared_ptr<HttpServer::Response> response,
     std::shared_ptr<HttpServer::Request> request) {
   try {
-    battlesnake::rules::StringPool pool;
+    auto pool = std::make_shared<battlesnake::rules::StringPool>();
     auto content = request->content.string();
     auto game_state = battlesnake::json::ParseJsonGameState(
-        nlohmann::json::parse(content), pool);
-    battlesnake_->Start(game_state);
-    response->write("ok");
+        nlohmann::json::parse(content), *pool);
+    battlesnake_->Start(pool, game_state, [response]() {
+      response->write("ok");
+      response->send();
+    });
   } catch (std::exception) {
     response->write(SimpleWeb::StatusCode::server_error_internal_server_error,
                     "Internal server error");
@@ -114,12 +120,14 @@ void BattlesnakeServer::BattlesnakeServerImpl::onEnd(
     std::shared_ptr<HttpServer::Response> response,
     std::shared_ptr<HttpServer::Request> request) {
   try {
-    battlesnake::rules::StringPool pool;
+    auto pool = std::make_shared<battlesnake::rules::StringPool>();
     auto content = request->content.string();
     auto game_state = battlesnake::json::ParseJsonGameState(
-        nlohmann::json::parse(content), pool);
-    battlesnake_->End(game_state);
-    response->write("ok");
+        nlohmann::json::parse(content), *pool);
+    battlesnake_->End(pool, game_state, [response]() {
+      response->write("ok");
+      response->send();
+    });
   } catch (std::exception) {
     response->write(SimpleWeb::StatusCode::server_error_internal_server_error,
                     "Internal server error");
@@ -130,33 +138,36 @@ void BattlesnakeServer::BattlesnakeServerImpl::onMove(
     std::shared_ptr<HttpServer::Response> response,
     std::shared_ptr<HttpServer::Request> request) {
   try {
-    battlesnake::rules::StringPool pool;
+    auto pool = std::make_shared<battlesnake::rules::StringPool>();
     auto content = request->content.string();
     auto game_state = battlesnake::json::ParseJsonGameState(
-        nlohmann::json::parse(content), pool);
+        nlohmann::json::parse(content), *pool);
 
-    auto move = battlesnake_->Move(game_state);
-    nlohmann::json json{{"shout", move.shout}};
+    battlesnake_->Move(pool, game_state,
+                       [response](const Battlesnake::MoveResponse& move) {
+                         nlohmann::json json{{"shout", move.shout}};
 
-    switch (move.move) {
-      case Move::Up:
-        json["move"] = "up";
-        break;
-      case Move::Down:
-        json["move"] = "down";
-        break;
-      case Move::Left:
-        json["move"] = "left";
-        break;
-      case Move::Right:
-        json["move"] = "right";
-        break;
+                         switch (move.move) {
+                           case Move::Up:
+                             json["move"] = "up";
+                             break;
+                           case Move::Down:
+                             json["move"] = "down";
+                             break;
+                           case Move::Left:
+                             json["move"] = "left";
+                             break;
+                           case Move::Right:
+                             json["move"] = "right";
+                             break;
 
-      default:
-        break;
-    }
+                           default:
+                             break;
+                         }
 
-    response->write(json.dump());
+                         response->write(json.dump());
+                         response->send();
+                       });
   } catch (std::exception) {
     response->write(SimpleWeb::StatusCode::server_error_internal_server_error,
                     "Internal server error");

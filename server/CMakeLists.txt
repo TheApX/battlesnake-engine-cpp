@@ -14,3 +14,4 @@ target_include_directories(libbattlesnakeserver PUBLIC
 
 target_link_libraries(libbattlesnakeserver LINK_PUBLIC simple-web-server)
 target_link_libraries(libbattlesnakeserver LINK_PUBLIC libbattlesnakejson)
+target_link_libraries(libbattlesnakeserver LINK_PUBLIC libbattlesnakeinterface)
