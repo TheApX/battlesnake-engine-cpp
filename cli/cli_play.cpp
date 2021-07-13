@@ -90,39 +90,52 @@ struct MoveResult {
   int latency;
 };
 
-MoveResult MoveSnake(const GameState& game, const Snake& snake,
+// This is not completely async because it waits for snake->Move(,,) to return,
+// but it's the same that the server does. And latency is measured until
+// the response. It is completely async if the battlesnake returns immediately
+// and then responds from a different thread.
+MoveResult MoveSnake(std::shared_ptr<StringPool> pool, const GameState& game,
+                     const Snake& snake,
                      battlesnake::interface::Battlesnake* snake_interface) {
-  MoveResult result;
+  MoveResult move_result;
 
   if (snake.IsEliminated()) {
     // Move only non-eliminated snakes.
-    return result;
+    return move_result;
   }
 
   if (snake_interface == nullptr) {
     // No snake interface.
-    return result;
+    return move_result;
   }
 
   GameState game_for_snake = game;
   game_for_snake.you = snake;
 
-  result.snake_id = snake.id;
+  move_result.snake_id = snake.id;
+  std::promise<void> has_result;
 
   auto start = std::chrono::high_resolution_clock::now();
-  result.response = snake_interface->Move(game_for_snake);
-  auto end = std::chrono::high_resolution_clock::now();
-  result.latency =
-      std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
-          .count();
+  snake_interface->Move(
+      pool, game_for_snake,
+      [&move_result, &start,
+       &has_result](const Battlesnake::MoveResponse& result) {
+        auto end = std::chrono::high_resolution_clock::now();
+        move_result.response = result;
+        move_result.latency =
+            std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
+                .count();
+        has_result.set_value();
+      });
 
-  return result;
+  has_result.get_future().wait();
+  return move_result;
 }
 
 std::tuple<std::unordered_map<SnakeId, Battlesnake::MoveResponse>,
            std::unordered_map<SnakeId, int>>
 GetMoves(
-    const GameState& game,
+    std::shared_ptr<StringPool> pool, const GameState& game,
     const std::unordered_map<SnakeId, std::unique_ptr<Battlesnake>>& snakes) {
   std::unordered_map<SnakeId, Battlesnake::MoveResponse> move_responses;
   std::unordered_map<SnakeId, int> latencies;
@@ -141,17 +154,12 @@ GetMoves(
       continue;
     }
 
-    move_futures.push_back(std::async(std::launch::async, MoveSnake, game,
+    move_futures.push_back(std::async(std::launch::async, MoveSnake, pool, game,
                                       snake, snake_it->second.get()));
   }
 
   // Wait for and process responses.
   for (std::future<MoveResult>& move_future : move_futures) {
-    move_future.wait();
-    if (!move_future.valid()) {
-      continue;
-    }
-
     MoveResult move_result = move_future.get();
     if (move_result.snake_id.empty()) {
       continue;
@@ -165,7 +173,7 @@ GetMoves(
 }
 
 void StartAll(
-    const GameState& game,
+    std::shared_ptr<StringPool> pool, const GameState& game,
     const std::unordered_map<
         SnakeId, std::unique_ptr<battlesnake::interface::Battlesnake>>&
         snakes) {
@@ -180,11 +188,11 @@ void StartAll(
     }
 
     const std::unique_ptr<Battlesnake>& snake_interface = snake_it->second;
-    snake_interface->Start(game_for_snake);
+    snake_interface->Start(pool, game_for_snake, []() {});
   }
 }
 
-void EndAll(const GameState& game,
+void EndAll(std::shared_ptr<StringPool> pool, const GameState& game,
             const std::unordered_map<
                 SnakeId, std::unique_ptr<battlesnake::interface::Battlesnake>>&
                 snakes) {
@@ -199,7 +207,7 @@ void EndAll(const GameState& game,
     }
 
     const std::unique_ptr<Battlesnake>& snake_interface = snake_it->second;
-    snake_interface->End(game_for_snake);
+    snake_interface->End(pool, game_for_snake, []() {});
   }
 }
 
@@ -217,22 +225,22 @@ int PlayGame(const CliOptions& options) {
       snakes;
   std::unordered_map<SnakeId, std::string> names;
   std::vector<SnakeId> ids;
-  StringPool pool;
+  std::shared_ptr<StringPool> pool = std::make_shared<StringPool>();
 
   for (const SnakeNameUrl& name_url : options.snakes) {
-    SnakeId id = pool.Add(GenerateId());
+    SnakeId id = pool->Add(GenerateId());
     ids.push_back(id);
     snakes[id] = std::make_unique<HttpClientBattlesnake>(name_url.url);
-    names[id] = pool.Add(name_url.name);
+    names[id] = pool->Add(name_url.name);
   }
 
   GameState game{
       .game =
           GameInfo{
-              .id = pool.Add(GenerateId()),
+              .id = pool->Add(GenerateId()),
               .ruleset{
-                  .name = pool.Add(options.gametype),
-                  .version = pool.Add("v0.0.1"),
+                  .name = pool->Add(options.gametype),
+                  .version = pool->Add("v0.0.1"),
               },
               .timeout = options.timeout,
           },
@@ -258,7 +266,7 @@ int PlayGame(const CliOptions& options) {
   }
 
   PrintGame(game, options.view_map, options.view_map_only, snake_head_syms);
-  StartAll(game, snakes);
+  StartAll(pool, game, snakes);
 
   int total_latency = 0;
   for (game.turn = 1; !ruleset->IsGameOver(game.board); ++game.turn) {
@@ -269,7 +277,7 @@ int PlayGame(const CliOptions& options) {
     std::unordered_map<SnakeId, int> latencies;
 
     auto start = std::chrono::high_resolution_clock::now();
-    std::tie(move_responses, latencies) = GetMoves(game, snakes);
+    std::tie(move_responses, latencies) = GetMoves(pool, game, snakes);
     auto end = std::chrono::high_resolution_clock::now();
     total_latency =
         std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
@@ -285,22 +293,22 @@ int PlayGame(const CliOptions& options) {
     for (Snake& snake : game.board.snakes) {
       auto latency_it = latencies.find(snake.id);
       if (latency_it == latencies.end()) {
-        snake.latency = pool.Add("0");
+        snake.latency = pool->Add("0");
       } else {
-        snake.latency = pool.Add(std::to_string(latency_it->second));
+        snake.latency = pool->Add(std::to_string(latency_it->second));
       }
 
       auto move_response_it = move_responses.find(snake.id);
       if (move_response_it == move_responses.end()) {
-        snake.shout = pool.Add("");
+        snake.shout = pool->Add("");
       } else {
-        snake.shout = pool.Add(move_response_it->second.shout);
+        snake.shout = pool->Add(move_response_it->second.shout);
       }
     }
   }
 
   PrintGame(game, options.view_map, options.view_map_only, snake_head_syms);
-  EndAll(game, snakes);
+  EndAll(pool, game, snakes);
 
   return 0;
 }
