@@ -81,6 +81,7 @@ struct Point {
   Point Down() const { return Point{x, y - 1}; }
   Point Left() const { return Point{x - 1, y}; }
   Point Right() const { return Point{x + 1, y}; }
+  Point Moved(Move move) const;
 };
 
 // Max optimized board area is kOptimizeForMaxBoardSize^2, but snakes may have

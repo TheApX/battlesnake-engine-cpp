@@ -24,6 +24,22 @@ std::ostream& PrintContainer(std::ostream& s, const T& v) {
 
 }  // namespace
 
+Point Point::Moved(Move move) const {
+  switch (move) {
+    case Move::Up:
+      return Up();
+    case Move::Down:
+      return Down();
+    case Move::Left:
+      return Left();
+    case Move::Right:
+      return Right();
+
+    default:
+      return *this;
+  }
+}
+
 Point& Snake::Head() {
   if (body.empty()) {
     throw ErrorZeroLengthSnake(std::string(id));
