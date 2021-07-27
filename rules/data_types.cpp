@@ -132,6 +132,10 @@ std::ostream& operator<<(std::ostream& s, const Snake& snake) {
   PrintContainer(s, snake.body);
   s << " health: " << snake.health;
   s << " eliminated: " << snake.eliminated_cause;
+  s << " name: '" << snake.name << '\'';
+  s << " latency: " << snake.latency;
+  s << " shout: '" << snake.shout << '\'';
+  s << " squad: '" << snake.squad << '\'';
   s << "}";
 
   return s;
