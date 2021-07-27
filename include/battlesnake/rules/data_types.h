@@ -3,9 +3,11 @@
 #include <cstdint>
 #include <forward_list>
 #include <itlib/small_vector.hpp>
+#include <mutex>
 #include <ostream>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 
 namespace battlesnake {
 namespace rules {
@@ -30,17 +32,13 @@ static constexpr int kOptimizeForMaxSnakesCount = 4;
 // StringPool to keep all strings alive.
 class StringPool {
  public:
-  std::string_view Add(const std::string& s) {
-    if (s.empty()) {
-      return std::string_view(empty_);
-    }
-    strings_.push_front(s);
-    return std::string_view(strings_.front());
-  }
+  std::string_view Add(const std::string& s);
+  size_t Size() const;
 
- private:
+ protected:
+  std::mutex mutex_;
   std::forward_list<std::string> strings_;
-  std::string empty_;
+  std::unordered_map<std::string_view, std::string*> index_;
 };
 
 using SnakeId = std::string_view;

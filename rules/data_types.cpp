@@ -24,6 +24,22 @@ std::ostream& PrintContainer(std::ostream& s, const T& v) {
 
 }  // namespace
 
+std::string_view StringPool::Add(const std::string& s) {
+  std::lock_guard guard(mutex_);
+
+  auto it = index_.find(s);
+  if (it != index_.end()) {
+    return *it->second;
+  }
+
+  strings_.push_front(s);
+  std::string* new_string = &strings_.front();
+  index_[*new_string] = new_string;
+  return std::string_view(*new_string);
+}
+
+size_t StringPool::Size() const { return index_.size(); }
+
 Point Point::Moved(Move move) const {
   switch (move) {
     case Move::Up:
