@@ -18,3 +18,19 @@ target_link_libraries(testbattlesnakerules
 
 add_test(NAME testbattlesnakerules
          COMMAND testbattlesnakerules)
+
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
+SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg")
+
+
+set(testbattlesnakerulesperf_SRCS
+    standard_ruleset_perftest.cpp
+)
+
+add_executable(testbattlesnakerulesperf ${testbattlesnakerulesperf_SRCS})
+
+target_link_libraries(testbattlesnakerulesperf
+    libbattlesnakerules
+)
