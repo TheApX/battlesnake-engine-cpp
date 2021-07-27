@@ -141,12 +141,11 @@ void BattlesnakeServer::BattlesnakeServerImpl::onMove(
     std::shared_ptr<HttpServer::Response> response,
     std::shared_ptr<HttpServer::Request> request) {
   try {
-    auto pool = std::make_shared<battlesnake::rules::StringPool>();
     auto content = request->content.string();
     auto game_state = battlesnake::json::ParseJsonGameState(
-        nlohmann::json::parse(content), *pool);
+        nlohmann::json::parse(content), *string_pool_);
 
-    battlesnake_->Move(pool, game_state,
+    battlesnake_->Move(string_pool_, game_state,
                        [response](const Battlesnake::MoveResponse& move) {
                          nlohmann::json json{{"shout", move.shout}};
 
