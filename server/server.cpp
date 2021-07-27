@@ -29,6 +29,7 @@ class BattlesnakeServer::BattlesnakeServerImpl {
   int port_ = 0;
   int threads_ = 0;
   Battlesnake* battlesnake_ = nullptr;
+  std::shared_ptr<battlesnake::rules::StringPool> string_pool_;
 
   void onInfo(std::shared_ptr<HttpServer::Response> response,
               std::shared_ptr<HttpServer::Request> request);
@@ -42,7 +43,10 @@ class BattlesnakeServer::BattlesnakeServerImpl {
 
 BattlesnakeServer::BattlesnakeServerImpl::BattlesnakeServerImpl(
     Battlesnake* battlesnake, int port, int threads)
-    : battlesnake_(battlesnake), port_(port), threads_(threads) {
+    : battlesnake_(battlesnake),
+      port_(port),
+      threads_(threads),
+      string_pool_(std::make_shared<battlesnake::rules::StringPool>()) {
   server_.config.port = port_;
   server_.config.thread_pool_size = threads;
 
@@ -102,11 +106,10 @@ void BattlesnakeServer::BattlesnakeServerImpl::onStart(
     std::shared_ptr<HttpServer::Response> response,
     std::shared_ptr<HttpServer::Request> request) {
   try {
-    auto pool = std::make_shared<battlesnake::rules::StringPool>();
     auto content = request->content.string();
     auto game_state = battlesnake::json::ParseJsonGameState(
-        nlohmann::json::parse(content), *pool);
-    battlesnake_->Start(pool, game_state, [response]() {
+        nlohmann::json::parse(content), *string_pool_);
+    battlesnake_->Start(string_pool_, game_state, [response]() {
       response->write("ok");
       response->send();
     });
