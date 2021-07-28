@@ -123,11 +123,10 @@ void BattlesnakeServer::BattlesnakeServerImpl::onEnd(
     std::shared_ptr<HttpServer::Response> response,
     std::shared_ptr<HttpServer::Request> request) {
   try {
-    auto pool = std::make_shared<battlesnake::rules::StringPool>();
     auto content = request->content.string();
     auto game_state = battlesnake::json::ParseJsonGameState(
-        nlohmann::json::parse(content), *pool);
-    battlesnake_->End(pool, game_state, [response]() {
+        nlohmann::json::parse(content), *string_pool_);
+    battlesnake_->End(string_pool_, game_state, [response]() {
       response->write("ok");
       response->send();
     });
