@@ -310,6 +310,14 @@ int PlayGame(const CliOptions& options) {
   PrintGame(game, options.view_map, options.view_map_only, snake_head_syms);
   EndAll(pool, game, snakes);
 
+  for (const Snake& snake : game.board.snakes) {
+    if (snake.IsEliminated()) {
+      continue;
+    }
+
+    std::cout << "Winner: " << snake.name << std::endl;
+  }
+
   return 0;
 }
 
