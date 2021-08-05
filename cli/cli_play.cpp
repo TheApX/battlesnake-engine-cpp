@@ -134,7 +134,7 @@ MoveResult MoveSnake(std::shared_ptr<StringPool> pool, const GameState& game,
 
 std::tuple<std::unordered_map<SnakeId, Battlesnake::MoveResponse>,
            std::unordered_map<SnakeId, int>>
-GetMoves(
+GetMovesParallel(
     std::shared_ptr<StringPool> pool, const GameState& game,
     const std::unordered_map<SnakeId, std::unique_ptr<Battlesnake>>& snakes) {
   std::unordered_map<SnakeId, Battlesnake::MoveResponse> move_responses;
@@ -170,6 +170,54 @@ GetMoves(
   }
 
   return std::tie(move_responses, latencies);
+}
+
+std::tuple<std::unordered_map<SnakeId, Battlesnake::MoveResponse>,
+           std::unordered_map<SnakeId, int>>
+GetMovesSequential(
+    std::shared_ptr<StringPool> pool, const GameState& game,
+    const std::unordered_map<SnakeId, std::unique_ptr<Battlesnake>>& snakes) {
+  std::unordered_map<SnakeId, Battlesnake::MoveResponse> move_responses;
+  std::unordered_map<SnakeId, int> latencies;
+
+  // Send requests in parallel.
+  std::vector<std::future<MoveResult>> move_futures;
+  for (const Snake& snake : game.board.snakes) {
+    if (snake.IsEliminated()) {
+      // Move only non-eliminated snakes.
+      continue;
+    }
+
+    SnakeId id = snake.id;
+    auto snake_it = snakes.find(id);
+    if (snake_it == snakes.end()) {
+      continue;
+    }
+
+    MoveResult move_result =
+        MoveSnake(pool, game, snake, snake_it->second.get());
+    if (move_result.snake_id.empty()) {
+      continue;
+    }
+
+    move_responses[move_result.snake_id] = move_result.response;
+    latencies[move_result.snake_id] = move_result.latency;
+  }
+
+  return std::tie(move_responses, latencies);
+}
+
+std::tuple<std::unordered_map<SnakeId, Battlesnake::MoveResponse>,
+           std::unordered_map<SnakeId, int>>
+GetMoves(
+    std::shared_ptr<StringPool> pool, const GameState& game,
+    const std::unordered_map<SnakeId, std::unique_ptr<Battlesnake>>& snakes,
+    bool sequential_http) {
+  if (sequential_http) {
+    return GetMovesSequential(pool, game, snakes);
+  } else {
+    return GetMovesParallel(pool, game, snakes);
+  }
 }
 
 void StartAll(
@@ -277,7 +325,8 @@ int PlayGame(const CliOptions& options) {
     std::unordered_map<SnakeId, int> latencies;
 
     auto start = std::chrono::high_resolution_clock::now();
-    std::tie(move_responses, latencies) = GetMoves(pool, game, snakes);
+    std::tie(move_responses, latencies) =
+        GetMoves(pool, game, snakes, options.sequential_http);
     auto end = std::chrono::high_resolution_clock::now();
     total_latency =
         std::chrono::duration_cast<std::chrono::milliseconds>(end - start)

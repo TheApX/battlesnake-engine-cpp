@@ -22,6 +22,9 @@ std::ostream& operator<<(std::ostream& str, const CliOptions& options) {
       << std::endl;
   str << "View map:      " << (options.view_map ? "true" : "false")
       << std::endl;
+  str << "Sequential:    " << (options.sequential_http ? "true" : "false")
+      << std::endl;
+  str << "Timeout:       " << options.timeout << std::endl;
   str << "Snakes:" << std::endl;
   for (const SnakeNameUrl& snake_info : options.snakes) {
     str << "  " << snake_info.name << "    " << snake_info.url << std::endl;
@@ -80,6 +83,10 @@ CliOptions ParseOptions(int argc, const char* const argv[]) {
       .help("timeout (ms)")
       .action([](const std::string& value) { return std::stoi(value); })
       .default_value(result.timeout);
+  arguments.add_argument("-s", "--sequential")
+      .help("send http requests to snakes sequentially instead of parallel")
+      .default_value(false)
+      .implicit_value(true);
 
   try {
     arguments.parse_args(argc, argv);
@@ -100,6 +107,7 @@ CliOptions ParseOptions(int argc, const char* const argv[]) {
   result.view_map = arguments.get<bool>("-m");
   result.view_map_only = arguments.get<bool>("-M");
   result.timeout = arguments.get<int>("-t");
+  result.sequential_http = arguments.get<bool>("-s");
 
   std::vector<std::string> names =
       arguments.get<std::vector<std::string>>("-n");

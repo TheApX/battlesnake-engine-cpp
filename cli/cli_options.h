@@ -23,6 +23,7 @@ struct CliOptions {
   bool view_map = false;
   bool view_map_only = false;
   int timeout = 500;
+  bool sequential_http = false;
 };
 
 std::ostream& operator<<(std::ostream& str, const CliOptions& options);
