@@ -15,7 +15,7 @@ sudo apt install \
     libssl-dev
 ```
 
-Build everything and run tests:
+Build `battlesnakedownloader` target using CMake. You can also use convenience script that to build everything and run tests:
 
 ```
 ./build.sh
@@ -51,5 +51,5 @@ curl \
     -X POST \
     -H "Content-Type: application/json" \
     -d @my-game.json \
-    http://localhost:12388/move
+    http://your-snake-host:port/move
 ```

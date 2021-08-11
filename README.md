@@ -36,7 +36,7 @@ sudo apt install \
     libssl-dev
 ```
 
-Build everything and run tests:
+Build using CMake. You can also use convenience script that to build everything and run tests:
 
 ```
 ./build.sh
@@ -59,7 +59,7 @@ The battlesnake engine itself is written vanilla C++17 and all libraries are cro
 
 The only potential problem is that CLI uses some unicode characters to render snakes, which may not be supported on Windows. It definitely works fine in Windows Terminal + WSL2 + Ubuntu 20.04 though.
 
-If any adjustments needed to build and run on other platforms, contributions are welcome!
+If any adjustments needed to build and run on other platforms, please send a pull request. Contributions are welcome!
 
 # Q&A
 
