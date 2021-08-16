@@ -255,12 +255,12 @@ void StandardRuleset::moveSnakes(BoardState& state,
     }
 
     if (snake.body.empty()) {
-      throw ErrorZeroLengthSnake(std::string(snake.id));
+      throw ErrorZeroLengthSnake(snake.id.ToString());
     }
 
     Move const* move = findSnakeMove(moves, snake.id);
     if (move == nullptr) {
-      throw ErrorNoMoveFound(std::string(snake.id));
+      throw ErrorNoMoveFound(snake.id.ToString());
     }
 
     Point old_head = snake.body.front();
@@ -395,7 +395,7 @@ void StandardRuleset::eliminateOutOfHealthOrBoundsSnakes(
     }
 
     if (snake.body.empty()) {
-      throw ErrorZeroLengthSnake(std::string(snake.id));
+      throw ErrorZeroLengthSnake(snake.id.ToString());
     }
 
     if (snake.IsOutOfHealth()) {
@@ -437,7 +437,7 @@ StandardRuleset::findCollisionEliminations(
     if (snakeHasBodyCollided(snake, snake)) {
       result[snake.id] = EliminatedCause{
           .cause = EliminatedCause::SelfCollision,
-          .by_id = config_.optimize_strings ? std::string() : snake.id,
+          .by_id = snake.id,
       };
       continue;
     }

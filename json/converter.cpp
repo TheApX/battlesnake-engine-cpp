@@ -29,8 +29,8 @@ int GetInt(const nlohmann::json& json, const char* key) {
   return *v;
 }
 
-std::string_view GetString(const nlohmann::json& json, const char* key,
-                           battlesnake::rules::StringPool& pool) {
+StringWrapper GetString(const nlohmann::json& json, const char* key,
+                        battlesnake::rules::StringPool& pool) {
   auto v = json.find(key);
   if (v == json.end()) {
     throw ParseException();
@@ -41,9 +41,9 @@ std::string_view GetString(const nlohmann::json& json, const char* key,
   return pool.Add(*v);
 }
 
-std::string_view GetString(const nlohmann::json& json, const char* key,
-                           const char* default_value,
-                           battlesnake::rules::StringPool& pool) {
+StringWrapper GetString(const nlohmann::json& json, const char* key,
+                        const char* default_value,
+                        battlesnake::rules::StringPool& pool) {
   auto v = json.find(key);
   if (v == json.end()) {
     return pool.Add(default_value);
@@ -112,16 +112,16 @@ nlohmann::json CreateJson(const Point& point) {
 
 nlohmann::json CreateJson(const Snake& snake) {
   nlohmann::json result;
-  result["id"] = snake.id;
+  result["id"] = snake.id.ToString();
   result["health"] = snake.health;
   result["head"] = CreateJson(snake.Head());
   result["body"] = CreateContainerJson(snake.body);
   result["length"] = snake.body.size();
 
-  result["name"] = snake.name;
-  result["latency"] = snake.latency;
-  result["shout"] = snake.shout;
-  result["squad"] = snake.squad;
+  result["name"] = snake.name.ToString();
+  result["latency"] = snake.latency.ToString();
+  result["shout"] = snake.shout.ToString();
+  result["squad"] = snake.squad.ToString();
 
   return result;
 }
@@ -157,14 +157,14 @@ nlohmann::json CreateJson(const BoardState& state) {
 
 nlohmann::json CreateJson(const RulesetInfo& ruleset_info) {
   return nlohmann::json{
-      {"name", ruleset_info.name},
-      {"version", ruleset_info.version},
+      {"name", ruleset_info.name.ToString()},
+      {"version", ruleset_info.version.ToString()},
   };
 }
 
 nlohmann::json CreateJson(const GameInfo& game_info) {
   return nlohmann::json{
-      {"id", game_info.id},
+      {"id", game_info.id.ToString()},
       {"ruleset", CreateJson(game_info.ruleset)},
       {"timeout", game_info.timeout},
   };
@@ -218,7 +218,7 @@ Snake ParseJsonSnake(const nlohmann::json& json,
 
   Point head = ParseJsonPoint(json["head"]);
   if (snake.body.empty()) {
-    throw ErrorZeroLengthSnake(std::string(snake.id));
+    throw ErrorZeroLengthSnake(snake.id.ToString());
   }
 
   if (head != snake.Head()) {

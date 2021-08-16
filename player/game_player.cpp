@@ -97,13 +97,14 @@ void GamePlayer::SetPrintMode(PrintMode mode) { print_mode_ = mode; }
 void GamePlayer::SetRequestsMode(RequestsMode mode) { requests_mode_ = mode; }
 
 void GamePlayer::Play() {
-  std::unordered_map<SnakeId, std::string> names;
+  std::unordered_map<SnakeId, StringWrapper> names;
 
   std::vector<SnakeId> snake_ids;
   for (const PlayerInfo& player : players_) {
-    snake_ids.push_back(player.id);
-    snakes_map_[player.id] = player.battlesnake;
-    names[player.id] = string_pool_->Add(player.name);
+    StringWrapper id_wrapped = string_pool_->Add(player.id);
+    snake_ids.push_back(id_wrapped);
+    snakes_map_[id_wrapped] = player.battlesnake;
+    names[id_wrapped] = string_pool_->Add(player.name);
   }
 
   GameState game{

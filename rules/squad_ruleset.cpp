@@ -23,7 +23,7 @@ void SquadRuleset::resurrectSquadBodyCollisions(BoardState& state) const {
     return;
   }
 
-  std::unordered_map<SnakeId, std::string> snake_squads;
+  std::unordered_map<SnakeId, StringWrapper> snake_squads;
   for (const Snake& snake : state.snakes) {
     snake_squads[snake.id] = snake.squad;
   }
@@ -35,8 +35,8 @@ void SquadRuleset::resurrectSquadBodyCollisions(BoardState& state) const {
 
     auto eliminator_squad = snake_squads.find(snake.eliminated_cause.by_id);
     if (eliminator_squad == snake_squads.end()) {
-      throw ErrorInvalidEliminatedById(
-          std::string(snake.id), std::string(snake.eliminated_cause.by_id));
+      throw ErrorInvalidEliminatedById(snake.id.ToString(),
+                                       snake.eliminated_cause.by_id.ToString());
     }
 
     if (snake.squad != eliminator_squad->second) {
@@ -45,7 +45,7 @@ void SquadRuleset::resurrectSquadBodyCollisions(BoardState& state) const {
     }
 
     snake.eliminated_cause.cause = EliminatedCause::NotEliminated;
-    snake.eliminated_cause.by_id = "";
+    snake.eliminated_cause.by_id.value = nullptr;
   }
 }
 
@@ -74,7 +74,7 @@ void SquadRuleset::shareSquadAttributes(BoardState& state) const {
       if (squad_config_.shared_elimination) {
         if (!snake.IsEliminated() && other_snake.IsEliminated()) {
           snake.eliminated_cause.cause = EliminatedCause::BySquad;
-          snake.eliminated_cause.by_id = "";
+          snake.eliminated_cause.by_id.value = nullptr;
         }
       }
     }
@@ -82,7 +82,7 @@ void SquadRuleset::shareSquadAttributes(BoardState& state) const {
 }
 
 bool SquadRuleset::IsGameOver(const BoardState& state) {
-  std::unordered_set<std::string_view> squads_not_eliminated;
+  std::unordered_set<StringWrapper> squads_not_eliminated;
 
   for (const Snake& snake : state.snakes) {
     if (!snake.IsEliminated()) {

@@ -16,8 +16,6 @@ class StandardRuleset : public Ruleset {
     int minimum_food = 1;
     int snake_max_health = 100;
     int snake_start_size = 3;
-    // If true, drops some strings.
-    bool optimize_strings = false;
 
     static Config Default() { return Config(); }
   };

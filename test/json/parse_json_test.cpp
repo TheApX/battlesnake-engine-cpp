@@ -59,8 +59,9 @@ TEST_F(ParseJsonTest, SnakeSucceeds) {
       }
   )json");
 
+  StringPool pool;
   Snake expected_snake{
-      .id = "snake_id",
+      .id = pool.Add("snake_id"),
       .body =
           {
               Point{10, 1},
@@ -68,13 +69,12 @@ TEST_F(ParseJsonTest, SnakeSucceeds) {
               Point{10, 3},
           },
       .health = 75,
-      .name = "Test Caterpillar",
-      .latency = "123",
-      .shout = "Why are we shouting???",
-      .squad = "The Suicide Squad",
+      .name = pool.Add("Test Caterpillar"),
+      .latency = pool.Add("123"),
+      .shout = pool.Add("Why are we shouting???"),
+      .squad = pool.Add("The Suicide Squad"),
   };
 
-  StringPool pool;
   Snake snake = ParseJsonSnake(json, pool);
 
   EXPECT_THAT(snake.id, Eq(expected_snake.id));
@@ -105,8 +105,9 @@ TEST_F(ParseJsonTest, SnakeNoOptional) {
       }
   )json");
 
+  StringPool pool;
   Snake expected_snake{
-      .id = "snake_id",
+      .id = pool.Add("snake_id"),
       .body =
           {
               Point{10, 1},
@@ -114,10 +115,9 @@ TEST_F(ParseJsonTest, SnakeNoOptional) {
               Point{10, 3},
           },
       .health = 75,
-      .latency = "0",
+      .latency = pool.Add("0"),
   };
 
-  StringPool pool;
   Snake snake = ParseJsonSnake(json, pool);
 
   EXPECT_THAT(snake.id, Eq(expected_snake.id));
@@ -361,9 +361,13 @@ TEST_F(ParseJsonTest, BoardStateWrongSnakesValueType) {
 TEST_F(ParseJsonTest, RulesetInfoSucceeds) {
   auto json = nlohmann::json::parse(
       R"json({"name": "standard", "version": "v1.2.3"})json");
-  RulesetInfo expected_result{.name = "standard", .version = "v1.2.3"};
 
   StringPool pool;
+  RulesetInfo expected_result{
+      .name = pool.Add("standard"),
+      .version = pool.Add("v1.2.3"),
+  };
+
   RulesetInfo result = ParseJsonRulesetInfo(json, pool);
 
   EXPECT_THAT(result.name, Eq(expected_result.name));
@@ -387,13 +391,17 @@ TEST_F(ParseJsonTest, GameInfoSucceeds) {
       },
       "timeout": 500
   })json");
+
+  StringPool pool;
   GameInfo expected_result{
-      .id = "totally-unique-game-id",
-      .ruleset{.name = "standard", .version = "v1.2.3"},
+      .id = pool.Add("totally-unique-game-id"),
+      .ruleset{
+          .name = pool.Add("standard"),
+          .version = pool.Add("v1.2.3"),
+      },
       .timeout = 500,
   };
 
-  StringPool pool;
   GameInfo result = ParseJsonGameInfo(json, pool);
 
   EXPECT_THAT(result.id, Eq(expected_result.id));
@@ -460,16 +468,21 @@ TEST_F(ParseJsonTest, GameStateSucceeds) {
             "squad": "The Suicide Squad"
         }
   })json");
+
+  StringPool pool;
   GameState expected_result{
       .game{
-          .id = "totally-unique-game-id",
-          .ruleset{.name = "standard", .version = "v1.2.3"},
+          .id = pool.Add("totally-unique-game-id"),
+          .ruleset{
+              .name = pool.Add("standard"),
+              .version = pool.Add("v1.2.3"),
+          },
           .timeout = 500,
       },
       .turn = 987,
       .board{.width = 5, .height = 15},
       .you{
-          .id = "snake_id",
+          .id = pool.Add("snake_id"),
           .body =
               {
                   Point{10, 1},
@@ -477,14 +490,13 @@ TEST_F(ParseJsonTest, GameStateSucceeds) {
                   Point{10, 3},
               },
           .health = 75,
-          .name = "Test Caterpillar",
-          .latency = "123",
-          .shout = "Why are we shouting???",
-          .squad = "The Suicide Squad",
+          .name = pool.Add("Test Caterpillar"),
+          .latency = pool.Add("123"),
+          .shout = pool.Add("Why are we shouting???"),
+          .squad = pool.Add("The Suicide Squad"),
       },
   };
 
-  StringPool pool;
   GameState result = ParseJsonGameState(json, pool);
 
   // Check one subfield from each field.
@@ -513,17 +525,21 @@ TEST_F(ParseJsonTest, GameStateNoYou) {
             "hazards": []
         }
   })json");
+
+  StringPool pool;
   GameState expected_result{
       .game{
-          .id = "totally-unique-game-id",
-          .ruleset{.name = "standard", .version = "v1.2.3"},
+          .id = pool.Add("totally-unique-game-id"),
+          .ruleset{
+              .name = pool.Add("standard"),
+              .version = pool.Add("v1.2.3"),
+          },
           .timeout = 500,
       },
       .turn = 987,
       .board{.width = 5, .height = 15},
   };
 
-  StringPool pool;
   GameState result = ParseJsonGameState(json, pool);
 
   // Check one subfield from each field.

@@ -161,7 +161,7 @@ TEST_F(ServerTestSync, Start) {
   auto game = CreateGameState(pool);
   std::string received_game_id;
   EXPECT_CALL(battlesnake, Start(_)).WillOnce([&](const GameState& game_state) {
-    received_game_id = game_state.game.id;
+    received_game_id = game_state.game.id.ToString();
   });
 
   // Don't care about actual response.
@@ -170,7 +170,7 @@ TEST_F(ServerTestSync, Start) {
   server.Stop();
   server_thread->join();
 
-  EXPECT_THAT(received_game_id, Eq(game.game.id));
+  EXPECT_THAT(received_game_id, Eq(game.game.id.ToString()));
 }
 
 TEST_F(ServerTestSync, End) {
@@ -182,7 +182,7 @@ TEST_F(ServerTestSync, End) {
   auto game = CreateGameState(pool);
   std::string received_game_id;
   EXPECT_CALL(battlesnake, End(_)).WillOnce([&](const GameState& game_state) {
-    received_game_id = game_state.game.id;
+    received_game_id = game_state.game.id.ToString();
   });
 
   // Don't care about actual response.
@@ -191,7 +191,7 @@ TEST_F(ServerTestSync, End) {
   server.Stop();
   server_thread->join();
 
-  EXPECT_THAT(received_game_id, Eq(game.game.id));
+  EXPECT_THAT(received_game_id, Eq(game.game.id.ToString()));
 }
 
 TEST_F(ServerTestSync, Move) {
@@ -204,7 +204,7 @@ TEST_F(ServerTestSync, Move) {
   std::string received_game_id;
   EXPECT_CALL(battlesnake, Move(_))
       .WillOnce([&](const GameState& game_state) -> Battlesnake::MoveResponse {
-        received_game_id = game_state.game.id;
+        received_game_id = game_state.game.id.ToString();
 
         return Battlesnake::MoveResponse{
             .move = Move::Left,
@@ -217,7 +217,7 @@ TEST_F(ServerTestSync, Move) {
   server.Stop();
   server_thread->join();
 
-  EXPECT_THAT(received_game_id, Eq(game.game.id));
+  EXPECT_THAT(received_game_id, Eq(game.game.id.ToString()));
   EXPECT_THAT(response["move"], Eq("left"));
   EXPECT_THAT(response["shout"], Eq("Why are we shouting???"));
 }
@@ -307,7 +307,7 @@ TEST_F(ServerTestAsync, Start) {
               respond();
 
               std::this_thread::sleep_for(this->post_respond_delay_);
-              received_game_id.set_value(std::string(game_state.game.id));
+              received_game_id.set_value(game_state.game.id.ToString());
             });
         worker_thread.detach();
       });
@@ -323,7 +323,7 @@ TEST_F(ServerTestAsync, Start) {
   // But received_game_id must be available some time later.
   std::future<std::string> received_game_id_future =
       received_game_id.get_future();
-  EXPECT_THAT(received_game_id_future.get(), Eq(game.game.id));
+  EXPECT_THAT(received_game_id_future.get(), Eq(game.game.id.ToString()));
   // Check that the worker thread took at least as much time as expected, or
   // more.
   EXPECT_THAT(std::chrono::high_resolution_clock::now() - begin_time,
@@ -353,7 +353,7 @@ TEST_F(ServerTestAsync, End) {
               respond();
 
               std::this_thread::sleep_for(this->post_respond_delay_);
-              received_game_id.set_value(std::string(game_state.game.id));
+              received_game_id.set_value(game_state.game.id.ToString());
             });
         worker_thread.detach();
       });
@@ -369,7 +369,7 @@ TEST_F(ServerTestAsync, End) {
   // But received_game_id must be available some time later.
   std::future<std::string> received_game_id_future =
       received_game_id.get_future();
-  EXPECT_THAT(received_game_id_future.get(), Eq(game.game.id));
+  EXPECT_THAT(received_game_id_future.get(), Eq(game.game.id.ToString()));
   // Check that the worker thread took at least as much time as expected, or
   // more.
   EXPECT_THAT(std::chrono::high_resolution_clock::now() - begin_time,
@@ -403,7 +403,7 @@ TEST_F(ServerTestAsync, Move) {
               });
 
               std::this_thread::sleep_for(this->post_respond_delay_);
-              received_game_id.set_value(std::string(game_state.game.id));
+              received_game_id.set_value(game_state.game.id.ToString());
             });
         worker_thread.detach();
       });
@@ -419,7 +419,7 @@ TEST_F(ServerTestAsync, Move) {
   // But received_game_id must be available some time later.
   std::future<std::string> received_game_id_future =
       received_game_id.get_future();
-  EXPECT_THAT(received_game_id_future.get(), Eq(game.game.id));
+  EXPECT_THAT(received_game_id_future.get(), Eq(game.game.id.ToString()));
   // Check that the worker thread took at least as much time as expected, or
   // more.
   EXPECT_THAT(std::chrono::high_resolution_clock::now() - begin_time,

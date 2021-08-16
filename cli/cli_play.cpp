@@ -115,7 +115,7 @@ int PlayGame(const CliOptions& options) {
   player.Play();
 
   for (SnakeId id : player.Winners()) {
-    std::cout << "Winner: " << names[std::string(id)] << std::endl;
+    std::cout << "Winner: " << names[id.ToString()] << std::endl;
   }
 
   return 0;

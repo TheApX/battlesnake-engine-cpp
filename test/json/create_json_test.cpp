@@ -28,8 +28,10 @@ TEST_F(CreateJsonTest, EliminatedSnake) {
 }
 
 TEST_F(CreateJsonTest, NotEliminatedSnake) {
+  StringPool pool;
+
   Snake snake{
-      .id = "snake_id",
+      .id = pool.Add("snake_id"),
       .body =
           {
               Point{10, 1},
@@ -37,10 +39,10 @@ TEST_F(CreateJsonTest, NotEliminatedSnake) {
               Point{10, 3},
           },
       .health = 75,
-      .name = "Test Caterpillar",
-      .latency = "123",
-      .shout = "Why are we shouting???",
-      .squad = "The Suicide Squad",
+      .name = pool.Add("Test Caterpillar"),
+      .latency = pool.Add("123"),
+      .shout = pool.Add("Why are we shouting???"),
+      .squad = pool.Add("The Suicide Squad"),
   };
 
   auto expected_json = nlohmann::json::parse(R"json(
@@ -147,6 +149,8 @@ TEST_F(CreateJsonTest, BoardStateHazards) {
 }
 
 TEST_F(CreateJsonTest, BoardStateSnakes) {
+  StringPool pool;
+
   BoardState state{
       .width = 5,
       .height = 15,
@@ -154,7 +158,7 @@ TEST_F(CreateJsonTest, BoardStateSnakes) {
       .snakes =
           {
               Snake{
-                  .id = "snake_id",
+                  .id = pool.Add("snake_id"),
                   .body =
                       {
                           Point{10, 1},
@@ -162,10 +166,10 @@ TEST_F(CreateJsonTest, BoardStateSnakes) {
                           Point{10, 3},
                       },
                   .health = 75,
-                  .name = "Test Caterpillar",
-                  .latency = "123",
-                  .shout = "Why are we shouting???",
-                  .squad = "The Suicide Squad",
+                  .name = pool.Add("Test Caterpillar"),
+                  .latency = pool.Add("123"),
+                  .shout = pool.Add("Why are we shouting???"),
+                  .squad = pool.Add("The Suicide Squad"),
               },
           },
       .hazards = {},
@@ -199,6 +203,8 @@ TEST_F(CreateJsonTest, BoardStateSnakes) {
 }
 
 TEST_F(CreateJsonTest, BoardStateEliminatedSnake) {
+  StringPool pool;
+
   BoardState state{
       .width = 1,
       .height = 2,
@@ -206,7 +212,7 @@ TEST_F(CreateJsonTest, BoardStateEliminatedSnake) {
       .snakes =
           {
               Snake{
-                  .id = "snake_id",
+                  .id = pool.Add("snake_id"),
                   .body =
                       {
                           Point{10, 1},
@@ -218,10 +224,10 @@ TEST_F(CreateJsonTest, BoardStateEliminatedSnake) {
                       EliminatedCause{
                           .cause = EliminatedCause::HeadToHeadCollision,
                       },
-                  .name = "Test Caterpillar",
-                  .latency = "123",
-                  .shout = "Why are we shouting???",
-                  .squad = "The Suicide Squad",
+                  .name = pool.Add("Test Caterpillar"),
+                  .latency = pool.Add("123"),
+                  .shout = pool.Add("Why are we shouting???"),
+                  .squad = pool.Add("The Suicide Squad"),
               },
           },
       .hazards = {},
@@ -241,17 +247,26 @@ TEST_F(CreateJsonTest, BoardStateEliminatedSnake) {
 }
 
 TEST_F(CreateJsonTest, RulesetInfo) {
-  nlohmann::json json =
-      CreateJson(RulesetInfo{.name = "standard", .version = "v1.2.3"});
+  StringPool pool;
+
+  nlohmann::json json = CreateJson(RulesetInfo{
+      .name = pool.Add("standard"),
+      .version = pool.Add("v1.2.3"),
+  });
   EXPECT_THAT(json,
               Eq(nlohmann::json::parse(
                   R"json({"name": "standard", "version": "v1.2.3"})json")));
 }
 
 TEST_F(CreateJsonTest, GameInfo) {
+  StringPool pool;
+
   nlohmann::json json = CreateJson(GameInfo{
-      .id = "totally-unique-game-id",
-      .ruleset{.name = "standard", .version = "v1.2.3"},
+      .id = pool.Add("totally-unique-game-id"),
+      .ruleset{
+          .name = pool.Add("standard"),
+          .version = pool.Add("v1.2.3"),
+      },
       .timeout = 500,
   });
   EXPECT_THAT(json, Eq(nlohmann::json::parse(R"json({
@@ -265,16 +280,21 @@ TEST_F(CreateJsonTest, GameInfo) {
 }
 
 TEST_F(CreateJsonTest, GameState) {
+  StringPool pool;
+
   nlohmann::json json = CreateJson(GameState{
       .game{
-          .id = "totally-unique-game-id",
-          .ruleset{.name = "standard", .version = "v1.2.3"},
+          .id = pool.Add("totally-unique-game-id"),
+          .ruleset{
+              .name = pool.Add("standard"),
+              .version = pool.Add("v1.2.3"),
+          },
           .timeout = 500,
       },
       .turn = 987,
       .board{.width = 5, .height = 15},
       .you{
-          .id = "snake_id",
+          .id = pool.Add("snake_id"),
           .body =
               {
                   Point{10, 1},
@@ -282,10 +302,10 @@ TEST_F(CreateJsonTest, GameState) {
                   Point{10, 3},
               },
           .health = 75,
-          .name = "Test Caterpillar",
-          .latency = "123",
-          .shout = "Why are we shouting???",
-          .squad = "The Suicide Squad",
+          .name = pool.Add("Test Caterpillar"),
+          .latency = pool.Add("123"),
+          .shout = pool.Add("Why are we shouting???"),
+          .squad = pool.Add("The Suicide Squad"),
       },
   });
   EXPECT_THAT(json, Eq(nlohmann::json::parse(R"json({
@@ -324,16 +344,21 @@ TEST_F(CreateJsonTest, GameState) {
 }
 
 TEST_F(CreateJsonTest, GameStateYouEliminated) {
+  StringPool pool;
+
   nlohmann::json json = CreateJson(GameState{
       .game{
-          .id = "totally-unique-game-id",
-          .ruleset{.name = "standard", .version = "v1.2.3"},
+          .id = pool.Add("totally-unique-game-id"),
+          .ruleset{
+              .name = pool.Add("standard"),
+              .version = pool.Add("v1.2.3"),
+          },
           .timeout = 500,
       },
       .turn = 987,
       .board{.width = 5, .height = 15},
       .you{
-          .id = "snake_id",
+          .id = pool.Add("snake_id"),
           .body =
               {
                   Point{10, 1},
@@ -342,10 +367,10 @@ TEST_F(CreateJsonTest, GameStateYouEliminated) {
               },
           .health = 75,
           .eliminated_cause{.cause = EliminatedCause::Collision},
-          .name = "Test Caterpillar",
-          .latency = "123",
-          .shout = "Why are we shouting???",
-          .squad = "The Suicide Squad",
+          .name = pool.Add("Test Caterpillar"),
+          .latency = pool.Add("123"),
+          .shout = pool.Add("Why are we shouting???"),
+          .squad = pool.Add("The Suicide Squad"),
       },
   });
   EXPECT_THAT(json, Eq(nlohmann::json::parse(R"json({
@@ -369,10 +394,15 @@ TEST_F(CreateJsonTest, GameStateYouEliminated) {
 }
 
 TEST_F(CreateJsonTest, GameStateNoYou) {
+  StringPool pool;
+
   nlohmann::json json = CreateJson(GameState{
       .game{
-          .id = "totally-unique-game-id",
-          .ruleset{.name = "standard", .version = "v1.2.3"},
+          .id = pool.Add("totally-unique-game-id"),
+          .ruleset{
+              .name = pool.Add("standard"),
+              .version = pool.Add("v1.2.3"),
+          },
           .timeout = 500,
       },
       .turn = 987,

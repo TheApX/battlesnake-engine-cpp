@@ -26,13 +26,30 @@ static constexpr int kOptimizeForMaxBoardSize = kBoardSizeMedium;
 // Max number of snakes that memory optimizations will work for.
 static constexpr int kOptimizeForMaxSnakesCount = 4;
 
-// All data types use std::string_view instead of strings. It allows to
-// eliminate expensive string operations when objects are copied. But it forces
-// all strings used to construct the objects to outlive all objects. Use
-// StringPool to keep all strings alive.
+// Wrapper for string pointer. Can be used as simpler but trivially
+// constructible, destructible and copyable alternative for std::string_view.
+struct StringWrapper {
+ public:
+  std::string* value;
+
+  const std::string& ToString() const;
+  bool empty() const;
+};
+
+bool operator==(const StringWrapper& a, const StringWrapper& b);
+bool operator!=(const StringWrapper& a, const StringWrapper& b);
+bool operator==(const StringWrapper& a, const std::string& b);
+bool operator!=(const StringWrapper& a, const std::string& b);
+bool operator==(const std::string& b, const StringWrapper& a);
+bool operator!=(const std::string& b, const StringWrapper& a);
+
+// All data types use StringWrapper instead of strings. It allows to eliminate
+// expensive string operations when objects are copied. But it forces all
+// strings used to construct the objects to outlive all objects. Use StringPool
+// to keep all strings alive.
 class StringPool {
  public:
-  std::string_view Add(const std::string& s);
+  StringWrapper Add(const std::string& s);
   size_t Size() const;
 
  protected:
@@ -41,7 +58,7 @@ class StringPool {
   std::unordered_map<std::string_view, std::string*> index_;
 };
 
-using SnakeId = std::string_view;
+using SnakeId = StringWrapper;
 
 enum class Move {
   Unknown,  // No move returned from snake.
@@ -106,10 +123,10 @@ struct Snake {
   EliminatedCause eliminated_cause;
 
   // Additional values not necessarily used by ruleset, but used in API.
-  std::string_view name;
-  std::string_view latency;
-  std::string_view shout;
-  std::string_view squad;
+  StringWrapper name;
+  StringWrapper latency;
+  StringWrapper shout;
+  StringWrapper squad;
 
   bool IsEliminated() const {
     return eliminated_cause.cause != EliminatedCause::NotEliminated;
@@ -133,12 +150,12 @@ struct BoardState {
 };
 
 struct RulesetInfo {
-  std::string_view name;
-  std::string_view version;
+  StringWrapper name;
+  StringWrapper version;
 };
 
 struct GameInfo {
-  std::string_view id;
+  StringWrapper id;
   RulesetInfo ruleset;
   int timeout;
 };
@@ -159,6 +176,7 @@ struct Customization {
   std::string version;
 };
 
+std::ostream& operator<<(std::ostream& s, const StringWrapper& string);
 std::ostream& operator<<(std::ostream& s, Move move);
 std::ostream& operator<<(std::ostream& s, EliminatedCause::Cause cause);
 std::ostream& operator<<(std::ostream& s, EliminatedCause cause);
@@ -170,3 +188,14 @@ std::ostream& operator<<(std::ostream& s, const Snake& snake);
 
 }  // namespace rules
 }  // namespace battlesnake
+
+namespace std {
+template <>
+struct hash<battlesnake::rules::StringWrapper> {
+  std::size_t operator()(
+      battlesnake::rules::StringWrapper const& s) const noexcept {
+    if (s.value == nullptr) return 0;
+    return std::hash<std::string>{}(*s.value);
+  }
+};
+}  // namespace std
