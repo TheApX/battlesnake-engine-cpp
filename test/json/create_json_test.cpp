@@ -16,8 +16,8 @@ using namespace ::battlesnake::rules;
 class CreateJsonTest : public testing::Test {};
 
 TEST_F(CreateJsonTest, Point) {
-  nlohmann::json json = CreateJson(Point{123, 456});
-  EXPECT_THAT(json, Eq(nlohmann::json::parse(R"json({"x":123,"y":456})json")));
+  nlohmann::json json = CreateJson(Point{123, 21});
+  EXPECT_THAT(json, Eq(nlohmann::json::parse(R"json({"x":123,"y":21})json")));
 }
 
 TEST_F(CreateJsonTest, EliminatedSnake) {

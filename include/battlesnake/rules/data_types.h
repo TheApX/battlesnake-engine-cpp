@@ -12,10 +12,12 @@
 namespace battlesnake {
 namespace rules {
 
+using Coordinate = signed char;
+
 // Standard board sizes.
-static constexpr int kBoardSizeSmall = 7;
-static constexpr int kBoardSizeMedium = 11;
-static constexpr int kBoardSizeLarge = 19;
+static constexpr Coordinate kBoardSizeSmall = 7;
+static constexpr Coordinate kBoardSizeMedium = 11;
+static constexpr Coordinate kBoardSizeLarge = 19;
 
 // Optimize data structures for standard board sizes and numbers of snakes.
 // Larger numbers increase memory footprint. Boards with larger size or number
@@ -84,18 +86,18 @@ struct EliminatedCause {
 };
 
 struct Point {
-  int x;
-  int y;
+  Coordinate x;
+  Coordinate y;
 
   bool operator==(const Point& other) const {
     return this->x == other.x && this->y == other.y;
   }
   bool operator!=(const Point& other) const { return !operator==(other); }
 
-  Point Up() const { return Point{x, y + 1}; }
-  Point Down() const { return Point{x, y - 1}; }
-  Point Left() const { return Point{x - 1, y}; }
-  Point Right() const { return Point{x + 1, y}; }
+  Point Up() const { return Point{x, static_cast<Coordinate>(y + 1)}; }
+  Point Down() const { return Point{x, static_cast<Coordinate>(y - 1)}; }
+  Point Left() const { return Point{static_cast<Coordinate>(x - 1), y}; }
+  Point Right() const { return Point{static_cast<Coordinate>(x + 1), y}; }
   Point Moved(Move move) const;
 };
 
@@ -142,8 +144,8 @@ struct Snake {
 using SnakesVector = ::itlib::small_vector<Snake, kOptimizeForMaxSnakesCount>;
 
 struct BoardState {
-  int width = 0;
-  int height = 0;
+  Coordinate width = 0;
+  Coordinate height = 0;
   PointsVector food;
   SnakesVector snakes;
   PointsVector hazards;

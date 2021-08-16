@@ -23,7 +23,8 @@ class StandardRuleset : public Ruleset {
   StandardRuleset(const Config& config = Config::Default()) : config_(config) {}
 
   virtual BoardState CreateInitialBoardState(
-      int width, int height, std::vector<SnakeId> snake_ids) override;
+      Coordinate width, Coordinate height,
+      std::vector<SnakeId> snake_ids) override;
   virtual void CreateNextBoardState(const BoardState& prev_state,
                                     const SnakeMovesVector& moves, int turn,
                                     BoardState& next_state) override;

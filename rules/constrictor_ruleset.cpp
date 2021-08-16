@@ -4,7 +4,7 @@ namespace battlesnake {
 namespace rules {
 
 BoardState ConstrictorRuleset::CreateInitialBoardState(
-    int width, int height, std::vector<SnakeId> snake_ids) {
+    Coordinate width, Coordinate height, std::vector<SnakeId> snake_ids) {
   BoardState next_state =
       StandardRuleset::CreateInitialBoardState(width, height, snake_ids);
 

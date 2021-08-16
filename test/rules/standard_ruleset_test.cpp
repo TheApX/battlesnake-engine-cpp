@@ -27,8 +27,8 @@ using ::testing::Lt;
 using ::testing::Not;
 using ::testing::UnorderedElementsAreArray;
 
-template <class T>
-auto ValueBetween(const T& a, const T& b) {
+template <class T, class U>
+auto ValueBetween(const T& a, const U& b) {
   return AllOf(Ge(a), Lt(b));
 }
 
@@ -384,7 +384,7 @@ TEST_F(StandardPlaceFoodTest, ManySnakesMuchSpace) {
   StringPool pool;
   StandardRuleset ruleset;
   ExpectBoardFood(
-      ruleset.CreateInitialBoardState(101, 202, CreateSnakeIds(17, pool)), 17);
+      ruleset.CreateInitialBoardState(101, 102, CreateSnakeIds(17, pool)), 17);
 }
 
 TEST_F(StandardPlaceFoodTest, AllFreeSpaceFilledIn) {

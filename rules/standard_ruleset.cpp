@@ -11,7 +11,7 @@ namespace battlesnake {
 namespace rules {
 
 BoardState StandardRuleset::CreateInitialBoardState(
-    int width, int height, std::vector<SnakeId> snake_ids) {
+    Coordinate width, Coordinate height, std::vector<SnakeId> snake_ids) {
   BoardState initial_board_state{
       .width = width,
       .height = height,

@@ -16,7 +16,8 @@ class Ruleset {
  public:
   virtual ~Ruleset() = default;
 
-  virtual BoardState CreateInitialBoardState(int width, int height,
+  virtual BoardState CreateInitialBoardState(Coordinate width,
+                                             Coordinate height,
                                              std::vector<SnakeId> snakeIDs) = 0;
   virtual void CreateNextBoardState(const BoardState& prev_state,
                                     const SnakeMovesVector& moves, int turn,

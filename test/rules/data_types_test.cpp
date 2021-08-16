@@ -27,6 +27,10 @@ static_assert(std::is_trivially_constructible<Point>::value);
 static_assert(std::is_trivially_destructible<Point>::value);
 static_assert(std::is_trivially_copyable<Point>::value);
 
+// Test that Point is small. It is the main memory consumer.
+static_assert(sizeof(Point) == 2);
+static_assert(sizeof(Point[10]) == 20);
+
 using ::testing::Eq;
 
 TEST(StringPoolTest, MultipleInserts) {
@@ -57,6 +61,14 @@ TEST(PodTest, EliminatedCauseZeroInitialization) {
 
   EXPECT_THAT(eliminated_cause.cause, Eq(EliminatedCause::NotEliminated));
   EXPECT_THAT(eliminated_cause.by_id, Eq(""));
+}
+
+TEST(PodTest, PointZeroInitialization) {
+  Point point;
+  std::memset(&point, 0, sizeof(point));
+
+  EXPECT_THAT(point.x, Eq(0));
+  EXPECT_THAT(point.y, Eq(0));
 }
 
 }  // namespace

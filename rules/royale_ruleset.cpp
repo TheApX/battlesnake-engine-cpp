@@ -121,8 +121,8 @@ bool RoyaleRuleset::maybeShrinkBounds(int turn,
 
 void RoyaleRuleset::fillHazards(const Bounds& bounds, BoardState& state) const {
   state.hazards.clear();
-  for (int y = 0; y < state.height; ++y) {
-    for (int x = 0; x < state.width; ++x) {
+  for (Coordinate y = 0; y < state.height; ++y) {
+    for (Coordinate x = 0; x < state.width; ++x) {
       bool in_bounds = true                    //
                        && (x >= bounds.min_x)  //
                        && (x <= bounds.max_x)  //

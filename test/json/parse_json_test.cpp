@@ -18,25 +18,25 @@ class ParseJsonTest : public testing::Test {};
 
 TEST_F(ParseJsonTest, PointSucceeds) {
   EXPECT_THAT(
-      ParseJsonPoint(nlohmann::json::parse(R"json({"x":123,"y":456})json")),
-      Eq(Point{123, 456}));
+      ParseJsonPoint(nlohmann::json::parse(R"json({"x":123,"y":21})json")),
+      Eq(Point{123, 21}));
 }
 
 TEST_F(ParseJsonTest, PointNoValue) {
   EXPECT_THROW(
-      ParseJsonPoint(nlohmann::json::parse(R"json({"x":123,"z":456})json")),
+      ParseJsonPoint(nlohmann::json::parse(R"json({"x":123,"z":21})json")),
       ParseException);
 }
 
 TEST_F(ParseJsonTest, PointInvalidJsonType) {
   EXPECT_THROW(
-      ParseJsonPoint(nlohmann::json::parse(R"json([{"x":123,"y":456}])json")),
+      ParseJsonPoint(nlohmann::json::parse(R"json([{"x":123,"y":21}])json")),
       ParseException);
 }
 
 TEST_F(ParseJsonTest, PointInvalidValueType) {
   EXPECT_THROW(
-      ParseJsonPoint(nlohmann::json::parse(R"json({"x":123,"y":"456"})json")),
+      ParseJsonPoint(nlohmann::json::parse(R"json({"x":123,"y":"21"})json")),
       ParseException);
 }
 
