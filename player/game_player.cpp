@@ -145,12 +145,14 @@ void GamePlayer::Play() {
     //     std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
     //         .count();
 
-    std::unordered_map<SnakeId, Move> moves;
+    SnakeMovesVector moves;
     for (const auto& [id, response] : move_responses) {
-      moves[id] = response.move;
+      moves.push_back({id, response.move});
     }
 
-    game.board = ruleset_->CreateNextBoardState(game.board, moves, game.turn);
+    BoardState new_board;
+    ruleset_->CreateNextBoardState(game.board, moves, game.turn, new_board);
+    game.board = new_board;
 
     for (Snake& snake : game.board.snakes) {
       auto latency_it = latencies.find(snake.id);
