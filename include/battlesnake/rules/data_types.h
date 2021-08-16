@@ -61,7 +61,7 @@ class StringPool {
 using SnakeId = StringWrapper;
 
 enum class Move {
-  Unknown,  // No move returned from snake.
+  Unknown = 0,  // No move returned from snake.
   Up,
   Down,
   Left,
@@ -70,7 +70,7 @@ enum class Move {
 
 struct EliminatedCause {
   enum Cause {
-    NotEliminated,
+    NotEliminated = 0,
     Collision,
     SelfCollision,
     OutOfHealth,
@@ -79,7 +79,7 @@ struct EliminatedCause {
     BySquad,
   };
 
-  Cause cause = NotEliminated;
+  Cause cause;
   SnakeId by_id;
 };
 
