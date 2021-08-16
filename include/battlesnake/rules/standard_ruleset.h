@@ -31,8 +31,6 @@ class StandardRuleset : public Ruleset {
                                     BoardState& next_state) override;
   virtual bool IsGameOver(const BoardState& state) override;
 
-  using Ruleset::CreateNextBoardState;
-
  protected:
   static int getRandomNumber(int max_value);
   void growSnake(Snake& snake) const;

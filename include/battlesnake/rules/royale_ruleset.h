@@ -24,8 +24,6 @@ class RoyaleRuleset : public StandardRuleset {
                                     const SnakeMovesVector& moves, int turn,
                                     BoardState& next_state) override;
 
-  using Ruleset::CreateNextBoardState;
-
  private:
   RoyaleConfig royale_config_;
 

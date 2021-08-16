@@ -16,8 +16,6 @@ class ConstrictorRuleset : public StandardRuleset {
                                     const SnakeMovesVector& moves, int turn,
                                     BoardState& next_state) override;
 
-  using Ruleset::CreateNextBoardState;
-
  private:
   int snake_max_health_ = 0;
 

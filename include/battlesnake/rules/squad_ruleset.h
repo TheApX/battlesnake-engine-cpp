@@ -25,8 +25,6 @@ class SquadRuleset : public StandardRuleset {
                                     BoardState& next_state) override;
   virtual bool IsGameOver(const BoardState& state) override;
 
-  using Ruleset::CreateNextBoardState;
-
  private:
   SquadConfig squad_config_;
 
