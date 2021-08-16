@@ -94,12 +94,13 @@ TEST_F(StandardRulesetTest, Sanity) {
   EXPECT_THAT(state.height, Eq(0));
   EXPECT_THAT(state.snakes, ElementsAre());
 
-  BoardState new_state = ruleset.CreateNextBoardState(state, {}, 0);
-  EXPECT_THAT(state.width, Eq(0));
-  EXPECT_THAT(state.height, Eq(0));
-  EXPECT_THAT(state.snakes, ElementsAre());
+  BoardState new_state;
+  ruleset.CreateNextBoardState(state, {}, 0, new_state);
+  EXPECT_THAT(new_state.width, Eq(0));
+  EXPECT_THAT(new_state.height, Eq(0));
+  EXPECT_THAT(new_state.snakes, ElementsAre());
 
-  EXPECT_THAT(ruleset.IsGameOver(state), IsTrue());
+  EXPECT_THAT(ruleset.IsGameOver(new_state), IsTrue());
 }
 
 class StandardCreateInitialBoardStateTest : public StandardRulesetTest {
@@ -454,7 +455,8 @@ TEST_F(StandardCreateNextBoardStateTest, NoMoveFound) {
 
   // Disable spawning random food so that it doesn't interfere with tests.
   StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  EXPECT_THROW(ruleset.CreateNextBoardState(initial_state, {}, 0),
+  BoardState state;
+  EXPECT_THROW(ruleset.CreateNextBoardState(initial_state, {}, 0, state),
                ErrorNoMoveFound);
 }
 
@@ -475,8 +477,9 @@ TEST_F(StandardCreateNextBoardStateTest, ZeroLengthSnake) {
 
   // Disable spawning random food so that it doesn't interfere with tests.
   StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  EXPECT_THROW(ruleset.CreateNextBoardState(initial_state,
-                                            {{pool.Add("one"), Move::Down}}, 0),
+  BoardState state;
+  EXPECT_THROW(ruleset.CreateNextBoardState(
+                   initial_state, {{pool.Add("one"), Move::Down}}, 0, state),
                ErrorZeroLengthSnake);
 }
 
@@ -502,8 +505,9 @@ TEST_F(StandardCreateNextBoardStateTest, MovesTail) {
 
   // Disable spawning random food so that it doesn't interfere with tests.
   StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Down}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
+                               0, state);
 
   // Don't care about head in this test, only about the rest of the body.
   EXPECT_THAT(
@@ -532,8 +536,9 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUp) {
   };
 
   StandardRuleset ruleset;
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Up}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Up}}, 0,
+                               state);
 
   EXPECT_THAT(state.snakes,
               ElementsAre(SnakeBodyIs(ElementsAre(Point{1, 2}, _, _))));
@@ -560,8 +565,9 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadDown) {
   };
 
   StandardRuleset ruleset;
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Down}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
+                               0, state);
 
   EXPECT_THAT(state.snakes,
               ElementsAre(SnakeBodyIs(ElementsAre(Point{1, 0}, _, _))));
@@ -588,8 +594,9 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadLeft) {
   };
 
   StandardRuleset ruleset;
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Left}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
+                               0, state);
 
   EXPECT_THAT(state.snakes,
               ElementsAre(SnakeBodyIs(ElementsAre(Point{0, 1}, _, _))));
@@ -616,8 +623,9 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadRight) {
   };
 
   StandardRuleset ruleset;
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Right}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Right}},
+                               0, state);
 
   EXPECT_THAT(state.snakes,
               ElementsAre(SnakeBodyIs(ElementsAre(Point{2, 1}, _, _))));
@@ -644,8 +652,9 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUnknownContinue) {
   };
 
   StandardRuleset ruleset;
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Unknown}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {{pool.Add("one"), Move::Unknown}}, 0, state);
 
   // Unknown move should move snake to its old direction.
   EXPECT_THAT(state.snakes,
@@ -673,8 +682,9 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUnknownUp) {
   };
 
   StandardRuleset ruleset;
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Unknown}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {{pool.Add("one"), Move::Unknown}}, 0, state);
 
   // Unknown move should move snake up if previous move is also unknown.
   EXPECT_THAT(state.snakes,
@@ -713,13 +723,13 @@ TEST_F(StandardCreateNextBoardStateTest, MovesTwoSnakes) {
   };
 
   StandardRuleset ruleset;
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Left},
-                                       {pool.Add("two"), Move::Right},
-                                   },
-                                   0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Left},
+                                   {pool.Add("two"), Move::Right},
+                               },
+                               0, state);
 
   EXPECT_THAT(
       state.snakes,
@@ -755,8 +765,9 @@ TEST_F(StandardCreateNextBoardStateTest, MoveReducesHealth) {
 
   // Disable spawning random food so that it doesn't interfere with tests.
   StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Down}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
+                               0, state);
 
   EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(Lt(initial_health))));
 }
@@ -786,8 +797,9 @@ TEST_F(StandardCreateNextBoardStateTest, FoodGrowsSnake) {
   };
 
   StandardRuleset ruleset;
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Left}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
+                               0, state);
 
   EXPECT_THAT(state.snakes,
               ElementsAre(SnakeBodyIs(ElementsAre(Point{0, 1}, Point{1, 1},
@@ -821,8 +833,9 @@ TEST_F(StandardCreateNextBoardStateTest, FoodRestoresHealth) {
   };
 
   StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Left}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
+                               0, state);
 
   EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(max_health)));
 }
@@ -852,8 +865,9 @@ TEST_F(StandardCreateNextBoardStateTest, DontEatFoodOtherPosition) {
   };
 
   StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Left}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
+                               0, state);
 
   EXPECT_THAT(state.snakes, ElementsAre(SnakeBodyIs(ElementsAre(
                                 Point{0, 1}, Point{1, 1}, Point{1, 2}))));
@@ -885,8 +899,9 @@ TEST_F(StandardCreateNextBoardStateTest, EatenFoodDisappears) {
   };
 
   StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Left}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
+                               0, state);
 
   EXPECT_THAT(state.food, ElementsAre(Point{10, 10}));
 }
@@ -931,13 +946,13 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodDisappears) {
       .food_spawn_chance = 0,
       .minimum_food = 0,
   });
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Down},
-                                       {pool.Add("two"), Move::Left},
-                                   },
-                                   0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Down},
+                                   {pool.Add("two"), Move::Left},
+                               },
+                               0, state);
 
   // Food must disappear.
   EXPECT_THAT(state.food, ElementsAre());
@@ -959,7 +974,8 @@ TEST_F(StandardCreateNextBoardStateTest, ZeroChanceNeverSpawnsFood) {
   });
 
   for (int i = 0; i < 1000; ++i) {
-    BoardState state = ruleset.CreateNextBoardState(initial_state, {}, 0);
+    BoardState state;
+    ruleset.CreateNextBoardState(initial_state, {}, 0, state);
     ASSERT_THAT(state.food.size(), Eq(0));
   }
 }
@@ -980,7 +996,8 @@ TEST_F(StandardCreateNextBoardStateTest, HundredChanceAlwaysSpawnsFood) {
   });
 
   for (int i = 0; i < 1000; ++i) {
-    BoardState state = ruleset.CreateNextBoardState(initial_state, {}, 0);
+    BoardState state;
+    ruleset.CreateNextBoardState(initial_state, {}, 0, state);
     ASSERT_THAT(state.food.size(), Eq(1));
   }
 }
@@ -1001,7 +1018,8 @@ TEST_F(StandardCreateNextBoardStateTest, SpawnFoodMinimum) {
   StandardRuleset ruleset(StandardRuleset::Config{
       .minimum_food = 7,
   });
-  BoardState state = ruleset.CreateNextBoardState(initial_state, {}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {}, 0, state);
 
   EXPECT_THAT(state.food.size(), Eq(7));
 }
@@ -1035,8 +1053,9 @@ TEST_F(StandardCreateNextBoardStateTest, EatingOnLastMove) {
   };
 
   StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Left}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
+                               0, state);
 
   EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(max_health)));
 }
@@ -1072,8 +1091,9 @@ TEST_F(StandardCreateNextBoardStateTest, IgnoresEliminatedSnakes) {
   };
 
   StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Left}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
+                               0, state);
 
   // Snake has not moved, health has not changed.
   EXPECT_THAT(state.snakes,
@@ -1107,8 +1127,9 @@ TEST_F(StandardEliminateSnakesTest, OutOfHealth) {
   };
 
   StandardRuleset ruleset;
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Left}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
+                               0, state);
 
   EXPECT_THAT(state.snakes, ElementsAre(SnakeIs(pool.Add("one"), _, 0,
                                                 EliminatedCause::OutOfHealth)));
@@ -1133,8 +1154,9 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsUp) {
   };
 
   StandardRuleset ruleset;
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Up}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Up}}, 0,
+                               state);
 
   EXPECT_THAT(state.snakes, ElementsAre(SnakeIs(pool.Add("one"), _, _,
                                                 EliminatedCause::OutOfBounds)));
@@ -1159,8 +1181,9 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsDown) {
   };
 
   StandardRuleset ruleset;
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Down}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
+                               0, state);
 
   EXPECT_THAT(state.snakes, ElementsAre(SnakeIs(pool.Add("one"), _, _,
                                                 EliminatedCause::OutOfBounds)));
@@ -1185,8 +1208,9 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsLeft) {
   };
 
   StandardRuleset ruleset;
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Left}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
+                               0, state);
 
   EXPECT_THAT(state.snakes, ElementsAre(SnakeIs(pool.Add("one"), _, _,
                                                 EliminatedCause::OutOfBounds)));
@@ -1211,8 +1235,9 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsRight) {
   };
 
   StandardRuleset ruleset;
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Right}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Right}},
+                               0, state);
 
   EXPECT_THAT(state.snakes, ElementsAre(SnakeIs(pool.Add("one"), _, _,
                                                 EliminatedCause::OutOfBounds)));
@@ -1239,8 +1264,9 @@ TEST_F(StandardEliminateSnakesTest, NoSelfCollision) {
   };
 
   StandardRuleset ruleset;
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Left}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
+                               0, state);
 
   EXPECT_THAT(state.snakes,
               ElementsAre(SnakeIs(pool.Add("one"), _, _,
@@ -1268,8 +1294,9 @@ TEST_F(StandardEliminateSnakesTest, NeckSelfCollision) {
   };
 
   StandardRuleset ruleset;
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Up}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Up}}, 0,
+                               state);
 
   EXPECT_THAT(state.snakes,
               ElementsAre(SnakeIs(pool.Add("one"), _, _,
@@ -1299,8 +1326,9 @@ TEST_F(StandardEliminateSnakesTest, RegularSelfCollision) {
   };
 
   StandardRuleset ruleset;
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Left}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
+                               0, state);
 
   EXPECT_THAT(state.snakes,
               ElementsAre(SnakeIs(pool.Add("one"), _, _,
@@ -1329,8 +1357,9 @@ TEST_F(StandardEliminateSnakesTest, OwnTailChase) {
   };
 
   StandardRuleset ruleset;
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Left}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
+                               0, state);
 
   EXPECT_THAT(state.snakes,
               ElementsAre(SnakeIs(pool.Add("one"), _, _,
@@ -1368,13 +1397,13 @@ TEST_F(StandardEliminateSnakesTest, OtherNoCollision) {
   };
 
   StandardRuleset ruleset;
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Down},
-                                       {pool.Add("two"), Move::Right},
-                                   },
-                                   0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Down},
+                                   {pool.Add("two"), Move::Right},
+                               },
+                               0, state);
 
   EXPECT_THAT(
       state.snakes,
@@ -1414,13 +1443,13 @@ TEST_F(StandardEliminateSnakesTest, OtherBodyCollision) {
   };
 
   StandardRuleset ruleset;
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Down},
-                                       {pool.Add("two"), Move::Left},
-                                   },
-                                   0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Down},
+                                   {pool.Add("two"), Move::Left},
+                               },
+                               0, state);
 
   EXPECT_THAT(
       state.snakes,
@@ -1461,13 +1490,13 @@ TEST_F(StandardEliminateSnakesTest, OtherTailChase) {
   };
 
   StandardRuleset ruleset;
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Down},
-                                       {pool.Add("two"), Move::Down},
-                                   },
-                                   0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Down},
+                                   {pool.Add("two"), Move::Down},
+                               },
+                               0, state);
 
   EXPECT_THAT(
       state.snakes,
@@ -1508,13 +1537,13 @@ TEST_F(StandardEliminateSnakesTest, HeadToHeadDifferentLength) {
   };
 
   StandardRuleset ruleset;
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Up},
-                                       {pool.Add("two"), Move::Down},
-                                   },
-                                   0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Up},
+                                   {pool.Add("two"), Move::Down},
+                               },
+                               0, state);
 
   EXPECT_THAT(
       state.snakes,
@@ -1555,13 +1584,13 @@ TEST_F(StandardEliminateSnakesTest, HeadToHeadEqualLength) {
   };
 
   StandardRuleset ruleset;
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Up},
-                                       {pool.Add("two"), Move::Down},
-                                   },
-                                   0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Up},
+                                   {pool.Add("two"), Move::Down},
+                               },
+                               0, state);
 
   EXPECT_THAT(
       state.snakes,
@@ -1591,8 +1620,9 @@ TEST_F(StandardEliminateSnakesTest, PriorityOutOfHealthOutOfBounds) {
   };
 
   StandardRuleset ruleset;
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Up}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Up}}, 0,
+                               state);
 
   EXPECT_THAT(state.snakes, ElementsAre(SnakeIs(pool.Add("one"), _, _,
                                                 EliminatedCause::OutOfHealth)));
@@ -1619,8 +1649,9 @@ TEST_F(StandardEliminateSnakesTest, PriorityOutOfHealthSelfCollision) {
   };
 
   StandardRuleset ruleset;
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Up}}, 0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Up}}, 0,
+                               state);
 
   EXPECT_THAT(state.snakes, ElementsAre(SnakeIs(pool.Add("one"), _, _,
                                                 EliminatedCause::OutOfHealth)));
@@ -1657,13 +1688,13 @@ TEST_F(StandardEliminateSnakesTest, PriorityOutOfHealthOtherBodyCollision) {
   };
 
   StandardRuleset ruleset;
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Down},
-                                       {pool.Add("two"), Move::Left},
-                                   },
-                                   0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Down},
+                                   {pool.Add("two"), Move::Left},
+                               },
+                               0, state);
 
   EXPECT_THAT(
       state.snakes,
@@ -1705,13 +1736,13 @@ TEST_F(StandardEliminateSnakesTest, PrioritySelfCollisionHeadToHead) {
   };
 
   StandardRuleset ruleset;
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Down},
-                                       {pool.Add("two"), Move::Right},
-                                   },
-                                   0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Down},
+                                   {pool.Add("two"), Move::Right},
+                               },
+                               0, state);
 
   EXPECT_THAT(state.snakes,
               UnorderedElementsAre(
@@ -1753,13 +1784,13 @@ TEST_F(StandardEliminateSnakesTest, PriorityOtherCollisionHeadToHead) {
   };
 
   StandardRuleset ruleset;
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Down},
-                                       {pool.Add("two"), Move::Right},
-                                   },
-                                   0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Down},
+                                   {pool.Add("two"), Move::Right},
+                               },
+                               0, state);
 
   EXPECT_THAT(state.snakes,
               UnorderedElementsAre(
@@ -1805,13 +1836,13 @@ TEST_F(StandardEliminateSnakesTest, OutOfHealthDoesntEliminateOthers) {
   };
 
   StandardRuleset ruleset;
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Down},
-                                       {pool.Add("two"), Move::Right},
-                                   },
-                                   0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Down},
+                                   {pool.Add("two"), Move::Right},
+                               },
+                               0, state);
 
   EXPECT_THAT(state.snakes,
               UnorderedElementsAre(
@@ -1855,13 +1886,13 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsDoesntEliminateOthers) {
   };
 
   StandardRuleset ruleset;
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Down},
-                                       {pool.Add("two"), Move::Left},
-                                   },
-                                   0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Down},
+                                   {pool.Add("two"), Move::Left},
+                               },
+                               0, state);
 
   EXPECT_THAT(state.snakes,
               UnorderedElementsAre(
@@ -1911,13 +1942,13 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodBothEliminated) {
       .food_spawn_chance = 0,
       .minimum_food = 0,
   });
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Down},
-                                       {pool.Add("two"), Move::Left},
-                                   },
-                                   0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Down},
+                                   {pool.Add("two"), Move::Left},
+                               },
+                               0, state);
 
   // Food must disappear.
   EXPECT_THAT(state.food, ElementsAre());
@@ -1972,13 +2003,13 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodOneEliminated) {
       .food_spawn_chance = 0,
       .minimum_food = 0,
   });
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Down},
-                                       {pool.Add("two"), Move::Left},
-                                   },
-                                   0);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Down},
+                                   {pool.Add("two"), Move::Left},
+                               },
+                               0, state);
 
   // Food must disappear.
   EXPECT_THAT(state.food, ElementsAre());

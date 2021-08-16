@@ -85,12 +85,13 @@ TEST_F(SquadRulesetTest, Sanity) {
   EXPECT_THAT(state.height, Eq(0));
   EXPECT_THAT(state.snakes, ElementsAre());
 
-  BoardState new_state = ruleset.CreateNextBoardState(state, {}, 0);
-  EXPECT_THAT(state.width, Eq(0));
-  EXPECT_THAT(state.height, Eq(0));
-  EXPECT_THAT(state.snakes, ElementsAre());
+  BoardState new_state;
+  ruleset.CreateNextBoardState(state, {}, 0, new_state);
+  EXPECT_THAT(new_state.width, Eq(0));
+  EXPECT_THAT(new_state.height, Eq(0));
+  EXPECT_THAT(new_state.snakes, ElementsAre());
 
-  EXPECT_THAT(ruleset.IsGameOver(state), IsTrue());
+  EXPECT_THAT(ruleset.IsGameOver(new_state), IsTrue());
 }
 
 class SquadCreateNextBoardStateTest : public SquadRulesetTest {};
@@ -128,13 +129,13 @@ TEST_F(SquadCreateNextBoardStateTest, SameSquadDontCollide) {
   };
 
   SquadRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Down},
-                                       {pool.Add("two"), Move::Left},
-                                   },
-                                   1);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Down},
+                                   {pool.Add("two"), Move::Left},
+                               },
+                               1, state);
 
   EXPECT_THAT(state.snakes, UnorderedElementsAre(SnakeIsNotEliminated("one"),
                                                  SnakeIsNotEliminated("two")));
@@ -173,13 +174,13 @@ TEST_F(SquadCreateNextBoardStateTest, DifferentSquadCollide) {
   };
 
   SquadRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Down},
-                                       {pool.Add("two"), Move::Left},
-                                   },
-                                   1);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Down},
+                                   {pool.Add("two"), Move::Left},
+                               },
+                               1, state);
 
   EXPECT_THAT(state.snakes, UnorderedElementsAre(SnakeIsNotEliminated("one"),
                                                  SnakeIsEliminated("two")));
@@ -218,13 +219,13 @@ TEST_F(SquadCreateNextBoardStateTest, ShareHealth) {
   };
 
   SquadRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Down},
-                                       {pool.Add("two"), Move::Left},
-                                   },
-                                   1);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Down},
+                                   {pool.Add("two"), Move::Left},
+                               },
+                               1, state);
 
   EXPECT_THAT(state.snakes, UnorderedElementsAre(SnakeIs("one", _, 99),
                                                  SnakeIs("two", _, 99)));
@@ -265,13 +266,13 @@ TEST_F(SquadCreateNextBoardStateTest, ShareLength) {
   };
 
   SquadRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Down},
-                                       {pool.Add("two"), Move::Left},
-                                   },
-                                   1);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Down},
+                                   {pool.Add("two"), Move::Left},
+                               },
+                               1, state);
 
   EXPECT_THAT(state.snakes, UnorderedElementsAre(SnakeIs("one", SizeIs(5)),
                                                  SnakeIs("two", SizeIs(5))));
@@ -313,13 +314,13 @@ TEST_F(SquadCreateNextBoardStateTest, ShareElimination) {
   };
 
   SquadRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state =
-      ruleset.CreateNextBoardState(initial_state,
-                                   {
-                                       {pool.Add("one"), Move::Down},
-                                       {pool.Add("two"), Move::Left},
-                                   },
-                                   1);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state,
+                               {
+                                   {pool.Add("one"), Move::Down},
+                                   {pool.Add("two"), Move::Left},
+                               },
+                               1, state);
 
   EXPECT_THAT(
       state.snakes,

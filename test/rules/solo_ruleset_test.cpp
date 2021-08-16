@@ -33,12 +33,13 @@ TEST_F(SoloRulesetTest, Sanity) {
   EXPECT_THAT(state.height, Eq(0));
   EXPECT_THAT(state.snakes, ElementsAre());
 
-  BoardState new_state = ruleset.CreateNextBoardState(state, {}, 0);
-  EXPECT_THAT(state.width, Eq(0));
-  EXPECT_THAT(state.height, Eq(0));
-  EXPECT_THAT(state.snakes, ElementsAre());
+  BoardState new_state;
+  ruleset.CreateNextBoardState(state, {}, 0, new_state);
+  EXPECT_THAT(new_state.width, Eq(0));
+  EXPECT_THAT(new_state.height, Eq(0));
+  EXPECT_THAT(new_state.snakes, ElementsAre());
 
-  EXPECT_THAT(ruleset.IsGameOver(state), IsTrue());
+  EXPECT_THAT(ruleset.IsGameOver(new_state), IsTrue());
 }
 
 class SoloIsGameOverTest : public SoloRulesetTest {};

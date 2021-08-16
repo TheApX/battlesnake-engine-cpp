@@ -46,12 +46,13 @@ TEST_F(ConstrictorRulesetTest, Sanity) {
   EXPECT_THAT(state.height, Eq(0));
   EXPECT_THAT(state.snakes, ElementsAre());
 
-  BoardState new_state = ruleset.CreateNextBoardState(state, {}, 0);
-  EXPECT_THAT(state.width, Eq(0));
-  EXPECT_THAT(state.height, Eq(0));
-  EXPECT_THAT(state.snakes, ElementsAre());
+  BoardState new_state;
+  ruleset.CreateNextBoardState(state, {}, 0, new_state);
+  EXPECT_THAT(new_state.width, Eq(0));
+  EXPECT_THAT(new_state.height, Eq(0));
+  EXPECT_THAT(new_state.snakes, ElementsAre());
 
-  EXPECT_THAT(ruleset.IsGameOver(state), IsTrue());
+  EXPECT_THAT(ruleset.IsGameOver(new_state), IsTrue());
 }
 
 TEST_F(ConstrictorRulesetTest, NoFoodInitially) {
@@ -91,8 +92,9 @@ TEST_F(ConstrictorCreateNextBoardStateTest, KeepsHealth) {
 
   // Disable spawning random food so that it doesn't interfere with tests.
   ConstrictorRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Down}}, 1);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
+                               1, state);
 
   // Health shouldn't decrease.
   EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(Eq(100))));
@@ -120,8 +122,9 @@ TEST_F(ConstrictorCreateNextBoardStateTest, GrowsSnake) {
 
   // Disable spawning random food so that it doesn't interfere with tests.
   ConstrictorRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Down}}, 1);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
+                               1, state);
 
   // Body should grow.
   EXPECT_THAT(state.snakes, ElementsAre(SnakeBodyIs(ElementsAreArray({
@@ -154,8 +157,9 @@ TEST_F(ConstrictorCreateNextBoardStateTest, DoesnGrowInitialSnake) {
 
   // Disable spawning random food so that it doesn't interfere with tests.
   ConstrictorRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state = ruleset.CreateNextBoardState(
-      initial_state, {{pool.Add("one"), Move::Down}}, 1);
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
+                               1, state);
 
   // Body shouldn't grow.
   EXPECT_THAT(state.snakes, ElementsAre(SnakeBodyIs(ElementsAreArray({
