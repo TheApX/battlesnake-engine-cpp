@@ -26,10 +26,13 @@ class StandardRuleset : public Ruleset {
 
   virtual BoardState CreateInitialBoardState(
       int width, int height, std::vector<SnakeId> snake_ids) override;
-  virtual BoardState CreateNextBoardState(
+  virtual void CreateNextBoardState(
       const BoardState& prev_state,
-      const std::unordered_map<SnakeId, Move>& moves, int turn = 0) override;
+      const std::unordered_map<SnakeId, Move>& moves, int turn,
+      BoardState& next_state) override;
   virtual bool IsGameOver(const BoardState& state) override;
+
+  using Ruleset::CreateNextBoardState;
 
  protected:
   static int getRandomNumber(int max_value);

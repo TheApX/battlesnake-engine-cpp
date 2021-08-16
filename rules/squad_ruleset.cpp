@@ -9,16 +9,14 @@
 namespace battlesnake {
 namespace rules {
 
-BoardState SquadRuleset::CreateNextBoardState(
+void SquadRuleset::CreateNextBoardState(
     const BoardState& prev_state,
-    const std::unordered_map<SnakeId, Move>& moves, int turn) {
-  BoardState next_state =
-      StandardRuleset::CreateNextBoardState(prev_state, moves, turn);
+    const std::unordered_map<SnakeId, Move>& moves, int turn,
+    BoardState& next_state) {
+  StandardRuleset::CreateNextBoardState(prev_state, moves, turn, next_state);
 
   resurrectSquadBodyCollisions(next_state);
   shareSquadAttributes(next_state);
-
-  return next_state;
 }
 
 void SquadRuleset::resurrectSquadBodyCollisions(BoardState& state) const {

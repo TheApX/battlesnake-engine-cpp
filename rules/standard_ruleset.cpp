@@ -235,18 +235,17 @@ PointsVector StandardRuleset::getEvenUnoccupiedPoints(const BoardState& state) {
       state, false, [](const Point& p) { return (p.x + p.y) % 2 == 0; });
 }
 
-BoardState StandardRuleset::CreateNextBoardState(
+void StandardRuleset::CreateNextBoardState(
     const BoardState& prev_state,
-    const std::unordered_map<SnakeId, Move>& moves, int turn) {
-  BoardState next_state = prev_state;
+    const std::unordered_map<SnakeId, Move>& moves, int turn,
+    BoardState& next_state) {
+  next_state = prev_state;
 
   moveSnakes(next_state, moves);
   reduceSnakeHealth(next_state);
   maybeFeedSnakes(next_state);
   maybeSpawnFood(next_state);
   maybeEliminateSnakes(next_state);
-
-  return next_state;
 }
 
 void StandardRuleset::moveSnakes(

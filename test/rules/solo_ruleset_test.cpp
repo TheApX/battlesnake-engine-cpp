@@ -33,7 +33,7 @@ TEST_F(SoloRulesetTest, Sanity) {
   EXPECT_THAT(state.height, Eq(0));
   EXPECT_THAT(state.snakes, ElementsAre());
 
-  BoardState new_state = ruleset.CreateNextBoardState(state, {});
+  BoardState new_state = ruleset.CreateNextBoardState(state, {}, 0);
   EXPECT_THAT(state.width, Eq(0));
   EXPECT_THAT(state.height, Eq(0));
   EXPECT_THAT(state.snakes, ElementsAre());
