@@ -235,10 +235,9 @@ PointsVector StandardRuleset::getEvenUnoccupiedPoints(const BoardState& state) {
       state, false, [](const Point& p) { return (p.x + p.y) % 2 == 0; });
 }
 
-void StandardRuleset::CreateNextBoardState(
-    const BoardState& prev_state,
-    const std::unordered_map<SnakeId, Move>& moves, int turn,
-    BoardState& next_state) {
+void StandardRuleset::CreateNextBoardState(const BoardState& prev_state,
+                                           const SnakeMovesVector& moves,
+                                           int turn, BoardState& next_state) {
   next_state = prev_state;
 
   moveSnakes(next_state, moves);
@@ -248,25 +247,27 @@ void StandardRuleset::CreateNextBoardState(
   maybeEliminateSnakes(next_state);
 }
 
-void StandardRuleset::moveSnakes(
-    BoardState& state, const std::unordered_map<SnakeId, Move>& moves) const {
-  checkSnakesForMove(state, moves);
-
+void StandardRuleset::moveSnakes(BoardState& state,
+                                 const SnakeMovesVector& moves) const {
   for (Snake& snake : state.snakes) {
     if (snake.IsEliminated()) {
       continue;
     }
-    auto move_it = moves.find(snake.id);
-    if (move_it == moves.end()) {
+
+    if (snake.body.empty()) {
+      throw ErrorZeroLengthSnake(std::string(snake.id));
+    }
+
+    Move const* move = findSnakeMove(moves, snake.id);
+    if (move == nullptr) {
       throw ErrorNoMoveFound(std::string(snake.id));
     }
-    Move move = move_it->second;
 
     Point old_head = snake.body.front();
     // Default direction is Up.
     Point new_head = old_head.Up();
 
-    switch (move) {
+    switch (*move) {
       case Move::Up:
         new_head = old_head.Up();
         break;
@@ -310,22 +311,14 @@ void StandardRuleset::moveSnakes(
   }
 }
 
-void StandardRuleset::checkSnakesForMove(
-    BoardState& state, const std::unordered_map<SnakeId, Move>& moves) const {
-  // Check that all non-eliminated snakes have moves and bodies.
-  for (const Snake& snake : state.snakes) {
-    if (snake.IsEliminated()) {
-      continue;
-    }
-
-    if (snake.body.empty()) {
-      throw ErrorZeroLengthSnake(std::string(snake.id));
-    }
-
-    if (moves.find(snake.id) == moves.end()) {
-      throw ErrorNoMoveFound(std::string(snake.id));
+Move const* StandardRuleset::findSnakeMove(const SnakeMovesVector& moves,
+                                           const SnakeId& snake_id) const {
+  for (const auto& [id, move] : moves) {
+    if (id == snake_id) {
+      return &move;
     }
   }
+  return nullptr;
 }
 
 void StandardRuleset::reduceSnakeHealth(BoardState& state) const {

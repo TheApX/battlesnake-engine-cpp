@@ -20,10 +20,9 @@ class SquadRuleset : public StandardRuleset {
                const SquadConfig& squad_config = SquadConfig::Default())
       : StandardRuleset(config), squad_config_(squad_config) {}
 
-  virtual void CreateNextBoardState(
-      const BoardState& prev_state,
-      const std::unordered_map<SnakeId, Move>& moves, int turn,
-      BoardState& next_state) override;
+  virtual void CreateNextBoardState(const BoardState& prev_state,
+                                    const SnakeMovesVector& moves, int turn,
+                                    BoardState& next_state) override;
   virtual bool IsGameOver(const BoardState& state) override;
 
   using Ruleset::CreateNextBoardState;

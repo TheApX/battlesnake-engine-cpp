@@ -26,10 +26,9 @@ class StandardRuleset : public Ruleset {
 
   virtual BoardState CreateInitialBoardState(
       int width, int height, std::vector<SnakeId> snake_ids) override;
-  virtual void CreateNextBoardState(
-      const BoardState& prev_state,
-      const std::unordered_map<SnakeId, Move>& moves, int turn,
-      BoardState& next_state) override;
+  virtual void CreateNextBoardState(const BoardState& prev_state,
+                                    const SnakeMovesVector& moves, int turn,
+                                    BoardState& next_state) override;
   virtual bool IsGameOver(const BoardState& state) override;
 
   using Ruleset::CreateNextBoardState;
@@ -64,10 +63,9 @@ class StandardRuleset : public Ruleset {
       });
   static PointsVector getEvenUnoccupiedPoints(const BoardState& state);
 
-  void moveSnakes(BoardState& state,
-                  const std::unordered_map<SnakeId, Move>& moves) const;
-  void checkSnakesForMove(BoardState& state,
-                          const std::unordered_map<SnakeId, Move>& moves) const;
+  void moveSnakes(BoardState& state, const SnakeMovesVector& moves) const;
+  Move const* findSnakeMove(const SnakeMovesVector& moves,
+                            const SnakeId& snake_id) const;
 
   void reduceSnakeHealth(BoardState& state) const;
 
