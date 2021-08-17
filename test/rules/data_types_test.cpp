@@ -176,6 +176,23 @@ TEST(SnakeBodyTest, MoveToWrapsAround) {
   EXPECT_THAT(&body.Piece(2) - &body.body[0], Eq(1));
 }
 
+TEST(SnakeBodyTest, Iterate) {
+  SnakeBody body{
+      .body = {},
+      .head_index = SnakeBody::kMaxSnakeBodyLen - 2,
+      .length = 3,
+  };
+  body.Piece(0) = Point{1, 2};
+  body.Piece(1) = Point{3, 4};
+  body.Piece(2) = Point{5, 6};
+
+  int n = 0;
+  for (Point& p : body) {
+    EXPECT_THAT(p, Eq(body.Piece(n)));
+    ++n;
+  }
+}
+
 }  // namespace
 
 }  // namespace rules

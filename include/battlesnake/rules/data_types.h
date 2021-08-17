@@ -133,6 +133,7 @@ struct SnakeBody {
 
   Point& Head() { return body[head_index]; }
   const Point& Head() const { return body[head_index]; }
+  size_t Length() const { return length; }
   Point& Piece(size_t n) { return body[(head_index + n) % kMaxSnakeBodyLen]; }
   const Point& Piece(size_t n) const {
     return body[(head_index + n) % kMaxSnakeBodyLen];
@@ -140,6 +141,46 @@ struct SnakeBody {
 
   void MoveTo(Move move);
   void IncreaseLength(int delta = 1);
+
+  class iterator {
+   public:
+    Point& operator*() { return owner_->Piece(pos_); }
+    Point* operator->() { return &owner_->Piece(pos_); }
+
+    iterator operator--() {
+      --pos_;
+      return *this;
+    }
+    iterator operator--(int) {
+      iterator result = *this;
+      --pos_;
+      return result;
+    }
+    iterator operator++() {
+      ++pos_;
+      return *this;
+    }
+    iterator operator++(int) {
+      iterator result = *this;
+      ++pos_;
+      return result;
+    }
+
+    bool operator==(const iterator& other) const {
+      return this->owner_ == other.owner_ && this->pos_ == other.pos_;
+    }
+    bool operator!=(const iterator& other) const { return !operator==(other); }
+
+    iterator(const iterator& other) : owner_(other.owner_), pos_(other.pos_) {}
+    iterator(SnakeBody* owner, size_t pos) : owner_(owner), pos_(pos) {}
+
+   private:
+    SnakeBody* owner_;
+    int pos_;
+  };
+
+  iterator begin() { return iterator(this, 0); }
+  iterator end() { return iterator(this, length); }
 };
 
 struct Snake {
