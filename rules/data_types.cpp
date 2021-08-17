@@ -95,31 +95,23 @@ Point Point::Moved(Move move) const {
 }
 
 void SnakeBody::MoveTo(Move move) {
-  int new_head_index = head_index - 1;
-  if (new_head_index < 0) {
-    new_head_index += kMaxSnakeBodyLen;
-  }
-
-  body[new_head_index] = Head().Moved(move);
-  head_index = new_head_index;
+  push_front(Head().Moved(move));
+  resize(size() - 1);
 }
 
 void SnakeBody::IncreaseLength(int delta) {
-  int tail_index = (head_index + length - 1) % kMaxSnakeBodyLen;
   for (int i = 0; i < delta; ++i) {
-    int new_piece_index = (tail_index + i + 1) % kMaxSnakeBodyLen;
-    body[new_piece_index] = body[tail_index];
+    push_back(back());
   }
-  length += delta;
 }
 
 bool operator==(const SnakeBody& a, const SnakeBody& b) {
-  if (a.length != b.length) {
+  if (a.size() != b.size()) {
     return false;
   }
 
-  for (int i = 0; i < a.length; ++i) {
-    if (a.Piece(i) != b.Piece(i)) {
+  for (int i = 0; i < a.size(); ++i) {
+    if (a.at(i) != b.at(i)) {
       return false;
     }
   }

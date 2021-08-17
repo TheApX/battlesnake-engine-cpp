@@ -472,7 +472,7 @@ TEST_F(StandardCreateNextBoardStateTest, ZeroLengthSnake) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body = {.length = 0},
+                  .body = SnakeBody::Create({}),
                   .health = 100,
               },
           },

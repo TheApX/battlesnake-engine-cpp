@@ -7,6 +7,7 @@
 #include <ostream>
 #include <string>
 #include <string_view>
+#include <trivial_loop_array.hpp>
 #include <unordered_map>
 
 namespace battlesnake {
@@ -123,30 +124,21 @@ struct PointHash {
   }
 };
 
-struct SnakeBody {
-  static constexpr int kMaxSnakeBodyLen = kBoardSizeMax * kBoardSizeMax + 2;
+static constexpr int kMaxSnakeBodyLen = kBoardSizeMax * kBoardSizeMax + 2;
 
-  Point body[kMaxSnakeBodyLen];
-  int head_index;
-  int length;
-
-  Point& Head() { return body[head_index]; }
-  const Point& Head() const { return body[head_index]; }
-  int Length() const { return length; }
-  Point& Piece(int n) { return body[(head_index + n) % kMaxSnakeBodyLen]; }
-  const Point& Piece(int n) const {
-    return body[(head_index + n) % kMaxSnakeBodyLen];
-  }
+struct SnakeBody : public theapx::trivial_loop_array<Point, kMaxSnakeBodyLen> {
+  Point& Head() { return front(); }
+  const Point& Head() const { return front(); }
+  int Length() const { return size(); }
+  Point& Piece(int n) { return at(n); }
+  const Point& Piece(int n) const { return at(n); }
 
   void MoveTo(Move move);
   void IncreaseLength(int delta = 1);
 
   template <class T>
   static SnakeBody Create(const T& data) {
-    SnakeBody result{
-        .head_index = 0,
-        .length = 0,
-    };
+    SnakeBody result{};
     for (const Point& p : data) {
       result.push_back(p);
     }
@@ -155,70 +147,6 @@ struct SnakeBody {
 
   static SnakeBody Create(const std::initializer_list<Point>& data) {
     return Create<std::initializer_list<Point>>(data);
-  }
-
-  template <class Owner, class P>
-  class iterator_base {
-   public:
-    P& operator*() { return owner_->Piece(pos_); }
-    P* operator->() { return &owner_->Piece(pos_); }
-
-    iterator_base<Owner, P> operator--() {
-      --pos_;
-      return *this;
-    }
-    iterator_base<Owner, P> operator--(int) {
-      iterator_base<Owner, P> result = *this;
-      --pos_;
-      return result;
-    }
-    iterator_base<Owner, P> operator++() {
-      ++pos_;
-      return *this;
-    }
-    iterator_base<Owner, P> operator++(int) {
-      iterator_base<Owner, P> result = *this;
-      ++pos_;
-      return result;
-    }
-
-    bool operator==(const iterator_base<Owner, P>& other) const {
-      return this->owner_ == other.owner_ && this->pos_ == other.pos_;
-    }
-    bool operator!=(const iterator_base<Owner, P>& other) const {
-      return !operator==(other);
-    }
-
-    iterator_base(const iterator_base<Owner, P>& other)
-        : owner_(other.owner_), pos_(other.pos_) {}
-    iterator_base(Owner* owner, size_t pos) : owner_(owner), pos_(pos) {}
-
-   private:
-    Owner* owner_;
-    int pos_;
-  };
-
-  using iterator = iterator_base<SnakeBody, Point>;
-  using const_iterator = iterator_base<const SnakeBody, const Point>;
-
-  iterator begin() { return iterator(this, 0); }
-  iterator end() { return iterator(this, length); }
-  const_iterator begin() const { return const_iterator(this, 0); }
-  const_iterator end() const { return const_iterator(this, length); }
-
-  size_t size() const { return Length(); }
-  bool empty() const { return Length() == 0; }
-  Point& front() { return Head(); }
-  const Point& front() const { return Head(); }
-  Point& operator[](int n) { return Piece(n); }
-  const Point& operator[](int n) const { return Piece(n); }
-  void reserve(int) {}
-
-  using value_type = Point;
-
-  void push_back(const Point& p) {
-    ++length;
-    Piece(length - 1) = p;
   }
 };
 

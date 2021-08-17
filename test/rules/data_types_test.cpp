@@ -82,155 +82,50 @@ TEST(PodTest, PointZeroInitialization) {
 }
 
 TEST(SnakeBodyTest, IncreaseLengthWorks) {
-  SnakeBody body{
-      .body =
-          {
-              {},
-              {},
-              {1, 2},
-              {3, 4},
-              {5, 6},
-          },
-      .head_index = 2,
-      .length = 3,
-  };
+  SnakeBody body = SnakeBody::Create({
+      {1, 2},
+      {3, 4},
+      {5, 6},
+  });
 
   body.IncreaseLength(2);
 
-  EXPECT_THAT(body.head_index, Eq(2));
-  EXPECT_THAT(body.length, Eq(5));
-  EXPECT_THAT(body.Piece(0), Eq(Point{1, 2}));
-  EXPECT_THAT(body.Piece(1), Eq(Point{3, 4}));
-  EXPECT_THAT(body.Piece(2), Eq(Point{5, 6}));
-  EXPECT_THAT(body.Piece(3), Eq(Point{5, 6}));
-  EXPECT_THAT(body.Piece(4), Eq(Point{5, 6}));
-}
-
-TEST(SnakeBodyTest, IncreaseLengthWrapsAround) {
-  SnakeBody body{
-      .body = {},
-      .head_index = SnakeBody::kMaxSnakeBodyLen - 2,
-      .length = 3,
-  };
-  body.Piece(0) = Point{1, 2};
-  body.Piece(1) = Point{3, 4};
-  body.Piece(2) = Point{5, 6};
-
-  body.IncreaseLength(2);
-
-  EXPECT_THAT(body.head_index, Eq(SnakeBody::kMaxSnakeBodyLen - 2));
-  EXPECT_THAT(body.length, Eq(5));
-  EXPECT_THAT(body.Piece(0), Eq(Point{1, 2}));
-  EXPECT_THAT(body.Piece(1), Eq(Point{3, 4}));
-  EXPECT_THAT(body.Piece(2), Eq(Point{5, 6}));
-  EXPECT_THAT(body.Piece(3), Eq(Point{5, 6}));
-  EXPECT_THAT(body.Piece(4), Eq(Point{5, 6}));
-
-  EXPECT_THAT(&body.Piece(0) - &body.body[0],
-              Eq(SnakeBody::kMaxSnakeBodyLen - 2));
-  EXPECT_THAT(&body.Piece(1) - &body.body[0],
-              Eq(SnakeBody::kMaxSnakeBodyLen - 1));
-  EXPECT_THAT(&body.Piece(2) - &body.body[0], Eq(0));
-  EXPECT_THAT(&body.Piece(3) - &body.body[0], Eq(1));
-  EXPECT_THAT(&body.Piece(4) - &body.body[0], Eq(2));
+  EXPECT_THAT(body, Eq(SnakeBody::Create({
+                        {1, 2},
+                        {3, 4},
+                        {5, 6},
+                        {5, 6},
+                        {5, 6},
+                    })));
 }
 
 TEST(SnakeBodyTest, MoveToWorks) {
-  SnakeBody body{
-      .body =
-          {
-              {},
-              {},
-              {1, 2},
-              {3, 4},
-              {5, 6},
-          },
-      .head_index = 2,
-      .length = 3,
-  };
+  SnakeBody body = SnakeBody::Create({
+      {1, 2},
+      {3, 4},
+      {5, 6},
+  });
 
   body.MoveTo(Move::Left);
 
-  EXPECT_THAT(body.head_index, Eq(1));
-  EXPECT_THAT(body.length, Eq(3));
-  EXPECT_THAT(body.Piece(0), Eq(Point{0, 2}));
-  EXPECT_THAT(body.Piece(1), Eq(Point{1, 2}));
-  EXPECT_THAT(body.Piece(2), Eq(Point{3, 4}));
-}
-
-TEST(SnakeBodyTest, MoveToWrapsAround) {
-  SnakeBody body{
-      .body =
-          {
-              {1, 2},
-              {3, 4},
-              {5, 6},
-          },
-      .head_index = 0,
-      .length = 3,
-  };
-
-  body.MoveTo(Move::Left);
-
-  EXPECT_THAT(body.head_index, Eq(SnakeBody::kMaxSnakeBodyLen - 1));
-  EXPECT_THAT(body.length, Eq(3));
-  EXPECT_THAT(body.Piece(0), Eq(Point{0, 2}));
-  EXPECT_THAT(body.Piece(1), Eq(Point{1, 2}));
-  EXPECT_THAT(body.Piece(2), Eq(Point{3, 4}));
-
-  EXPECT_THAT(&body.Piece(0) - &body.body[0],
-              Eq(SnakeBody::kMaxSnakeBodyLen - 1));
-  EXPECT_THAT(&body.Piece(1) - &body.body[0], Eq(0));
-  EXPECT_THAT(&body.Piece(2) - &body.body[0], Eq(1));
-}
-
-TEST(SnakeBodyTest, Iterate) {
-  SnakeBody body{
-      .body = {},
-      .head_index = SnakeBody::kMaxSnakeBodyLen - 2,
-      .length = 3,
-  };
-  body.Piece(0) = Point{1, 2};
-  body.Piece(1) = Point{3, 4};
-  body.Piece(2) = Point{5, 6};
-
-  int n = 0;
-  for (Point& p : body) {
-    EXPECT_THAT(p, Eq(body.Piece(n)));
-    ++n;
-  }
-}
-
-TEST(SnakeBodyTest, IterateConst) {
-  SnakeBody mutable_body{
-      .body = {},
-      .head_index = SnakeBody::kMaxSnakeBodyLen - 2,
-      .length = 3,
-  };
-  mutable_body.Piece(0) = Point{1, 2};
-  mutable_body.Piece(1) = Point{3, 4};
-  mutable_body.Piece(2) = Point{5, 6};
-
-  const SnakeBody& body = mutable_body;
-
-  int n = 0;
-  for (const Point& p : body) {
-    EXPECT_THAT(p, Eq(body.Piece(n)));
-    ++n;
-  }
+  EXPECT_THAT(body, Eq(SnakeBody::Create({
+                        {0, 2},
+                        {1, 2},
+                        {3, 4},
+                    })));
 }
 
 TEST(ObjectSizesTest, ObjectSizes) {
   EXPECT_THAT(sizeof(Point), Eq(2));
 
-  int body_array_size = SnakeBody::kMaxSnakeBodyLen * sizeof(Point);
+  int body_array_size = kMaxSnakeBodyLen * sizeof(Point);
   int padding = (-body_array_size) % sizeof(int);
 
   EXPECT_THAT(sizeof(SnakeBody),
-              Eq(body_array_size  // Points array
-                 + sizeof(int)    // head_index
-                 + sizeof(int)    // length
-                 + padding        // padding
+              Eq(body_array_size   // Data array
+                 + sizeof(size_t)  // start_index
+                 + sizeof(size_t)  // array_size
+                 + padding         // padding
                  ));
 }
 
