@@ -194,6 +194,8 @@ struct SnakeBody {
   bool empty() const { return Length() == 0; }
   Point& front() { return Head(); }
   const Point& front() const { return Head(); }
+  Point& operator[](int n) { return Piece(n); }
+  const Point& operator[](int n) const { return Piece(n); }
 };
 
 struct Snake {
