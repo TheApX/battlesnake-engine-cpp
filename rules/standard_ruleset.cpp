@@ -60,9 +60,9 @@ bool StandardRuleset::isKnownBoardSize(const BoardState& state) {
 }
 
 void StandardRuleset::placeSnakesFixed(BoardState& state) const {
-  int pos_left = 1;
-  int pos_mid = (state.width - 1) / 2;
-  int pos_right = state.width - 2;
+  Coordinate pos_left = 1;
+  Coordinate pos_mid = (state.width - 1) / 2;
+  Coordinate pos_right = state.width - 2;
 
   std::vector<Point> start_points{
       {pos_left, pos_left},  {pos_left, pos_mid},   {pos_left, pos_right},  //
@@ -117,10 +117,14 @@ void StandardRuleset::placeFoodFixed(BoardState& state) const {
   for (const Snake& snake : state.snakes) {
     const Point& snake_head = snake.body.front();
     std::initializer_list<Point> possible_food_locations{
-        Point{.x = snake_head.x - 1, .y = snake_head.y - 1},
-        Point{.x = snake_head.x - 1, .y = snake_head.y + 1},
-        Point{.x = snake_head.x + 1, .y = snake_head.y - 1},
-        Point{.x = snake_head.x + 1, .y = snake_head.y + 1},
+        Point{.x = static_cast<Coordinate>(snake_head.x - 1),
+              .y = static_cast<Coordinate>(snake_head.y - 1)},
+        Point{.x = static_cast<Coordinate>(snake_head.x - 1),
+              .y = static_cast<Coordinate>(snake_head.y + 1)},
+        Point{.x = static_cast<Coordinate>(snake_head.x + 1),
+              .y = static_cast<Coordinate>(snake_head.y - 1)},
+        Point{.x = static_cast<Coordinate>(snake_head.x + 1),
+              .y = static_cast<Coordinate>(snake_head.y + 1)},
     };
 
     PointsVector available_food_locations;
@@ -143,7 +147,10 @@ void StandardRuleset::placeFoodFixed(BoardState& state) const {
   }
 
   // Always place 1 food in center of board for dramatic purposes.
-  Point center_coordinates{(state.width - 1) / 2, (state.height - 1) / 2};
+  Point center_coordinates{
+      .x = static_cast<Coordinate>((state.width - 1) / 2),
+      .y = static_cast<Coordinate>((state.height - 1) / 2),
+  };
   if (food_locations.find(center_coordinates) != food_locations.end()) {
     throw ErrorNoRoomForFood();
   }
@@ -216,7 +223,7 @@ PointsVector StandardRuleset::getUnoccupiedPoints(
   PointsVector unoccupied_points;
   for (int y = 0; y < state.height; ++y) {
     for (int x = 0; x < state.width; ++x) {
-      Point p{x, y};
+      Point p{static_cast<Coordinate>(x), static_cast<Coordinate>(y)};
       if (occupied_points.find(p) != occupied_points.end()) {
         continue;
       }

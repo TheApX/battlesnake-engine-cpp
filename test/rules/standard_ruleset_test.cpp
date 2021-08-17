@@ -343,10 +343,14 @@ class StandardPlaceFoodTest : public StandardRulesetTest {
       const Point& head = snake.body.front();
 
       auto accepted_food_pos = {
-          Point{head.x - 1, head.y - 1},
-          Point{head.x - 1, head.y + 1},
-          Point{head.x + 1, head.y - 1},
-          Point{head.x + 1, head.y + 1},
+          Point{.x = static_cast<Coordinate>(head.x - 1),
+                .y = static_cast<Coordinate>(head.y - 1)},
+          Point{.x = static_cast<Coordinate>(head.x - 1),
+                .y = static_cast<Coordinate>(head.y + 1)},
+          Point{.x = static_cast<Coordinate>(head.x + 1),
+                .y = static_cast<Coordinate>(head.y - 1)},
+          Point{.x = static_cast<Coordinate>(head.x + 1),
+                .y = static_cast<Coordinate>(head.y + 1)},
       };
 
       bool snake_has_food = false;
