@@ -18,6 +18,12 @@ using Coordinate = signed char;
 static constexpr Coordinate kBoardSizeSmall = 7;
 static constexpr Coordinate kBoardSizeMedium = 11;
 static constexpr Coordinate kBoardSizeLarge = 19;
+static constexpr Coordinate kBoardSizeMax = 25;
+
+// Standard and max snakes count.
+static constexpr Coordinate kSnakesCountStandard = 4;
+static constexpr Coordinate kSnakesCountDuel = 2;
+static constexpr Coordinate kSnakesCountMax = 8;
 
 // Optimize data structures for standard board sizes and numbers of snakes.
 // Larger numbers increase memory footprint. Boards with larger size or number
@@ -26,7 +32,7 @@ static constexpr Coordinate kBoardSizeLarge = 19;
 // Max board size that memory optimizations will work for.
 static constexpr int kOptimizeForMaxBoardSize = kBoardSizeMedium;
 // Max number of snakes that memory optimizations will work for.
-static constexpr int kOptimizeForMaxSnakesCount = 4;
+static constexpr int kOptimizeForMaxSnakesCount = kSnakesCountStandard;
 
 // Wrapper for string pointer. Can be used as simpler but trivially
 // constructible, destructible and copyable alternative for std::string_view.
