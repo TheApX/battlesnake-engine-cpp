@@ -79,12 +79,11 @@ TEST_F(ConstrictorCreateNextBoardStateTest, KeepsHealth) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
           },
@@ -109,12 +108,11 @@ TEST_F(ConstrictorCreateNextBoardStateTest, GrowsSnake) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
           },
@@ -144,12 +142,11 @@ TEST_F(ConstrictorCreateNextBoardStateTest, DoesnGrowInitialSnake) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 1},
-                          Point{1, 1},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 1},
+                      Point{1, 1},
+                  }),
                   .health = 100,
               },
           },

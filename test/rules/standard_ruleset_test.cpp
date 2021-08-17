@@ -442,12 +442,11 @@ TEST_F(StandardCreateNextBoardStateTest, NoMoveFound) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
           },
@@ -469,7 +468,7 @@ TEST_F(StandardCreateNextBoardStateTest, ZeroLengthSnake) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body = {},
+                  .body = {.length = 0},
                   .health = 100,
               },
           },
@@ -492,12 +491,11 @@ TEST_F(StandardCreateNextBoardStateTest, MovesTail) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
           },
@@ -524,12 +522,11 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUp) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
           },
@@ -553,12 +550,11 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadDown) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
           },
@@ -582,12 +578,11 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadLeft) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
           },
@@ -611,12 +606,11 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadRight) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
           },
@@ -640,12 +634,11 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUnknownContinue) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
           },
@@ -670,12 +663,11 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUnknownUp) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 1},
-                          Point{1, 1},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 1},
+                      Point{1, 1},
+                  }),
                   .health = 100,
               },
           },
@@ -700,23 +692,21 @@ TEST_F(StandardCreateNextBoardStateTest, MovesTwoSnakes) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{3, 8},
-                          Point{3, 7},
-                          Point{3, 6},
-                          Point{3, 5},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{3, 8},
+                      Point{3, 7},
+                      Point{3, 6},
+                      Point{3, 5},
+                  }),
                   .health = 100,
               },
           },
@@ -752,12 +742,11 @@ TEST_F(StandardCreateNextBoardStateTest, MoveReducesHealth) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = initial_health,
               },
           },
@@ -785,12 +774,11 @@ TEST_F(StandardCreateNextBoardStateTest, FoodGrowsSnake) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 50,
               },
           },
@@ -821,12 +809,11 @@ TEST_F(StandardCreateNextBoardStateTest, FoodRestoresHealth) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = max_health / 2,
               },
           },
@@ -853,12 +840,11 @@ TEST_F(StandardCreateNextBoardStateTest, DontEatFoodOtherPosition) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 50,
               },
           },
@@ -887,12 +873,11 @@ TEST_F(StandardCreateNextBoardStateTest, EatenFoodDisappears) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 50,
               },
           },
@@ -921,22 +906,20 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodDisappears) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 2},
-                          Point{1, 3},
-                          Point{1, 4},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 2},
+                      Point{1, 3},
+                      Point{1, 4},
+                  }),
                   .health = max_health / 2,
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{2, 1},
-                          Point{3, 1},
-                          Point{4, 1},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{2, 1},
+                      Point{3, 1},
+                      Point{4, 1},
+                  }),
                   .health = max_health / 2,
               },
           },
@@ -1041,12 +1024,11 @@ TEST_F(StandardCreateNextBoardStateTest, EatingOnLastMove) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 1,
               },
           },
@@ -1077,12 +1059,11 @@ TEST_F(StandardCreateNextBoardStateTest, IgnoresEliminatedSnakes) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 10,
                   .eliminated_cause =
                       EliminatedCause{.cause = EliminatedCause::OutOfHealth},
@@ -1115,12 +1096,11 @@ TEST_F(StandardEliminateSnakesTest, OutOfHealth) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 1,
               },
           },
@@ -1144,10 +1124,9 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsUp) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{0, 0},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 0},
+                  }),
                   .health = 100,
               },
           },
@@ -1171,10 +1150,9 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsDown) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{0, 0},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 0},
+                  }),
                   .health = 100,
               },
           },
@@ -1198,10 +1176,9 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsLeft) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{0, 0},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 0},
+                  }),
                   .health = 100,
               },
           },
@@ -1225,10 +1202,9 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsRight) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{0, 0},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 0},
+                  }),
                   .health = 100,
               },
           },
@@ -1252,12 +1228,11 @@ TEST_F(StandardEliminateSnakesTest, NoSelfCollision) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
           },
@@ -1282,12 +1257,11 @@ TEST_F(StandardEliminateSnakesTest, NeckSelfCollision) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
           },
@@ -1312,14 +1286,13 @@ TEST_F(StandardEliminateSnakesTest, RegularSelfCollision) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{2, 2},
-                          Point{2, 1},
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{2, 2},
+                      Point{2, 1},
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
           },
@@ -1344,13 +1317,12 @@ TEST_F(StandardEliminateSnakesTest, OwnTailChase) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{2, 2},
-                          Point{2, 1},
-                          Point{1, 1},
-                          Point{1, 2},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{2, 2},
+                      Point{2, 1},
+                      Point{1, 1},
+                      Point{1, 2},
+                  }),
                   .health = 100,
               },
           },
@@ -1375,22 +1347,20 @@ TEST_F(StandardEliminateSnakesTest, OtherNoCollision) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{2, 1},
-                          Point{2, 2},
-                          Point{2, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{2, 1},
+                      Point{2, 2},
+                      Point{2, 3},
+                  }),
                   .health = 100,
               },
           },
@@ -1421,22 +1391,20 @@ TEST_F(StandardEliminateSnakesTest, OtherBodyCollision) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{2, 1},
-                          Point{2, 2},
-                          Point{2, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{2, 1},
+                      Point{2, 2},
+                      Point{2, 3},
+                  }),
                   .health = 100,
               },
           },
@@ -1468,22 +1436,20 @@ TEST_F(StandardEliminateSnakesTest, OtherTailChase) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{1, 4},
-                          Point{1, 5},
-                          Point{1, 6},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 4},
+                      Point{1, 5},
+                      Point{1, 6},
+                  }),
                   .health = 100,
               },
           },
@@ -1514,23 +1480,21 @@ TEST_F(StandardEliminateSnakesTest, HeadToHeadDifferentLength) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 3},
-                          Point{1, 2},
-                          Point{1, 1},
-                          Point{1, 0},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 3},
+                      Point{1, 2},
+                      Point{1, 1},
+                      Point{1, 0},
+                  }),
                   .health = 100,
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{1, 5},
-                          Point{1, 6},
-                          Point{1, 7},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 5},
+                      Point{1, 6},
+                      Point{1, 7},
+                  }),
                   .health = 100,
               },
           },
@@ -1562,22 +1526,20 @@ TEST_F(StandardEliminateSnakesTest, HeadToHeadEqualLength) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 3},
-                          Point{1, 2},
-                          Point{1, 1},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 3},
+                      Point{1, 2},
+                      Point{1, 1},
+                  }),
                   .health = 100,
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{1, 5},
-                          Point{1, 6},
-                          Point{1, 7},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 5},
+                      Point{1, 6},
+                      Point{1, 7},
+                  }),
                   .health = 100,
               },
           },
@@ -1610,10 +1572,9 @@ TEST_F(StandardEliminateSnakesTest, PriorityOutOfHealthOutOfBounds) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{0, 0},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 0},
+                  }),
                   .health = 1,
               },
           },
@@ -1637,12 +1598,11 @@ TEST_F(StandardEliminateSnakesTest, PriorityOutOfHealthSelfCollision) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 1,
               },
           },
@@ -1666,22 +1626,20 @@ TEST_F(StandardEliminateSnakesTest, PriorityOutOfHealthOtherBodyCollision) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{2, 1},
-                          Point{2, 2},
-                          Point{2, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{2, 1},
+                      Point{2, 2},
+                      Point{2, 3},
+                  }),
                   .health = 1,
               },
           },
@@ -1713,23 +1671,21 @@ TEST_F(StandardEliminateSnakesTest, PrioritySelfCollisionHeadToHead) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                          Point{1, 4},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                      Point{1, 4},
+                  }),
                   .health = 100,
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{0, 0},
-                          Point{1, 0},
-                          Point{2, 0},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 0},
+                      Point{1, 0},
+                      Point{2, 0},
+                  }),
                   .health = 100,
               },
           },
@@ -1761,23 +1717,21 @@ TEST_F(StandardEliminateSnakesTest, PriorityOtherCollisionHeadToHead) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{0, 0},
-                          Point{1, 0},
-                          Point{2, 0},
-                          Point{3, 0},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 0},
+                      Point{1, 0},
+                      Point{2, 0},
+                      Point{3, 0},
+                  }),
                   .health = 100,
               },
           },
@@ -1813,23 +1767,21 @@ TEST_F(StandardEliminateSnakesTest, OutOfHealthDoesntEliminateOthers) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{0, 0},
-                          Point{1, 0},
-                          Point{2, 0},
-                          Point{3, 0},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 0},
+                      Point{1, 0},
+                      Point{2, 0},
+                      Point{3, 0},
+                  }),
                   .health = 1,
               },
           },
@@ -1863,23 +1815,21 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsDoesntEliminateOthers) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{0, 0},
-                          Point{1, 0},
-                          Point{2, 0},
-                          Point{3, 0},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 0},
+                      Point{1, 0},
+                      Point{2, 0},
+                      Point{3, 0},
+                  }),
                   .health = 100,
               },
           },
@@ -1917,22 +1867,20 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodBothEliminated) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 2},
-                          Point{1, 3},
-                          Point{1, 4},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 2},
+                      Point{1, 3},
+                      Point{1, 4},
+                  }),
                   .health = max_health / 2,
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{2, 1},
-                          Point{3, 1},
-                          Point{4, 1},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{2, 1},
+                      Point{3, 1},
+                      Point{4, 1},
+                  }),
                   .health = max_health / 2,
               },
           },
@@ -1977,23 +1925,21 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodOneEliminated) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 2},
-                          Point{1, 3},
-                          Point{1, 4},
-                          Point{1, 5},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 2},
+                      Point{1, 3},
+                      Point{1, 4},
+                      Point{1, 5},
+                  }),
                   .health = max_health / 2,
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{2, 1},
-                          Point{3, 1},
-                          Point{4, 1},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{2, 1},
+                      Point{3, 1},
+                      Point{4, 1},
+                  }),
                   .health = max_health / 2,
               },
           },

@@ -105,23 +105,21 @@ TEST_F(SquadCreateNextBoardStateTest, SameSquadDontCollide) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{0, 1},
-                          Point{0, 2},
-                          Point{0, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 1},
+                      Point{0, 2},
+                      Point{0, 3},
+                  }),
                   .health = 100,
                   .squad = pool.Add("s"),
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{2, 1},
-                          Point{3, 1},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{2, 1},
+                      Point{3, 1},
+                  }),
                   .health = 100,
                   .squad = pool.Add("s"),
               },
@@ -150,23 +148,21 @@ TEST_F(SquadCreateNextBoardStateTest, DifferentSquadCollide) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{0, 1},
-                          Point{0, 2},
-                          Point{0, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 1},
+                      Point{0, 2},
+                      Point{0, 3},
+                  }),
                   .health = 100,
                   .squad = pool.Add("s1"),
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{2, 1},
-                          Point{3, 1},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{2, 1},
+                      Point{3, 1},
+                  }),
                   .health = 100,
                   .squad = pool.Add("s2"),
               },
@@ -195,23 +191,21 @@ TEST_F(SquadCreateNextBoardStateTest, ShareHealth) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{0, 1},
-                          Point{0, 2},
-                          Point{0, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 1},
+                      Point{0, 2},
+                      Point{0, 3},
+                  }),
                   .health = 10,
                   .squad = pool.Add("s"),
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{2, 1},
-                          Point{3, 1},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{2, 1},
+                      Point{3, 1},
+                  }),
                   .health = 100,
                   .squad = pool.Add("s"),
               },
@@ -240,25 +234,23 @@ TEST_F(SquadCreateNextBoardStateTest, ShareLength) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{0, 1},
-                          Point{0, 2},
-                          Point{0, 3},
-                          Point{0, 4},
-                          Point{0, 5},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 1},
+                      Point{0, 2},
+                      Point{0, 3},
+                      Point{0, 4},
+                      Point{0, 5},
+                  }),
                   .health = 10,
                   .squad = pool.Add("s"),
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{2, 1},
-                          Point{3, 1},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{2, 1},
+                      Point{3, 1},
+                  }),
                   .health = 100,
                   .squad = pool.Add("s"),
               },
@@ -287,26 +279,24 @@ TEST_F(SquadCreateNextBoardStateTest, ShareElimination) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{0, 1},
-                          Point{0, 2},
-                          Point{0, 3},
-                          Point{0, 4},
-                          Point{0, 5},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 1},
+                      Point{0, 2},
+                      Point{0, 3},
+                      Point{0, 4},
+                      Point{0, 5},
+                  }),
                   .health = 10,
                   .squad = pool.Add("s"),
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{0, 1},
-                          Point{1, 1},
-                          Point{2, 1},
-                          Point{3, 1},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 1},
+                      Point{1, 1},
+                      Point{2, 1},
+                      Point{3, 1},
+                  }),
                   .health = 100,
                   .squad = pool.Add("s"),
               },
@@ -351,23 +341,21 @@ TEST_F(SquadIsGameOverTest, TwoSnakesSameSquad) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{0, 1},
-                          Point{0, 2},
-                          Point{0, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 1},
+                      Point{0, 2},
+                      Point{0, 3},
+                  }),
                   .health = 100,
                   .squad = pool.Add("s"),
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{2, 1},
-                          Point{3, 1},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{2, 1},
+                      Point{3, 1},
+                  }),
                   .health = 100,
                   .squad = pool.Add("s"),
               },
@@ -388,23 +376,21 @@ TEST_F(SquadIsGameOverTest, TwoSnakesDifferentSquad) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{0, 1},
-                          Point{0, 2},
-                          Point{0, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 1},
+                      Point{0, 2},
+                      Point{0, 3},
+                  }),
                   .health = 100,
                   .squad = pool.Add("s1"),
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{2, 1},
-                          Point{3, 1},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{2, 1},
+                      Point{3, 1},
+                  }),
                   .health = 100,
                   .squad = pool.Add("s2"),
               },

@@ -60,12 +60,11 @@ TEST_F(RoyaleCreateNextBoardStateTest, NotInHazardDoesntAffectHealth) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
           },
@@ -104,12 +103,11 @@ TEST_F(RoyaleCreateNextBoardStateTest, InHazardReducesHealth) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{0, 1},
-                          Point{0, 2},
-                          Point{0, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 1},
+                      Point{0, 2},
+                      Point{0, 3},
+                  }),
                   .health = 100,
               },
           },
@@ -148,12 +146,11 @@ TEST_F(RoyaleCreateNextBoardStateTest, MovesIntoHazard) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{0, 1},
-                          Point{0, 2},
-                          Point{0, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 1},
+                      Point{0, 2},
+                      Point{0, 3},
+                  }),
                   .health = 100,
               },
           },
@@ -192,12 +189,11 @@ TEST_F(RoyaleCreateNextBoardStateTest, MovesOutOfHazard) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{0, 1},
-                          Point{0, 2},
-                          Point{0, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{0, 1},
+                      Point{0, 2},
+                      Point{0, 3},
+                  }),
                   .health = 100,
               },
           },
@@ -236,12 +232,11 @@ TEST_F(RoyaleCreateNextBoardStateTest, NewHazardDoesntAffectHealth) {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
           },

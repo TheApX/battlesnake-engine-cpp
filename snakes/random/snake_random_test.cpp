@@ -50,22 +50,20 @@ TEST(BattlesnakeRandomTest, SnakeMoves) {
               {
                   Snake{
                       .id = pool.Add("one"),
-                      .body =
-                          {
-                              Point{1, 1},
-                              Point{1, 2},
-                              Point{1, 3},
-                          },
+                      .body = SnakeBody::Create({
+                          Point{1, 1},
+                          Point{1, 2},
+                          Point{1, 3},
+                      }),
                       .health = 100,
                   },
                   Snake{
                       .id = pool.Add("two"),
-                      .body =
-                          {
-                              Point{5, 1},
-                              Point{5, 2},
-                              Point{5, 3},
-                          },
+                      .body = SnakeBody::Create({
+                          Point{5, 1},
+                          Point{5, 2},
+                          Point{5, 3},
+                      }),
                       .health = 75,
                   },
               },

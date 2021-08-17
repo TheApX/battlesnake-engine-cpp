@@ -113,6 +113,20 @@ void SnakeBody::IncreaseLength(int delta) {
   length += delta;
 }
 
+bool operator==(const SnakeBody& a, const SnakeBody& b) {
+  if (a.length != b.length) {
+    return false;
+  }
+
+  for (int i = 0; i < a.length; ++i) {
+    if (a.Piece(i) != b.Piece(i)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 Point& Snake::Head() {
   if (body.empty()) {
     throw ErrorZeroLengthSnake(id.ToString());

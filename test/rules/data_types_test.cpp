@@ -35,6 +35,10 @@ static_assert(std::is_trivially_constructible<SnakeBody>::value);
 static_assert(std::is_trivially_destructible<SnakeBody>::value);
 static_assert(std::is_trivially_copyable<SnakeBody>::value);
 
+static_assert(std::is_trivially_constructible<Snake>::value);
+static_assert(std::is_trivially_destructible<Snake>::value);
+static_assert(std::is_trivially_copyable<Snake>::value);
+
 using ::testing::_;
 using ::testing::ElementsAre;
 using ::testing::Eq;

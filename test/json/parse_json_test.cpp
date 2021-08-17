@@ -62,12 +62,11 @@ TEST_F(ParseJsonTest, SnakeSucceeds) {
   StringPool pool;
   Snake expected_snake{
       .id = pool.Add("snake_id"),
-      .body =
-          {
-              Point{10, 1},
-              Point{10, 2},
-              Point{10, 3},
-          },
+      .body = SnakeBody::Create({
+          Point{10, 1},
+          Point{10, 2},
+          Point{10, 3},
+      }),
       .health = 75,
       .name = pool.Add("Test Caterpillar"),
       .latency = pool.Add("123"),
@@ -78,7 +77,7 @@ TEST_F(ParseJsonTest, SnakeSucceeds) {
   Snake snake = ParseJsonSnake(json, pool);
 
   EXPECT_THAT(snake.id, Eq(expected_snake.id));
-  EXPECT_THAT(snake.body, ElementsAreArray(expected_snake.body));
+  EXPECT_THAT(snake.body, Eq(expected_snake.body));
   EXPECT_THAT(snake.health, Eq(expected_snake.health));
   EXPECT_THAT(snake.eliminated_cause.cause,
               Eq(expected_snake.eliminated_cause.cause));
@@ -108,12 +107,11 @@ TEST_F(ParseJsonTest, SnakeNoOptional) {
   StringPool pool;
   Snake expected_snake{
       .id = pool.Add("snake_id"),
-      .body =
-          {
-              Point{10, 1},
-              Point{10, 2},
-              Point{10, 3},
-          },
+      .body = SnakeBody::Create({
+          Point{10, 1},
+          Point{10, 2},
+          Point{10, 3},
+      }),
       .health = 75,
       .latency = pool.Add("0"),
   };
@@ -121,7 +119,7 @@ TEST_F(ParseJsonTest, SnakeNoOptional) {
   Snake snake = ParseJsonSnake(json, pool);
 
   EXPECT_THAT(snake.id, Eq(expected_snake.id));
-  EXPECT_THAT(snake.body, ElementsAreArray(expected_snake.body));
+  EXPECT_THAT(snake.body, Eq(expected_snake.body));
   EXPECT_THAT(snake.health, Eq(expected_snake.health));
   EXPECT_THAT(snake.eliminated_cause.cause,
               Eq(expected_snake.eliminated_cause.cause));
@@ -483,12 +481,11 @@ TEST_F(ParseJsonTest, GameStateSucceeds) {
       .board{.width = 5, .height = 15},
       .you{
           .id = pool.Add("snake_id"),
-          .body =
-              {
-                  Point{10, 1},
-                  Point{10, 2},
-                  Point{10, 3},
-              },
+          .body = SnakeBody::Create({
+              Point{10, 1},
+              Point{10, 2},
+              Point{10, 3},
+          }),
           .health = 75,
           .name = pool.Add("Test Caterpillar"),
           .latency = pool.Add("123"),

@@ -32,12 +32,11 @@ TEST_F(CreateJsonTest, NotEliminatedSnake) {
 
   Snake snake{
       .id = pool.Add("snake_id"),
-      .body =
-          {
-              Point{10, 1},
-              Point{10, 2},
-              Point{10, 3},
-          },
+      .body = SnakeBody::Create({
+          Point{10, 1},
+          Point{10, 2},
+          Point{10, 3},
+      }),
       .health = 75,
       .name = pool.Add("Test Caterpillar"),
       .latency = pool.Add("123"),
@@ -159,12 +158,11 @@ TEST_F(CreateJsonTest, BoardStateSnakes) {
           {
               Snake{
                   .id = pool.Add("snake_id"),
-                  .body =
-                      {
-                          Point{10, 1},
-                          Point{10, 2},
-                          Point{10, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{10, 1},
+                      Point{10, 2},
+                      Point{10, 3},
+                  }),
                   .health = 75,
                   .name = pool.Add("Test Caterpillar"),
                   .latency = pool.Add("123"),
@@ -213,12 +211,11 @@ TEST_F(CreateJsonTest, BoardStateEliminatedSnake) {
           {
               Snake{
                   .id = pool.Add("snake_id"),
-                  .body =
-                      {
-                          Point{10, 1},
-                          Point{10, 2},
-                          Point{10, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{10, 1},
+                      Point{10, 2},
+                      Point{10, 3},
+                  }),
                   .health = 75,
                   .eliminated_cause =
                       EliminatedCause{
@@ -295,12 +292,11 @@ TEST_F(CreateJsonTest, GameState) {
       .board{.width = 5, .height = 15},
       .you{
           .id = pool.Add("snake_id"),
-          .body =
-              {
-                  Point{10, 1},
-                  Point{10, 2},
-                  Point{10, 3},
-              },
+          .body = SnakeBody::Create({
+              Point{10, 1},
+              Point{10, 2},
+              Point{10, 3},
+          }),
           .health = 75,
           .name = pool.Add("Test Caterpillar"),
           .latency = pool.Add("123"),
@@ -359,12 +355,11 @@ TEST_F(CreateJsonTest, GameStateYouEliminated) {
       .board{.width = 5, .height = 15},
       .you{
           .id = pool.Add("snake_id"),
-          .body =
-              {
-                  Point{10, 1},
-                  Point{10, 2},
-                  Point{10, 3},
-              },
+          .body = SnakeBody::Create({
+              Point{10, 1},
+              Point{10, 2},
+              Point{10, 3},
+          }),
           .health = 75,
           .eliminated_cause{.cause = EliminatedCause::Collision},
           .name = pool.Add("Test Caterpillar"),

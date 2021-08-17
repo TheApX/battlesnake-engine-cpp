@@ -87,12 +87,11 @@ GameState CreateGameState(StringPool& pool) {
       .board{.width = 5, .height = 15},
       .you{
           .id = pool.Add("snake_id"),
-          .body =
-              {
-                  Point{10, 1},
-                  Point{10, 2},
-                  Point{10, 3},
-              },
+          .body = SnakeBody::Create({
+              Point{10, 1},
+              Point{10, 2},
+              Point{10, 3},
+          }),
           .health = 75,
           .name = pool.Add("Test Caterpillar"),
           .latency = pool.Add("123"),

@@ -29,6 +29,10 @@ int GetInt(const nlohmann::json& json, const char* key) {
   return *v;
 }
 
+Coordinate GetCoordinate(const nlohmann::json& json, const char* key) {
+  return static_cast<Coordinate>(GetInt(json, key));
+}
+
 StringWrapper GetString(const nlohmann::json& json, const char* key,
                         battlesnake::rules::StringPool& pool) {
   auto v = json.find(key);
@@ -197,7 +201,7 @@ Point ParseJsonPoint(const nlohmann::json& json) {
   if (!json.is_object()) {
     throw ParseException();
   }
-  return Point{GetInt(json, "x"), GetInt(json, "y")};
+  return Point{GetCoordinate(json, "x"), GetCoordinate(json, "y")};
 }
 
 Snake ParseJsonSnake(const nlohmann::json& json,
@@ -208,7 +212,7 @@ Snake ParseJsonSnake(const nlohmann::json& json,
 
   Snake snake{
       .id = GetString(json, "id", pool),
-      .body = GetPointArray(json, "body"),
+      .body = SnakeBody::Create(GetPointArray(json, "body")),
       .health = GetInt(json, "health"),
       .name = GetString(json, "name", "", pool),
       .latency = GetString(json, "latency", "0", pool),
@@ -235,8 +239,8 @@ BoardState ParseJsonBoard(const nlohmann::json& json,
   }
 
   return BoardState{
-      .width = GetInt(json, "width"),
-      .height = GetInt(json, "height"),
+      .width = GetCoordinate(json, "width"),
+      .height = GetCoordinate(json, "height"),
       .food = GetPointArray(json, "food"),
       .snakes = GetSnakeArray(json, "snakes", pool),
       .hazards = GetPointArray(json, "hazards"),

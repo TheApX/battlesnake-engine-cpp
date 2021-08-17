@@ -141,6 +141,22 @@ struct SnakeBody {
   void MoveTo(Move move);
   void IncreaseLength(int delta = 1);
 
+  template <class T>
+  static SnakeBody Create(const T& data) {
+    SnakeBody result{
+        .head_index = 0,
+        .length = 0,
+    };
+    for (const Point& p : data) {
+      result.push_back(p);
+    }
+    return result;
+  }
+
+  static SnakeBody Create(const std::initializer_list<Point>& data) {
+    return Create<std::initializer_list<Point>>(data);
+  }
+
   template <class Owner, class P>
   class iterator_base {
    public:
@@ -196,14 +212,26 @@ struct SnakeBody {
   const Point& front() const { return Head(); }
   Point& operator[](int n) { return Piece(n); }
   const Point& operator[](int n) const { return Piece(n); }
+  void reserve(int) {}
+
+  using value_type = Point;
+
+  void push_back(const Point& p) {
+    ++length;
+    Piece(length - 1) = p;
+  }
 };
+
+bool operator==(const SnakeBody& a, const SnakeBody& b);
+inline bool operator!=(const SnakeBody& a, const SnakeBody& b) {
+  return !(a == b);
+}
 
 struct Snake {
   // Main values used by the engine.
   SnakeId id;
-  PointsVector body;
-  // SnakeBody body;
-  int health = 0;
+  SnakeBody body;
+  int health;
   EliminatedCause eliminated_cause;
 
   // Additional values not necessarily used by ruleset, but used in API.
