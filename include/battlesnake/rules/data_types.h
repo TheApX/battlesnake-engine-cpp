@@ -124,8 +124,7 @@ struct PointHash {
 };
 
 struct SnakeBody {
-  static constexpr int kMaxSnakeBodyLen =
-      kOptimizeForMaxBoardSize * kOptimizeForMaxBoardSize + 2;
+  static constexpr int kMaxSnakeBodyLen = kBoardSizeMax * kBoardSizeMax + 2;
 
   Point body[kMaxSnakeBodyLen];
   size_t head_index;
