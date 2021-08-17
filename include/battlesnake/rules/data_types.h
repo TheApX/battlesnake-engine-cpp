@@ -141,51 +141,61 @@ struct SnakeBody {
   void MoveTo(Move move);
   void IncreaseLength(int delta = 1);
 
-  class iterator {
+  template <class Owner, class P>
+  class iterator_base {
    public:
-    Point& operator*() { return owner_->Piece(pos_); }
-    Point* operator->() { return &owner_->Piece(pos_); }
+    P& operator*() { return owner_->Piece(pos_); }
+    P* operator->() { return &owner_->Piece(pos_); }
 
-    iterator operator--() {
+    iterator_base<Owner, P> operator--() {
       --pos_;
       return *this;
     }
-    iterator operator--(int) {
-      iterator result = *this;
+    iterator_base<Owner, P> operator--(int) {
+      iterator_base<Owner, P> result = *this;
       --pos_;
       return result;
     }
-    iterator operator++() {
+    iterator_base<Owner, P> operator++() {
       ++pos_;
       return *this;
     }
-    iterator operator++(int) {
-      iterator result = *this;
+    iterator_base<Owner, P> operator++(int) {
+      iterator_base<Owner, P> result = *this;
       ++pos_;
       return result;
     }
 
-    bool operator==(const iterator& other) const {
+    bool operator==(const iterator_base<Owner, P>& other) const {
       return this->owner_ == other.owner_ && this->pos_ == other.pos_;
     }
-    bool operator!=(const iterator& other) const { return !operator==(other); }
+    bool operator!=(const iterator_base<Owner, P>& other) const {
+      return !operator==(other);
+    }
 
-    iterator(const iterator& other) : owner_(other.owner_), pos_(other.pos_) {}
-    iterator(SnakeBody* owner, size_t pos) : owner_(owner), pos_(pos) {}
+    iterator_base(const iterator_base<Owner, P>& other)
+        : owner_(other.owner_), pos_(other.pos_) {}
+    iterator_base(Owner* owner, size_t pos) : owner_(owner), pos_(pos) {}
 
    private:
-    SnakeBody* owner_;
+    Owner* owner_;
     int pos_;
   };
 
+  using iterator = iterator_base<SnakeBody, Point>;
+  using const_iterator = iterator_base<const SnakeBody, const Point>;
+
   iterator begin() { return iterator(this, 0); }
   iterator end() { return iterator(this, length); }
+  const_iterator begin() const { return const_iterator(this, 0); }
+  const_iterator end() const { return const_iterator(this, length); }
 };
 
 struct Snake {
   // Main values used by the engine.
   SnakeId id;
   PointsVector body;
+  // SnakeBody body;
   int health = 0;
   EliminatedCause eliminated_cause;
 

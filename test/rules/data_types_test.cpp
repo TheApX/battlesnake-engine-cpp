@@ -197,6 +197,25 @@ TEST(SnakeBodyTest, Iterate) {
   }
 }
 
+TEST(SnakeBodyTest, IterateConst) {
+  SnakeBody mutable_body{
+      .body = {},
+      .head_index = SnakeBody::kMaxSnakeBodyLen - 2,
+      .length = 3,
+  };
+  mutable_body.Piece(0) = Point{1, 2};
+  mutable_body.Piece(1) = Point{3, 4};
+  mutable_body.Piece(2) = Point{5, 6};
+
+  const SnakeBody& body = mutable_body;
+
+  int n = 0;
+  for (const Point& p : body) {
+    EXPECT_THAT(p, Eq(body.Piece(n)));
+    ++n;
+  }
+}
+
 TEST(ObjectSizesTest, ObjectSizes) {
   EXPECT_THAT(sizeof(Point), Eq(2));
 
