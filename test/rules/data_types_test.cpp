@@ -31,6 +31,10 @@ static_assert(std::is_trivially_copyable<Point>::value);
 static_assert(sizeof(Point) == 2);
 static_assert(sizeof(Point[10]) == 20);
 
+static_assert(std::is_trivially_constructible<SnakeBody>::value);
+static_assert(std::is_trivially_destructible<SnakeBody>::value);
+static_assert(std::is_trivially_copyable<SnakeBody>::value);
+
 using ::testing::_;
 using ::testing::ElementsAre;
 using ::testing::Eq;
