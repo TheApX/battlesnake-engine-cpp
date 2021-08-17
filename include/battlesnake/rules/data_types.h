@@ -123,6 +123,25 @@ struct PointHash {
   }
 };
 
+struct SnakeBody {
+  static constexpr int kMaxSnakeBodyLen =
+      kOptimizeForMaxBoardSize * kOptimizeForMaxBoardSize + 2;
+
+  Point body[kMaxSnakeBodyLen];
+  size_t head_index;
+  size_t length;
+
+  Point& Head() { return body[head_index]; }
+  const Point& Head() const { return body[head_index]; }
+  Point& Piece(size_t n) { return body[(head_index + n) % kMaxSnakeBodyLen]; }
+  const Point& Piece(size_t n) const {
+    return body[(head_index + n) % kMaxSnakeBodyLen];
+  }
+
+  void MoveTo(Move move);
+  void IncreaseLength(int delta = 1);
+};
+
 struct Snake {
   // Main values used by the engine.
   SnakeId id;

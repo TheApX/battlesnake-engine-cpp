@@ -1,5 +1,7 @@
 #include "battlesnake/rules/data_types.h"
 
+#include <cstring>
+
 #include "battlesnake/rules/errors.h"
 
 namespace battlesnake {
@@ -92,6 +94,25 @@ Point Point::Moved(Move move) const {
   }
 }
 
+void SnakeBody::MoveTo(Move move) {
+  int new_head_index = head_index - 1;
+  if (new_head_index < 0) {
+    new_head_index += kMaxSnakeBodyLen;
+  }
+
+  body[new_head_index] = Head().Moved(move);
+  head_index = new_head_index;
+}
+
+void SnakeBody::IncreaseLength(int delta) {
+  int tail_index = (head_index + length - 1) % kMaxSnakeBodyLen;
+  for (int i = 0; i < delta; ++i) {
+    int new_piece_index = (tail_index + i + 1) % kMaxSnakeBodyLen;
+    body[new_piece_index] = body[tail_index];
+  }
+  length += delta;
+}
+
 Point& Snake::Head() {
   if (body.empty()) {
     throw ErrorZeroLengthSnake(id.ToString());
@@ -177,7 +198,8 @@ std::ostream& operator<<(std::ostream& s, EliminatedCause cause) {
 }
 
 std::ostream& operator<<(std::ostream& s, const Point& point) {
-  s << "(" << point.x << "," << point.y << ")";
+  s << "(" << static_cast<int>(point.x) << "," << static_cast<int>(point.y)
+    << ")";
   return s;
 }
 
