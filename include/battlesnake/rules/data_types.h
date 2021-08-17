@@ -189,6 +189,11 @@ struct SnakeBody {
   iterator end() { return iterator(this, length); }
   const_iterator begin() const { return const_iterator(this, 0); }
   const_iterator end() const { return const_iterator(this, length); }
+
+  size_t size() const { return Length(); }
+  bool empty() const { return Length() == 0; }
+  Point& front() { return Head(); }
+  const Point& front() const { return Head(); }
 };
 
 struct Snake {
