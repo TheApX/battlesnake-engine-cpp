@@ -127,14 +127,14 @@ struct SnakeBody {
   static constexpr int kMaxSnakeBodyLen = kBoardSizeMax * kBoardSizeMax + 2;
 
   Point body[kMaxSnakeBodyLen];
-  size_t head_index;
-  size_t length;
+  int head_index;
+  int length;
 
   Point& Head() { return body[head_index]; }
   const Point& Head() const { return body[head_index]; }
-  size_t Length() const { return length; }
-  Point& Piece(size_t n) { return body[(head_index + n) % kMaxSnakeBodyLen]; }
-  const Point& Piece(size_t n) const {
+  int Length() const { return length; }
+  Point& Piece(int n) { return body[(head_index + n) % kMaxSnakeBodyLen]; }
+  const Point& Piece(int n) const {
     return body[(head_index + n) % kMaxSnakeBodyLen];
   }
 

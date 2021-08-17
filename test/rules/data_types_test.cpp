@@ -197,6 +197,20 @@ TEST(SnakeBodyTest, Iterate) {
   }
 }
 
+TEST(ObjectSizesTest, ObjectSizes) {
+  EXPECT_THAT(sizeof(Point), Eq(2));
+
+  int body_array_size = SnakeBody::kMaxSnakeBodyLen * sizeof(Point);
+  int padding = (-body_array_size) % sizeof(int);
+
+  EXPECT_THAT(sizeof(SnakeBody),
+              Eq(body_array_size  // Points array
+                 + sizeof(int)    // head_index
+                 + sizeof(int)    // length
+                 + padding        // padding
+                 ));
+}
+
 }  // namespace
 
 }  // namespace rules
