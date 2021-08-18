@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <forward_list>
-#include <itlib/small_vector.hpp>
 #include <mutex>
 #include <ostream>
 #include <string>
