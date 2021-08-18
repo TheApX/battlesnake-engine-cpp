@@ -85,4 +85,4 @@ These libraries are pulled from their official repositories and built from sourc
   * https://github.com/chriskohlhoff/asio
 * https://gitlab.com/eidheim/Simple-Web-Server
 * https://github.com/eidheim/Simple-WebSocket-Server
-* https://github.com/iboB/itlib
+* https://github.com/TheApX/trivial-loop-array

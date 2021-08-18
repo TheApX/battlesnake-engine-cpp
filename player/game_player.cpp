@@ -146,7 +146,7 @@ void GamePlayer::Play() {
     //     std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
     //         .count();
 
-    SnakeMovesVector moves;
+    SnakeMovesVector moves{};
     for (const auto& [id, response] : move_responses) {
       moves.push_back({id, response.move});
     }

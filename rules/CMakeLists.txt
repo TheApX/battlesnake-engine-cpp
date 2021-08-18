@@ -1,14 +1,6 @@
 include(FetchContent)
 
 FetchContent_Declare(
-  itlib
-  GIT_REPOSITORY https://github.com/iboB/itlib.git
-  GIT_TAG        origin/master
-)
-FetchContent_MakeAvailable(itlib)
-
-
-FetchContent_Declare(
   trivial_loop_array
   GIT_REPOSITORY https://github.com/TheApX/trivial-loop-array.git
   GIT_TAG        origin/main
@@ -32,5 +24,4 @@ add_library(libbattlesnakerules STATIC
 
 target_include_directories(libbattlesnakerules PUBLIC ${BATTLESNAKE_ROOT_DIR}/include)
 
-target_link_libraries(libbattlesnakerules LINK_PUBLIC itlib)
 target_link_libraries(libbattlesnakerules LINK_PUBLIC trivial_loop_array)

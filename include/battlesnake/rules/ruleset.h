@@ -1,6 +1,6 @@
 #pragma once
 
-#include <itlib/small_vector.hpp>
+#include <trivial_loop_array.hpp>
 #include <unordered_map>
 #include <vector>
 
@@ -9,8 +9,13 @@
 namespace battlesnake {
 namespace rules {
 
+struct SnakeMove {
+  SnakeId snake_id;
+  Move move;
+};
+
 using SnakeMovesVector =
-    itlib::small_vector<std::pair<SnakeId, Move>, kOptimizeForMaxSnakesCount>;
+    ::theapx::trivial_loop_array<SnakeMove, kSnakesCountMax>;
 
 class Ruleset {
  public:

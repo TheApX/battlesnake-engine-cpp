@@ -85,8 +85,9 @@ TEST_F(RoyaleCreateNextBoardStateTest, NotInHazardDoesntAffectHealth) {
   // Disable spawning random food so that it doesn't interfere with tests.
   RoyaleRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
   BoardState state{};
-  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
-                               1, state);
+  ruleset.CreateNextBoardState(
+      initial_state, SnakeMovesVector::Create({{pool.Add("one"), Move::Down}}),
+      1, state);
 
   // Head is not in hazard, health must decrease by one.
   EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(Eq(99))));
@@ -126,8 +127,9 @@ TEST_F(RoyaleCreateNextBoardStateTest, InHazardReducesHealth) {
   // Disable spawning random food so that it doesn't interfere with tests.
   RoyaleRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
   BoardState state{};
-  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
-                               1, state);
+  ruleset.CreateNextBoardState(
+      initial_state, SnakeMovesVector::Create({{pool.Add("one"), Move::Down}}),
+      1, state);
 
   // Head is in hazard, health must decrease by more than one.
   EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(Lt(99))));
@@ -167,8 +169,9 @@ TEST_F(RoyaleCreateNextBoardStateTest, MovesIntoHazard) {
   // Disable spawning random food so that it doesn't interfere with tests.
   RoyaleRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
   BoardState state{};
-  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
-                               1, state);
+  ruleset.CreateNextBoardState(
+      initial_state, SnakeMovesVector::Create({{pool.Add("one"), Move::Down}}),
+      1, state);
 
   // Move into hazard reduces health.
   EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(Lt(99))));
@@ -208,8 +211,9 @@ TEST_F(RoyaleCreateNextBoardStateTest, MovesOutOfHazard) {
   // Disable spawning random food so that it doesn't interfere with tests.
   RoyaleRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
   BoardState state{};
-  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Right}},
-                               1, state);
+  ruleset.CreateNextBoardState(
+      initial_state, SnakeMovesVector::Create({{pool.Add("one"), Move::Right}}),
+      1, state);
 
   // Head is not in hazard after move, reduce health by just one.
   EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(Eq(99))));
@@ -254,8 +258,9 @@ TEST_F(RoyaleCreateNextBoardStateTest, NewHazardDoesntAffectHealth) {
   constexpr int attempts = 100;
   for (int i = 0; i < attempts; ++i) {
     BoardState state{};
-    ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
-                                 1, state);
+    ruleset.CreateNextBoardState(
+        initial_state,
+        SnakeMovesVector::Create({{pool.Add("one"), Move::Down}}), 1, state);
     // Head is not in hazard, health must decrease by one.
     EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(Eq(99))));
   }
