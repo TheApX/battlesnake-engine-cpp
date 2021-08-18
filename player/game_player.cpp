@@ -151,7 +151,7 @@ void GamePlayer::Play() {
       moves.push_back({id, response.move});
     }
 
-    BoardState new_board;
+    BoardState new_board{};
     ruleset_->CreateNextBoardState(game.board, moves, game.turn, new_board);
     game.board = new_board;
 

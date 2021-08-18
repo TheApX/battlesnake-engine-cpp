@@ -177,11 +177,11 @@ struct Snake {
   size_t Length() const { return body.size(); }
 };
 
-using SnakesVector = ::itlib::small_vector<Snake, kOptimizeForMaxSnakesCount>;
+using SnakesVector = ::theapx::trivial_loop_array<Snake, kSnakesCountMax>;
 
 struct BoardState {
-  Coordinate width = 0;
-  Coordinate height = 0;
+  Coordinate width;
+  Coordinate height;
   PointsVector food;
   SnakesVector snakes;
   PointsVector hazards;

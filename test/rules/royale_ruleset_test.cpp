@@ -40,7 +40,7 @@ TEST_F(RoyaleRulesetTest, Sanity) {
   EXPECT_THAT(state.height, Eq(0));
   EXPECT_THAT(state.snakes, ElementsAre());
 
-  BoardState new_state;
+  BoardState new_state{};
   ruleset.CreateNextBoardState(state, {}, 0, new_state);
   EXPECT_THAT(new_state.width, Eq(0));
   EXPECT_THAT(new_state.height, Eq(0));
@@ -56,18 +56,17 @@ TEST_F(RoyaleCreateNextBoardStateTest, NotInHazardDoesntAffectHealth) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+      }),
       .hazards = PointsVector::Create({
           Point{0, 0},
           Point{0, 1},
@@ -85,7 +84,7 @@ TEST_F(RoyaleCreateNextBoardStateTest, NotInHazardDoesntAffectHealth) {
 
   // Disable spawning random food so that it doesn't interfere with tests.
   RoyaleRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
                                1, state);
 
@@ -98,18 +97,17 @@ TEST_F(RoyaleCreateNextBoardStateTest, InHazardReducesHealth) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{0, 1},
-                      Point{0, 2},
-                      Point{0, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{0, 1},
+                  Point{0, 2},
+                  Point{0, 3},
+              }),
+              .health = 100,
           },
+      }),
       .hazards = PointsVector::Create({
           Point{0, 0},
           Point{0, 1},
@@ -127,7 +125,7 @@ TEST_F(RoyaleCreateNextBoardStateTest, InHazardReducesHealth) {
 
   // Disable spawning random food so that it doesn't interfere with tests.
   RoyaleRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
                                1, state);
 
@@ -140,18 +138,17 @@ TEST_F(RoyaleCreateNextBoardStateTest, MovesIntoHazard) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{0, 1},
-                      Point{0, 2},
-                      Point{0, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{0, 1},
+                  Point{0, 2},
+                  Point{0, 3},
+              }),
+              .health = 100,
           },
+      }),
       .hazards = PointsVector::Create({
           Point{0, 0},
           Point{1, 0},
@@ -169,7 +166,7 @@ TEST_F(RoyaleCreateNextBoardStateTest, MovesIntoHazard) {
 
   // Disable spawning random food so that it doesn't interfere with tests.
   RoyaleRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
                                1, state);
 
@@ -182,18 +179,17 @@ TEST_F(RoyaleCreateNextBoardStateTest, MovesOutOfHazard) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{0, 1},
-                      Point{0, 2},
-                      Point{0, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{0, 1},
+                  Point{0, 2},
+                  Point{0, 3},
+              }),
+              .health = 100,
           },
+      }),
       .hazards = PointsVector::Create({
           Point{0, 0},
           Point{0, 1},
@@ -211,7 +207,7 @@ TEST_F(RoyaleCreateNextBoardStateTest, MovesOutOfHazard) {
 
   // Disable spawning random food so that it doesn't interfere with tests.
   RoyaleRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Right}},
                                1, state);
 
@@ -224,18 +220,17 @@ TEST_F(RoyaleCreateNextBoardStateTest, NewHazardDoesntAffectHealth) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+      }),
       .hazards = PointsVector::Create({
           Point{0, 0},
           Point{0, 1},
@@ -258,7 +253,7 @@ TEST_F(RoyaleCreateNextBoardStateTest, NewHazardDoesntAffectHealth) {
   // Repeat test many times, because new hazard may appear on different sides.
   constexpr int attempts = 100;
   for (int i = 0; i < attempts; ++i) {
-    BoardState state;
+    BoardState state{};
     ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
                                  1, state);
     // Head is not in hazard, health must decrease by one.

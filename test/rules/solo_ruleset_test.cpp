@@ -33,7 +33,7 @@ TEST_F(SoloRulesetTest, Sanity) {
   EXPECT_THAT(state.height, Eq(0));
   EXPECT_THAT(state.snakes, ElementsAre());
 
-  BoardState new_state;
+  BoardState new_state{};
   ruleset.CreateNextBoardState(state, {}, 0, new_state);
   EXPECT_THAT(new_state.width, Eq(0));
   EXPECT_THAT(new_state.height, Eq(0));
@@ -60,12 +60,10 @@ TEST_F(SoloIsGameOverTest, OneNotEliminatedSnake) {
   BoardState board_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .eliminated_cause =
-                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
-          },
+      .snakes = SnakesVector::Create({
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+      }),
   };
 
   SoloRuleset ruleset;
@@ -77,14 +75,12 @@ TEST_F(SoloIsGameOverTest, OneEliminatedOneNotEliminatedSnake) {
   BoardState board_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .eliminated_cause =
-                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
-              Snake{.eliminated_cause =
-                        EliminatedCause{.cause = EliminatedCause::Collision}},
-          },
+      .snakes = SnakesVector::Create({
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::Collision}},
+      }),
   };
 
   SoloRuleset ruleset;
@@ -96,15 +92,12 @@ TEST_F(SoloIsGameOverTest, TwoNotEliminatedSnake) {
   BoardState board_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .eliminated_cause =
-                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
-              Snake{
-                  .eliminated_cause =
-                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
-          },
+      .snakes = SnakesVector::Create({
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+      }),
   };
 
   SoloRuleset ruleset;
@@ -116,20 +109,16 @@ TEST_F(SoloIsGameOverTest, OneOfFourEliminated) {
   BoardState board_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .eliminated_cause =
-                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
-              Snake{
-                  .eliminated_cause =
-                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
-              Snake{.eliminated_cause =
-                        EliminatedCause{.cause = EliminatedCause::OutOfBounds}},
-              Snake{
-                  .eliminated_cause =
-                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
-          },
+      .snakes = SnakesVector::Create({
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::OutOfBounds}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+      }),
   };
 
   SoloRuleset ruleset;
@@ -141,19 +130,17 @@ TEST_F(SoloIsGameOverTest, ThreeOfFourEliminated) {
   BoardState board_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{.eliminated_cause =
-                        EliminatedCause{.cause = EliminatedCause::OutOfHealth}},
-              Snake{
-                  .eliminated_cause =
-                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
-              Snake{.eliminated_cause =
-                        EliminatedCause{.cause = EliminatedCause::OutOfBounds}},
-              Snake{.eliminated_cause =
-                        EliminatedCause{
-                            .cause = EliminatedCause::HeadToHeadCollision}},
-          },
+      .snakes = SnakesVector::Create({
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::OutOfHealth}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::OutOfBounds}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause =
+                                        EliminatedCause::HeadToHeadCollision}},
+      }),
   };
 
   SoloRuleset ruleset;
@@ -165,18 +152,17 @@ TEST_F(SoloIsGameOverTest, FourOfFourEliminated) {
   BoardState board_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{.eliminated_cause =
-                        EliminatedCause{.cause = EliminatedCause::OutOfHealth}},
-              Snake{.eliminated_cause =
-                        EliminatedCause{.cause = EliminatedCause::Collision}},
-              Snake{.eliminated_cause =
-                        EliminatedCause{.cause = EliminatedCause::OutOfBounds}},
-              Snake{.eliminated_cause =
-                        EliminatedCause{
-                            .cause = EliminatedCause::HeadToHeadCollision}},
-          },
+      .snakes = SnakesVector::Create({
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::OutOfHealth}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::Collision}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::OutOfBounds}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause =
+                                        EliminatedCause::HeadToHeadCollision}},
+      }),
   };
 
   SoloRuleset ruleset;

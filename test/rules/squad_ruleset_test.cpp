@@ -85,7 +85,7 @@ TEST_F(SquadRulesetTest, Sanity) {
   EXPECT_THAT(state.height, Eq(0));
   EXPECT_THAT(state.snakes, ElementsAre());
 
-  BoardState new_state;
+  BoardState new_state{};
   ruleset.CreateNextBoardState(state, {}, 0, new_state);
   EXPECT_THAT(new_state.width, Eq(0));
   EXPECT_THAT(new_state.height, Eq(0));
@@ -101,33 +101,32 @@ TEST_F(SquadCreateNextBoardStateTest, SameSquadDontCollide) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{0, 1},
-                      Point{0, 2},
-                      Point{0, 3},
-                  }),
-                  .health = 100,
-                  .squad = pool.Add("s"),
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{2, 1},
-                      Point{3, 1},
-                  }),
-                  .health = 100,
-                  .squad = pool.Add("s"),
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{0, 1},
+                  Point{0, 2},
+                  Point{0, 3},
+              }),
+              .health = 100,
+              .squad = pool.Add("s"),
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{2, 1},
+                  Point{3, 1},
+              }),
+              .health = 100,
+              .squad = pool.Add("s"),
+          },
+      }),
   };
 
   SquadRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Down},
@@ -144,33 +143,32 @@ TEST_F(SquadCreateNextBoardStateTest, DifferentSquadCollide) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{0, 1},
-                      Point{0, 2},
-                      Point{0, 3},
-                  }),
-                  .health = 100,
-                  .squad = pool.Add("s1"),
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{2, 1},
-                      Point{3, 1},
-                  }),
-                  .health = 100,
-                  .squad = pool.Add("s2"),
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{0, 1},
+                  Point{0, 2},
+                  Point{0, 3},
+              }),
+              .health = 100,
+              .squad = pool.Add("s1"),
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{2, 1},
+                  Point{3, 1},
+              }),
+              .health = 100,
+              .squad = pool.Add("s2"),
+          },
+      }),
   };
 
   SquadRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Down},
@@ -187,33 +185,32 @@ TEST_F(SquadCreateNextBoardStateTest, ShareHealth) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{0, 1},
-                      Point{0, 2},
-                      Point{0, 3},
-                  }),
-                  .health = 10,
-                  .squad = pool.Add("s"),
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{2, 1},
-                      Point{3, 1},
-                  }),
-                  .health = 100,
-                  .squad = pool.Add("s"),
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{0, 1},
+                  Point{0, 2},
+                  Point{0, 3},
+              }),
+              .health = 10,
+              .squad = pool.Add("s"),
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{2, 1},
+                  Point{3, 1},
+              }),
+              .health = 100,
+              .squad = pool.Add("s"),
+          },
+      }),
   };
 
   SquadRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Down},
@@ -230,35 +227,34 @@ TEST_F(SquadCreateNextBoardStateTest, ShareLength) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{0, 1},
-                      Point{0, 2},
-                      Point{0, 3},
-                      Point{0, 4},
-                      Point{0, 5},
-                  }),
-                  .health = 10,
-                  .squad = pool.Add("s"),
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{2, 1},
-                      Point{3, 1},
-                  }),
-                  .health = 100,
-                  .squad = pool.Add("s"),
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{0, 1},
+                  Point{0, 2},
+                  Point{0, 3},
+                  Point{0, 4},
+                  Point{0, 5},
+              }),
+              .health = 10,
+              .squad = pool.Add("s"),
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{2, 1},
+                  Point{3, 1},
+              }),
+              .health = 100,
+              .squad = pool.Add("s"),
+          },
+      }),
   };
 
   SquadRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Down},
@@ -275,36 +271,35 @@ TEST_F(SquadCreateNextBoardStateTest, ShareElimination) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{0, 1},
-                      Point{0, 2},
-                      Point{0, 3},
-                      Point{0, 4},
-                      Point{0, 5},
-                  }),
-                  .health = 10,
-                  .squad = pool.Add("s"),
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{0, 1},
-                      Point{1, 1},
-                      Point{2, 1},
-                      Point{3, 1},
-                  }),
-                  .health = 100,
-                  .squad = pool.Add("s"),
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{0, 1},
+                  Point{0, 2},
+                  Point{0, 3},
+                  Point{0, 4},
+                  Point{0, 5},
+              }),
+              .health = 10,
+              .squad = pool.Add("s"),
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{0, 1},
+                  Point{1, 1},
+                  Point{2, 1},
+                  Point{3, 1},
+              }),
+              .health = 100,
+              .squad = pool.Add("s"),
+          },
+      }),
   };
 
   SquadRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Down},
@@ -337,29 +332,28 @@ TEST_F(SquadIsGameOverTest, TwoSnakesSameSquad) {
   BoardState board_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{0, 1},
-                      Point{0, 2},
-                      Point{0, 3},
-                  }),
-                  .health = 100,
-                  .squad = pool.Add("s"),
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{2, 1},
-                      Point{3, 1},
-                  }),
-                  .health = 100,
-                  .squad = pool.Add("s"),
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{0, 1},
+                  Point{0, 2},
+                  Point{0, 3},
+              }),
+              .health = 100,
+              .squad = pool.Add("s"),
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{2, 1},
+                  Point{3, 1},
+              }),
+              .health = 100,
+              .squad = pool.Add("s"),
+          },
+      }),
   };
 
   SquadRuleset ruleset;
@@ -372,29 +366,28 @@ TEST_F(SquadIsGameOverTest, TwoSnakesDifferentSquad) {
   BoardState board_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{0, 1},
-                      Point{0, 2},
-                      Point{0, 3},
-                  }),
-                  .health = 100,
-                  .squad = pool.Add("s1"),
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{2, 1},
-                      Point{3, 1},
-                  }),
-                  .health = 100,
-                  .squad = pool.Add("s2"),
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{0, 1},
+                  Point{0, 2},
+                  Point{0, 3},
+              }),
+              .health = 100,
+              .squad = pool.Add("s1"),
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{2, 1},
+                  Point{3, 1},
+              }),
+              .health = 100,
+              .squad = pool.Add("s2"),
+          },
+      }),
   };
 
   SquadRuleset ruleset;

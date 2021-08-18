@@ -46,7 +46,7 @@ TEST_F(ConstrictorRulesetTest, Sanity) {
   EXPECT_THAT(state.height, Eq(0));
   EXPECT_THAT(state.snakes, ElementsAre());
 
-  BoardState new_state;
+  BoardState new_state{};
   ruleset.CreateNextBoardState(state, {}, 0, new_state);
   EXPECT_THAT(new_state.width, Eq(0));
   EXPECT_THAT(new_state.height, Eq(0));
@@ -75,23 +75,22 @@ TEST_F(ConstrictorCreateNextBoardStateTest, KeepsHealth) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.
   ConstrictorRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
                                1, state);
 
@@ -104,23 +103,22 @@ TEST_F(ConstrictorCreateNextBoardStateTest, GrowsSnake) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.
   ConstrictorRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
                                1, state);
 
@@ -138,23 +136,22 @@ TEST_F(ConstrictorCreateNextBoardStateTest, DoesnGrowInitialSnake) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 1},
-                      Point{1, 1},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 1},
+                  Point{1, 1},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.
   ConstrictorRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
                                1, state);
 

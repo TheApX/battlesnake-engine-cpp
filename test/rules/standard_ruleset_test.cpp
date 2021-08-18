@@ -94,7 +94,7 @@ TEST_F(StandardRulesetTest, Sanity) {
   EXPECT_THAT(state.height, Eq(0));
   EXPECT_THAT(state.snakes, ElementsAre());
 
-  BoardState new_state;
+  BoardState new_state{};
   ruleset.CreateNextBoardState(state, {}, 0, new_state);
   EXPECT_THAT(new_state.width, Eq(0));
   EXPECT_THAT(new_state.height, Eq(0));
@@ -257,13 +257,13 @@ TEST_F(StandardPlaceSnakeTest, EnoughSpaceForManySnakes) {
   StringPool pool;
   StandardRuleset ruleset;
   ExpectBoardSnakes(
-      ruleset.CreateInitialBoardState(5, 10, CreateSnakeIds(25, pool)), 25);
+      ruleset.CreateInitialBoardState(5, 10, CreateSnakeIds(8, pool)), 8);
 }
 
 TEST_F(StandardPlaceSnakeTest, NotEnoughSpaceForManySnakes) {
   StringPool pool;
   StandardRuleset ruleset;
-  EXPECT_THROW(ruleset.CreateInitialBoardState(5, 10, CreateSnakeIds(26, pool)),
+  EXPECT_THROW(ruleset.CreateInitialBoardState(2, 2, CreateSnakeIds(8, pool)),
                ErrorNoRoomForSnake);
 }
 
@@ -285,14 +285,6 @@ TEST_F(StandardPlaceSnakeTest, KnownSizeSmallMaxSnakes) {
       8);
 }
 
-TEST_F(StandardPlaceSnakeTest, KnownSizeSmallTooManySnakes) {
-  StringPool pool;
-  StandardRuleset ruleset;
-  EXPECT_THROW(ruleset.CreateInitialBoardState(kBoardSizeSmall, kBoardSizeSmall,
-                                               CreateSnakeIds(9, pool)),
-               ErrorTooManySnakes);
-}
-
 TEST_F(StandardPlaceSnakeTest, KnownSizeMediumMaxSnakes) {
   StringPool pool;
   StandardRuleset ruleset;
@@ -302,14 +294,6 @@ TEST_F(StandardPlaceSnakeTest, KnownSizeMediumMaxSnakes) {
       8);
 }
 
-TEST_F(StandardPlaceSnakeTest, KnownSizeMediumTooManySnakes) {
-  StringPool pool;
-  StandardRuleset ruleset;
-  EXPECT_THROW(ruleset.CreateInitialBoardState(
-                   kBoardSizeMedium, kBoardSizeMedium, CreateSnakeIds(9, pool)),
-               ErrorTooManySnakes);
-}
-
 TEST_F(StandardPlaceSnakeTest, KnownSizeLargeMaxSnakes) {
   StringPool pool;
   StandardRuleset ruleset;
@@ -317,14 +301,6 @@ TEST_F(StandardPlaceSnakeTest, KnownSizeLargeMaxSnakes) {
       ruleset.CreateInitialBoardState(kBoardSizeLarge, kBoardSizeLarge,
                                       CreateSnakeIds(8, pool)),
       8);
-}
-
-TEST_F(StandardPlaceSnakeTest, KnownSizeLargeTooManySnakes) {
-  StringPool pool;
-  StandardRuleset ruleset;
-  EXPECT_THROW(ruleset.CreateInitialBoardState(kBoardSizeLarge, kBoardSizeLarge,
-                                               CreateSnakeIds(9, pool)),
-               ErrorTooManySnakes);
 }
 
 class StandardPlaceFoodTest : public StandardRulesetTest {
@@ -388,8 +364,8 @@ TEST_F(StandardPlaceFoodTest, ManySnakesMuchSpace) {
   StringPool pool;
   StandardRuleset ruleset;
   ExpectBoardFood(ruleset.CreateInitialBoardState(kBoardSizeMax, kBoardSizeMax,
-                                                  CreateSnakeIds(17, pool)),
-                  17);
+                                                  CreateSnakeIds(8, pool)),
+                  8);
 }
 
 TEST_F(StandardPlaceFoodTest, AllFreeSpaceFilledIn) {
@@ -397,7 +373,7 @@ TEST_F(StandardPlaceFoodTest, AllFreeSpaceFilledIn) {
   StringPool pool;
   StandardRuleset ruleset;
   ExpectBoardFood(
-      ruleset.CreateInitialBoardState(10, 20, CreateSnakeIds(60, pool)), 40);
+      ruleset.CreateInitialBoardState(5, 5, CreateSnakeIds(8, pool)), 5);
 }
 
 TEST_F(StandardPlaceFoodTest, KnownSizeSmall) {
@@ -443,23 +419,22 @@ TEST_F(StandardCreateNextBoardStateTest, NoMoveFound) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.
   StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   EXPECT_THROW(ruleset.CreateNextBoardState(initial_state, {}, 0, state),
                ErrorNoMoveFound);
 }
@@ -469,19 +444,18 @@ TEST_F(StandardCreateNextBoardStateTest, ZeroLengthSnake) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({}),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({}),
+              .health = 100,
           },
+      }),
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.
   StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   EXPECT_THROW(ruleset.CreateNextBoardState(
                    initial_state, {{pool.Add("one"), Move::Down}}, 0, state),
                ErrorZeroLengthSnake);
@@ -492,23 +466,22 @@ TEST_F(StandardCreateNextBoardStateTest, MovesTail) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.
   StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
                                0, state);
 
@@ -523,22 +496,21 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUp) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Up}}, 0,
                                state);
 
@@ -551,22 +523,21 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadDown) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
                                0, state);
 
@@ -579,22 +550,21 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadLeft) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
                                0, state);
 
@@ -607,22 +577,21 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadRight) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Right}},
                                0, state);
 
@@ -635,22 +604,21 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUnknownContinue) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {{pool.Add("one"), Move::Unknown}}, 0, state);
 
@@ -664,22 +632,21 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUnknownUp) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 1},
-                      Point{1, 1},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 1},
+                  Point{1, 1},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {{pool.Add("one"), Move::Unknown}}, 0, state);
 
@@ -693,32 +660,31 @@ TEST_F(StandardCreateNextBoardStateTest, MovesTwoSnakes) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{3, 8},
-                      Point{3, 7},
-                      Point{3, 6},
-                      Point{3, 5},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{3, 8},
+                  Point{3, 7},
+                  Point{3, 6},
+                  Point{3, 5},
+              }),
+              .health = 100,
+          },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Left},
@@ -743,23 +709,22 @@ TEST_F(StandardCreateNextBoardStateTest, MoveReducesHealth) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = initial_health,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = initial_health,
           },
+      }),
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.
   StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
                                0, state);
 
@@ -774,22 +739,21 @@ TEST_F(StandardCreateNextBoardStateTest, FoodGrowsSnake) {
       .food = PointsVector::Create({
           Point{0, 1},
       }),
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 50,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 50,
           },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
                                0, state);
 
@@ -808,22 +772,21 @@ TEST_F(StandardCreateNextBoardStateTest, FoodRestoresHealth) {
       .food = PointsVector::Create({
           Point{0, 1},
       }),
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = max_health / 2,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = max_health / 2,
           },
+      }),
   };
 
   StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
                                0, state);
 
@@ -838,22 +801,21 @@ TEST_F(StandardCreateNextBoardStateTest, DontEatFoodOtherPosition) {
       .food = PointsVector::Create({
           Point{10, 10},
       }),
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 50,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 50,
           },
+      }),
   };
 
   StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
                                0, state);
 
@@ -870,22 +832,21 @@ TEST_F(StandardCreateNextBoardStateTest, EatenFoodDisappears) {
           Point{0, 1},
           Point{10, 10},
       }),
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 50,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 50,
           },
+      }),
   };
 
   StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
                                0, state);
 
@@ -902,34 +863,33 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodDisappears) {
       .food = PointsVector::Create({
           Point{1, 1},
       }),
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 2},
-                      Point{1, 3},
-                      Point{1, 4},
-                  }),
-                  .health = max_health / 2,
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{2, 1},
-                      Point{3, 1},
-                      Point{4, 1},
-                  }),
-                  .health = max_health / 2,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 2},
+                  Point{1, 3},
+                  Point{1, 4},
+              }),
+              .health = max_health / 2,
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{2, 1},
+                  Point{3, 1},
+                  Point{4, 1},
+              }),
+              .health = max_health / 2,
+          },
+      }),
   };
 
   StandardRuleset ruleset(StandardRuleset::Config{
       .food_spawn_chance = 0,
       .minimum_food = 0,
   });
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Down},
@@ -957,7 +917,7 @@ TEST_F(StandardCreateNextBoardStateTest, ZeroChanceNeverSpawnsFood) {
   });
 
   for (int i = 0; i < 1000; ++i) {
-    BoardState state;
+    BoardState state{};
     ruleset.CreateNextBoardState(initial_state, {}, 0, state);
     ASSERT_THAT(state.food.size(), Eq(0));
   }
@@ -979,7 +939,7 @@ TEST_F(StandardCreateNextBoardStateTest, HundredChanceAlwaysSpawnsFood) {
   });
 
   for (int i = 0; i < 1000; ++i) {
-    BoardState state;
+    BoardState state{};
     ruleset.CreateNextBoardState(initial_state, {}, 0, state);
     ASSERT_THAT(state.food.size(), Eq(1));
   }
@@ -1000,7 +960,7 @@ TEST_F(StandardCreateNextBoardStateTest, SpawnFoodMinimum) {
   StandardRuleset ruleset(StandardRuleset::Config{
       .minimum_food = 7,
   });
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {}, 0, state);
 
   EXPECT_THAT(state.food.size(), Eq(7));
@@ -1018,22 +978,21 @@ TEST_F(StandardCreateNextBoardStateTest, EatingOnLastMove) {
       .food = PointsVector::Create({
           Point{0, 1},
       }),
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 1,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 1,
           },
+      }),
   };
 
   StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
                                0, state);
 
@@ -1052,24 +1011,23 @@ TEST_F(StandardCreateNextBoardStateTest, IgnoresEliminatedSnakes) {
       .food = PointsVector::Create({
           Point{0, 1},
       }),
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 10,
-                  .eliminated_cause =
-                      EliminatedCause{.cause = EliminatedCause::OutOfHealth},
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 10,
+              .eliminated_cause =
+                  EliminatedCause{.cause = EliminatedCause::OutOfHealth},
           },
+      }),
   };
 
   StandardRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
                                0, state);
 
@@ -1089,22 +1047,21 @@ TEST_F(StandardEliminateSnakesTest, OutOfHealth) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 1,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 1,
           },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
                                0, state);
 
@@ -1117,20 +1074,19 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsUp) {
   BoardState initial_state{
       .width = 1,
       .height = 1,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{0, 0},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{0, 0},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Up}}, 0,
                                state);
 
@@ -1143,20 +1099,19 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsDown) {
   BoardState initial_state{
       .width = 1,
       .height = 1,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{0, 0},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{0, 0},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
                                0, state);
 
@@ -1169,20 +1124,19 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsLeft) {
   BoardState initial_state{
       .width = 1,
       .height = 1,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{0, 0},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{0, 0},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
                                0, state);
 
@@ -1195,20 +1149,19 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsRight) {
   BoardState initial_state{
       .width = 1,
       .height = 1,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{0, 0},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{0, 0},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Right}},
                                0, state);
 
@@ -1221,22 +1174,21 @@ TEST_F(StandardEliminateSnakesTest, NoSelfCollision) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
                                0, state);
 
@@ -1250,22 +1202,21 @@ TEST_F(StandardEliminateSnakesTest, NeckSelfCollision) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Up}}, 0,
                                state);
 
@@ -1279,24 +1230,23 @@ TEST_F(StandardEliminateSnakesTest, RegularSelfCollision) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{2, 2},
-                      Point{2, 1},
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{2, 2},
+                  Point{2, 1},
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
                                0, state);
 
@@ -1310,23 +1260,22 @@ TEST_F(StandardEliminateSnakesTest, OwnTailChase) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{2, 2},
-                      Point{2, 1},
-                      Point{1, 1},
-                      Point{1, 2},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{2, 2},
+                  Point{2, 1},
+                  Point{1, 1},
+                  Point{1, 2},
+              }),
+              .health = 100,
           },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Left}},
                                0, state);
 
@@ -1340,31 +1289,30 @@ TEST_F(StandardEliminateSnakesTest, OtherNoCollision) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{2, 1},
-                      Point{2, 2},
-                      Point{2, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{2, 1},
+                  Point{2, 2},
+                  Point{2, 3},
+              }),
+              .health = 100,
+          },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Down},
@@ -1384,31 +1332,30 @@ TEST_F(StandardEliminateSnakesTest, OtherBodyCollision) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{2, 1},
-                      Point{2, 2},
-                      Point{2, 3},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{2, 1},
+                  Point{2, 2},
+                  Point{2, 3},
+              }),
+              .health = 100,
+          },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Down},
@@ -1429,31 +1376,30 @@ TEST_F(StandardEliminateSnakesTest, OtherTailChase) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{1, 4},
-                      Point{1, 5},
-                      Point{1, 6},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{1, 4},
+                  Point{1, 5},
+                  Point{1, 6},
+              }),
+              .health = 100,
+          },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Down},
@@ -1473,32 +1419,31 @@ TEST_F(StandardEliminateSnakesTest, HeadToHeadDifferentLength) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 3},
-                      Point{1, 2},
-                      Point{1, 1},
-                      Point{1, 0},
-                  }),
-                  .health = 100,
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{1, 5},
-                      Point{1, 6},
-                      Point{1, 7},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 3},
+                  Point{1, 2},
+                  Point{1, 1},
+                  Point{1, 0},
+              }),
+              .health = 100,
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{1, 5},
+                  Point{1, 6},
+                  Point{1, 7},
+              }),
+              .health = 100,
+          },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Up},
@@ -1519,31 +1464,30 @@ TEST_F(StandardEliminateSnakesTest, HeadToHeadEqualLength) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 3},
-                      Point{1, 2},
-                      Point{1, 1},
-                  }),
-                  .health = 100,
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{1, 5},
-                      Point{1, 6},
-                      Point{1, 7},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 3},
+                  Point{1, 2},
+                  Point{1, 1},
+              }),
+              .health = 100,
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{1, 5},
+                  Point{1, 6},
+                  Point{1, 7},
+              }),
+              .health = 100,
+          },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Up},
@@ -1565,20 +1509,19 @@ TEST_F(StandardEliminateSnakesTest, PriorityOutOfHealthOutOfBounds) {
   BoardState initial_state{
       .width = 1,
       .height = 1,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{0, 0},
-                  }),
-                  .health = 1,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{0, 0},
+              }),
+              .health = 1,
           },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Up}}, 0,
                                state);
 
@@ -1591,22 +1534,21 @@ TEST_F(StandardEliminateSnakesTest, PriorityOutOfHealthSelfCollision) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 1,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 1,
           },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Up}}, 0,
                                state);
 
@@ -1619,31 +1561,30 @@ TEST_F(StandardEliminateSnakesTest, PriorityOutOfHealthOtherBodyCollision) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{2, 1},
-                      Point{2, 2},
-                      Point{2, 3},
-                  }),
-                  .health = 1,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{2, 1},
+                  Point{2, 2},
+                  Point{2, 3},
+              }),
+              .health = 1,
+          },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Down},
@@ -1664,32 +1605,31 @@ TEST_F(StandardEliminateSnakesTest, PrioritySelfCollisionHeadToHead) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                      Point{1, 4},
-                  }),
-                  .health = 100,
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{0, 0},
-                      Point{1, 0},
-                      Point{2, 0},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+                  Point{1, 4},
+              }),
+              .health = 100,
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{0, 0},
+                  Point{1, 0},
+                  Point{2, 0},
+              }),
+              .health = 100,
+          },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Down},
@@ -1710,32 +1650,31 @@ TEST_F(StandardEliminateSnakesTest, PriorityOtherCollisionHeadToHead) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{0, 0},
-                      Point{1, 0},
-                      Point{2, 0},
-                      Point{3, 0},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{0, 0},
+                  Point{1, 0},
+                  Point{2, 0},
+                  Point{3, 0},
+              }),
+              .health = 100,
+          },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Down},
@@ -1760,32 +1699,31 @@ TEST_F(StandardEliminateSnakesTest, OutOfHealthDoesntEliminateOthers) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{0, 0},
-                      Point{1, 0},
-                      Point{2, 0},
-                      Point{3, 0},
-                  }),
-                  .health = 1,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{0, 0},
+                  Point{1, 0},
+                  Point{2, 0},
+                  Point{3, 0},
+              }),
+              .health = 1,
+          },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Down},
@@ -1808,32 +1746,31 @@ TEST_F(StandardEliminateSnakesTest, OutOfBoundsDoesntEliminateOthers) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 1},
-                      Point{1, 2},
-                      Point{1, 3},
-                  }),
-                  .health = 100,
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{0, 0},
-                      Point{1, 0},
-                      Point{2, 0},
-                      Point{3, 0},
-                  }),
-                  .health = 100,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 1},
+                  Point{1, 2},
+                  Point{1, 3},
+              }),
+              .health = 100,
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{0, 0},
+                  Point{1, 0},
+                  Point{2, 0},
+                  Point{3, 0},
+              }),
+              .health = 100,
+          },
+      }),
   };
 
   StandardRuleset ruleset;
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Down},
@@ -1859,34 +1796,33 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodBothEliminated) {
       .food = PointsVector::Create({
           Point{1, 1},
       }),
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 2},
-                      Point{1, 3},
-                      Point{1, 4},
-                  }),
-                  .health = max_health / 2,
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{2, 1},
-                      Point{3, 1},
-                      Point{4, 1},
-                  }),
-                  .health = max_health / 2,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 2},
+                  Point{1, 3},
+                  Point{1, 4},
+              }),
+              .health = max_health / 2,
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{2, 1},
+                  Point{3, 1},
+                  Point{4, 1},
+              }),
+              .health = max_health / 2,
+          },
+      }),
   };
 
   StandardRuleset ruleset(StandardRuleset::Config{
       .food_spawn_chance = 0,
       .minimum_food = 0,
   });
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Down},
@@ -1916,35 +1852,34 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodOneEliminated) {
       .food = PointsVector::Create({
           Point{1, 1},
       }),
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body = SnakeBody::Create({
-                      Point{1, 2},
-                      Point{1, 3},
-                      Point{1, 4},
-                      Point{1, 5},
-                  }),
-                  .health = max_health / 2,
-              },
-              Snake{
-                  .id = pool.Add("two"),
-                  .body = SnakeBody::Create({
-                      Point{2, 1},
-                      Point{3, 1},
-                      Point{4, 1},
-                  }),
-                  .health = max_health / 2,
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{1, 2},
+                  Point{1, 3},
+                  Point{1, 4},
+                  Point{1, 5},
+              }),
+              .health = max_health / 2,
           },
+          Snake{
+              .id = pool.Add("two"),
+              .body = SnakeBody::Create({
+                  Point{2, 1},
+                  Point{3, 1},
+                  Point{4, 1},
+              }),
+              .health = max_health / 2,
+          },
+      }),
   };
 
   StandardRuleset ruleset(StandardRuleset::Config{
       .food_spawn_chance = 0,
       .minimum_food = 0,
   });
-  BoardState state;
+  BoardState state{};
   ruleset.CreateNextBoardState(initial_state,
                                {
                                    {pool.Add("one"), Move::Down},
@@ -1982,12 +1917,10 @@ TEST_F(StandardIsGameOverTest, OneNotEliminatedSnake) {
   BoardState board_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .eliminated_cause =
-                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
-          },
+      .snakes = SnakesVector::Create({
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+      }),
   };
 
   StandardRuleset ruleset;
@@ -1999,14 +1932,12 @@ TEST_F(StandardIsGameOverTest, OneEliminatedOneNotEliminatedSnake) {
   BoardState board_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .eliminated_cause =
-                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
-              Snake{.eliminated_cause =
-                        EliminatedCause{.cause = EliminatedCause::Collision}},
-          },
+      .snakes = SnakesVector::Create({
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::Collision}},
+      }),
   };
 
   StandardRuleset ruleset;
@@ -2018,15 +1949,12 @@ TEST_F(StandardIsGameOverTest, TwoNotEliminatedSnake) {
   BoardState board_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .eliminated_cause =
-                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
-              Snake{
-                  .eliminated_cause =
-                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
-          },
+      .snakes = SnakesVector::Create({
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+      }),
   };
 
   StandardRuleset ruleset;
@@ -2038,20 +1966,16 @@ TEST_F(StandardIsGameOverTest, OneOfFourEliminated) {
   BoardState board_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{
-                  .eliminated_cause =
-                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
-              Snake{
-                  .eliminated_cause =
-                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
-              Snake{.eliminated_cause =
-                        EliminatedCause{.cause = EliminatedCause::OutOfBounds}},
-              Snake{
-                  .eliminated_cause =
-                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
-          },
+      .snakes = SnakesVector::Create({
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::OutOfBounds}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+      }),
   };
 
   StandardRuleset ruleset;
@@ -2063,19 +1987,17 @@ TEST_F(StandardIsGameOverTest, ThreeOfFourEliminated) {
   BoardState board_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .snakes =
-          {
-              Snake{.eliminated_cause =
-                        EliminatedCause{.cause = EliminatedCause::OutOfHealth}},
-              Snake{
-                  .eliminated_cause =
-                      EliminatedCause{.cause = EliminatedCause::NotEliminated}},
-              Snake{.eliminated_cause =
-                        EliminatedCause{.cause = EliminatedCause::OutOfBounds}},
-              Snake{.eliminated_cause =
-                        EliminatedCause{
-                            .cause = EliminatedCause::HeadToHeadCollision}},
-          },
+      .snakes = SnakesVector::Create({
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::OutOfHealth}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::NotEliminated}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause = EliminatedCause::OutOfBounds}},
+          Snake{.eliminated_cause =
+                    EliminatedCause{.cause =
+                                        EliminatedCause::HeadToHeadCollision}},
+      }),
   };
 
   StandardRuleset ruleset;

@@ -97,7 +97,7 @@ SnakesVector GetSnakeArray(const nlohmann::json& json, const char* key,
     throw ParseException();
   }
 
-  SnakesVector result;
+  SnakesVector result{};
   result.reserve(v->size());
   for (const nlohmann::json& s : *v) {
     result.push_back(ParseJsonSnake(s, pool));

@@ -46,27 +46,26 @@ TEST(BattlesnakeRandomTest, SnakeMoves) {
               Point{10, 7},
               Point{0, 0},
           },
-          .snakes =
-              {
-                  Snake{
-                      .id = pool.Add("one"),
-                      .body = SnakeBody::Create({
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      }),
-                      .health = 100,
-                  },
-                  Snake{
-                      .id = pool.Add("two"),
-                      .body = SnakeBody::Create({
-                          Point{5, 1},
-                          Point{5, 2},
-                          Point{5, 3},
-                      }),
-                      .health = 75,
-                  },
+          .snakes = SnakesVector::Create({
+              Snake{
+                  .id = pool.Add("one"),
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
+                  .health = 100,
               },
+              Snake{
+                  .id = pool.Add("two"),
+                  .body = SnakeBody::Create({
+                      Point{5, 1},
+                      Point{5, 2},
+                      Point{5, 3},
+                  }),
+                  .health = 75,
+              },
+          }),
       },
   };
   state.you = state.board.snakes.front();

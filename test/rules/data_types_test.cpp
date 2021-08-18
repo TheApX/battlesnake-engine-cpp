@@ -14,18 +14,22 @@ namespace {
 static_assert(std::is_trivially_constructible<SnakeId>::value);
 static_assert(std::is_trivially_destructible<SnakeId>::value);
 static_assert(std::is_trivially_copyable<SnakeId>::value);
+static_assert(std::is_trivial<SnakeId>::value);
 
 static_assert(std::is_trivially_constructible<Move>::value);
 static_assert(std::is_trivially_destructible<Move>::value);
 static_assert(std::is_trivially_copyable<Move>::value);
+static_assert(std::is_trivial<Move>::value);
 
 static_assert(std::is_trivially_constructible<EliminatedCause>::value);
 static_assert(std::is_trivially_destructible<EliminatedCause>::value);
 static_assert(std::is_trivially_copyable<EliminatedCause>::value);
+static_assert(std::is_trivial<EliminatedCause>::value);
 
 static_assert(std::is_trivially_constructible<Point>::value);
 static_assert(std::is_trivially_destructible<Point>::value);
 static_assert(std::is_trivially_copyable<Point>::value);
+static_assert(std::is_trivial<Point>::value);
 
 // Test that Point is small. It is the main memory consumer.
 static_assert(sizeof(Point) == 2);
@@ -34,10 +38,17 @@ static_assert(sizeof(Point[10]) == 20);
 static_assert(std::is_trivially_constructible<SnakeBody>::value);
 static_assert(std::is_trivially_destructible<SnakeBody>::value);
 static_assert(std::is_trivially_copyable<SnakeBody>::value);
+static_assert(std::is_trivial<SnakeBody>::value);
 
 static_assert(std::is_trivially_constructible<Snake>::value);
 static_assert(std::is_trivially_destructible<Snake>::value);
 static_assert(std::is_trivially_copyable<Snake>::value);
+static_assert(std::is_trivial<Snake>::value);
+
+static_assert(std::is_trivially_constructible<BoardState>::value);
+static_assert(std::is_trivially_destructible<BoardState>::value);
+static_assert(std::is_trivially_copyable<BoardState>::value);
+static_assert(std::is_trivial<BoardState>::value);
 
 using ::testing::_;
 using ::testing::ElementsAre;

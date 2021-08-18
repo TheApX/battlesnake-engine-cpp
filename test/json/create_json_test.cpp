@@ -152,22 +152,21 @@ TEST_F(CreateJsonTest, BoardStateSnakes) {
       .width = 5,
       .height = 15,
       .food = {},
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("snake_id"),
-                  .body = SnakeBody::Create({
-                      Point{10, 1},
-                      Point{10, 2},
-                      Point{10, 3},
-                  }),
-                  .health = 75,
-                  .name = pool.Add("Test Caterpillar"),
-                  .latency = pool.Add("123"),
-                  .shout = pool.Add("Why are we shouting???"),
-                  .squad = pool.Add("The Suicide Squad"),
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("snake_id"),
+              .body = SnakeBody::Create({
+                  Point{10, 1},
+                  Point{10, 2},
+                  Point{10, 3},
+              }),
+              .health = 75,
+              .name = pool.Add("Test Caterpillar"),
+              .latency = pool.Add("123"),
+              .shout = pool.Add("Why are we shouting???"),
+              .squad = pool.Add("The Suicide Squad"),
           },
+      }),
       .hazards = {},
   };
 
@@ -205,26 +204,25 @@ TEST_F(CreateJsonTest, BoardStateEliminatedSnake) {
       .width = 1,
       .height = 2,
       .food = {},
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("snake_id"),
-                  .body = SnakeBody::Create({
-                      Point{10, 1},
-                      Point{10, 2},
-                      Point{10, 3},
-                  }),
-                  .health = 75,
-                  .eliminated_cause =
-                      EliminatedCause{
-                          .cause = EliminatedCause::HeadToHeadCollision,
-                      },
-                  .name = pool.Add("Test Caterpillar"),
-                  .latency = pool.Add("123"),
-                  .shout = pool.Add("Why are we shouting???"),
-                  .squad = pool.Add("The Suicide Squad"),
-              },
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("snake_id"),
+              .body = SnakeBody::Create({
+                  Point{10, 1},
+                  Point{10, 2},
+                  Point{10, 3},
+              }),
+              .health = 75,
+              .eliminated_cause =
+                  EliminatedCause{
+                      .cause = EliminatedCause::HeadToHeadCollision,
+                  },
+              .name = pool.Add("Test Caterpillar"),
+              .latency = pool.Add("123"),
+              .shout = pool.Add("Why are we shouting???"),
+              .squad = pool.Add("The Suicide Squad"),
           },
+      }),
       .hazards = {},
   };
 
