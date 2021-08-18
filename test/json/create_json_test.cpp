@@ -91,11 +91,10 @@ TEST_F(CreateJsonTest, BoardStateFood) {
   BoardState state{
       .width = 5,
       .height = 15,
-      .food =
-          {
-              Point{0, 1},
-              Point{4, 14},
-          },
+      .food = PointsVector::Create({
+          Point{0, 1},
+          Point{4, 14},
+      }),
       .snakes = {},
       .hazards = {},
   };
@@ -122,12 +121,11 @@ TEST_F(CreateJsonTest, BoardStateHazards) {
       .height = 15,
       .food = {},
       .snakes = {},
-      .hazards =
-          {
-              Point{1, 0},
-              Point{3, 10},
-              Point{2, 5},
-          },
+      .hazards = PointsVector::Create({
+          Point{1, 0},
+          Point{3, 10},
+          Point{2, 5},
+      }),
   };
 
   auto expected_json = nlohmann::json::parse(R"json(

@@ -127,7 +127,7 @@ void StandardRuleset::placeFoodFixed(BoardState& state) const {
               .y = static_cast<Coordinate>(snake_head.y + 1)},
     };
 
-    PointsVector available_food_locations;
+    PointsVector available_food_locations{};
     for (const Point& p : possible_food_locations) {
       if (food_locations.find(p) != food_locations.end()) {
         // Already occupied by a food.
@@ -220,7 +220,7 @@ PointsVector StandardRuleset::getUnoccupiedPoints(
     }
   }
 
-  PointsVector unoccupied_points;
+  PointsVector unoccupied_points{};
   for (int y = 0; y < state.height; ++y) {
     for (int x = 0; x < state.width; ++x) {
       Point p{static_cast<Coordinate>(x), static_cast<Coordinate>(y)};

@@ -387,8 +387,9 @@ TEST_F(StandardPlaceFoodTest, ManySnakesMuchSpace) {
   // Many randomly placed snakes, food for everybody.
   StringPool pool;
   StandardRuleset ruleset;
-  ExpectBoardFood(
-      ruleset.CreateInitialBoardState(101, 102, CreateSnakeIds(17, pool)), 17);
+  ExpectBoardFood(ruleset.CreateInitialBoardState(kBoardSizeMax, kBoardSizeMax,
+                                                  CreateSnakeIds(17, pool)),
+                  17);
 }
 
 TEST_F(StandardPlaceFoodTest, AllFreeSpaceFilledIn) {
@@ -770,10 +771,9 @@ TEST_F(StandardCreateNextBoardStateTest, FoodGrowsSnake) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food =
-          {
-              Point{0, 1},
-          },
+      .food = PointsVector::Create({
+          Point{0, 1},
+      }),
       .snakes =
           {
               Snake{
@@ -805,10 +805,9 @@ TEST_F(StandardCreateNextBoardStateTest, FoodRestoresHealth) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food =
-          {
-              Point{0, 1},
-          },
+      .food = PointsVector::Create({
+          Point{0, 1},
+      }),
       .snakes =
           {
               Snake{
@@ -836,10 +835,9 @@ TEST_F(StandardCreateNextBoardStateTest, DontEatFoodOtherPosition) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food =
-          {
-              Point{10, 10},
-          },
+      .food = PointsVector::Create({
+          Point{10, 10},
+      }),
       .snakes =
           {
               Snake{
@@ -868,11 +866,10 @@ TEST_F(StandardCreateNextBoardStateTest, EatenFoodDisappears) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food =
-          {
-              Point{0, 1},
-              Point{10, 10},
-          },
+      .food = PointsVector::Create({
+          Point{0, 1},
+          Point{10, 10},
+      }),
       .snakes =
           {
               Snake{
@@ -902,10 +899,9 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodDisappears) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food =
-          {
-              Point{1, 1},
-          },
+      .food = PointsVector::Create({
+          Point{1, 1},
+      }),
       .snakes =
           {
               Snake{
@@ -996,10 +992,9 @@ TEST_F(StandardCreateNextBoardStateTest, SpawnFoodMinimum) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food =
-          {
-              Point{1, 1},
-          },
+      .food = PointsVector::Create({
+          Point{1, 1},
+      }),
   };
 
   StandardRuleset ruleset(StandardRuleset::Config{
@@ -1020,10 +1015,9 @@ TEST_F(StandardCreateNextBoardStateTest, EatingOnLastMove) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food =
-          {
-              Point{0, 1},
-          },
+      .food = PointsVector::Create({
+          Point{0, 1},
+      }),
       .snakes =
           {
               Snake{
@@ -1055,10 +1049,9 @@ TEST_F(StandardCreateNextBoardStateTest, IgnoresEliminatedSnakes) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food =
-          {
-              Point{0, 1},
-          },
+      .food = PointsVector::Create({
+          Point{0, 1},
+      }),
       .snakes =
           {
               Snake{
@@ -1863,10 +1856,9 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodBothEliminated) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food =
-          {
-              Point{1, 1},
-          },
+      .food = PointsVector::Create({
+          Point{1, 1},
+      }),
       .snakes =
           {
               Snake{
@@ -1921,10 +1913,9 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodOneEliminated) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food =
-          {
-              Point{1, 1},
-          },
+      .food = PointsVector::Create({
+          Point{1, 1},
+      }),
       .snakes =
           {
               Snake{

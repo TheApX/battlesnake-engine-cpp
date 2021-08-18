@@ -79,7 +79,7 @@ PointsVector GetPointArray(const nlohmann::json& json, const char* key) {
     throw ParseException();
   }
 
-  PointsVector result;
+  PointsVector result{};
   result.reserve(v->size());
   for (const nlohmann::json& p : *v) {
     result.push_back(ParseJsonPoint(p));

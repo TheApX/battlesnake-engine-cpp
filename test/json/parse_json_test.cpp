@@ -244,11 +244,10 @@ TEST_F(ParseJsonTest, BoardStateFood) {
   BoardState expected_state{
       .width = 5,
       .height = 15,
-      .food =
-          {
-              Point{0, 1},
-              Point{4, 14},
-          },
+      .food = PointsVector::Create({
+          Point{0, 1},
+          Point{4, 14},
+      }),
       .hazards = {},
   };
 
@@ -281,12 +280,11 @@ TEST_F(ParseJsonTest, BoardStateHazards) {
       .width = 5,
       .height = 15,
       .food = {},
-      .hazards =
-          {
-              Point{1, 0},
-              Point{3, 10},
-              Point{2, 5},
-          },
+      .hazards = PointsVector::Create({
+          Point{1, 0},
+          Point{3, 10},
+          Point{2, 5},
+      }),
   };
 
   StringPool pool;
