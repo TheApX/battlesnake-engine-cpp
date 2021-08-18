@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include <itlib/small_vector.hpp>
+#include <trivial_loop_array.hpp>
 
 #include "battlesnake/rules/ruleset.h"
 
@@ -36,7 +36,7 @@ class StandardRuleset : public Ruleset {
 
  private:
   using SnakeIndicesVector =
-      ::itlib::small_vector<int, kOptimizeForMaxSnakesCount>;
+      ::theapx::trivial_loop_array<int, kSnakesCountMax>;
 
   Config config_;
 

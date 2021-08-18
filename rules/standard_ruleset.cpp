@@ -373,7 +373,7 @@ void StandardRuleset::growSnake(Snake& snake) const {
 }
 
 void StandardRuleset::maybeEliminateSnakes(BoardState& state) const {
-  SnakeIndicesVector snake_indices_by_length;
+  SnakeIndicesVector snake_indices_by_length{};
   snake_indices_by_length.reserve(state.snakes.size());
   for (int i = 0; i < state.snakes.size(); ++i) {
     snake_indices_by_length.push_back(i);
