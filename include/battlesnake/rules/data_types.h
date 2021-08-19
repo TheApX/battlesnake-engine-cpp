@@ -69,11 +69,10 @@ class StringPool {
 using SnakeId = StringWrapper;
 
 enum class Move {
-  Unknown = 0,  // No move returned from snake.
-  Up,
-  Down,
-  Left,
-  Right,
+  Up = 0,
+  Down = 1,
+  Left = 2,
+  Right = 3,
 };
 
 struct EliminatedCause {

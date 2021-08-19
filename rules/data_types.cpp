@@ -139,9 +139,6 @@ std::ostream& operator<<(std::ostream& s, const StringWrapper& string) {
 
 std::ostream& operator<<(std::ostream& s, Move move) {
   switch (move) {
-    case Move::Unknown:
-      s << "Unknown";
-      break;
     case Move::Up:
       s << "Up";
       break;

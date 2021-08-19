@@ -15,7 +15,7 @@ class Battlesnake {
  public:
   // Response to the Move call.
   struct MoveResponse {
-    battlesnake::rules::Move move = battlesnake::rules::Move::Unknown;
+    battlesnake::rules::Move move = battlesnake::rules::Move::Up;
     std::string shout;
   };
 

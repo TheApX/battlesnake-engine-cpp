@@ -73,7 +73,7 @@ TEST(PodTest, SnakeIdZeroInitialization) {
 TEST(PodTest, MoveZeroInitialization) {
   Move move;
   std::memset(&move, 0, sizeof(move));
-  EXPECT_THAT(move, Eq(Move::Unknown));
+  EXPECT_THAT(move, Eq(Move::Up));
 }
 
 TEST(PodTest, EliminatedCauseZeroInitialization) {

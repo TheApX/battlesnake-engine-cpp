@@ -628,7 +628,8 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUnknownContinue) {
   BoardState state{};
   ruleset.CreateNextBoardState(
       initial_state,
-      SnakeMovesVector::Create({{pool.Add("one"), Move::Unknown}}), 0, state);
+      SnakeMovesVector::Create({{pool.Add("one"), static_cast<Move>(5)}}), 0,
+      state);
 
   // Unknown move should move snake to its old direction.
   EXPECT_THAT(state.snakes,
@@ -657,7 +658,8 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUnknownUp) {
   BoardState state{};
   ruleset.CreateNextBoardState(
       initial_state,
-      SnakeMovesVector::Create({{pool.Add("one"), Move::Unknown}}), 0, state);
+      SnakeMovesVector::Create({{pool.Add("one"), static_cast<Move>(5)}}), 0,
+      state);
 
   // Unknown move should move snake up if previous move is also unknown.
   EXPECT_THAT(state.snakes,
