@@ -79,10 +79,11 @@ void StandardRuleset::placeSnakesFixed(BoardState& state) const {
 
   // Assign snakes in the given order.
   for (size_t i = 0; i < state.snakes.size(); ++i) {
-    state.snakes[i].body.reserve(config_.snake_start_size);
-    for (int j = 0; j < config_.snake_start_size; ++j) {
-      state.snakes[i].body.push_back(start_points[i]);
-    }
+    state.snakes[i].body = {
+        .head = start_points[i],
+        .total_length = static_cast<short>(config_.snake_start_size),
+        .moves_length = 0,
+    };
   }
 }
 
@@ -95,10 +96,11 @@ void StandardRuleset::placeSnakesRandomly(
 
     int ri = getRandomNumber(unoccupied_points.size());
     const Point& p = unoccupied_points[ri];
-    snake.body.reserve(config_.snake_start_size);
-    for (int j = 0; j < config_.snake_start_size; ++j) {
-      snake.body.push_back(p);
-    }
+    snake.body = {
+        .head = p,
+        .total_length = static_cast<short>(config_.snake_start_size),
+        .moves_length = 0,
+    };
 
     if (unoccupied_points.size() == 1) {
       unoccupied_points.clear();
@@ -115,7 +117,7 @@ void StandardRuleset::placeFoodFixed(BoardState& state) const {
   std::unordered_set<Point, PointHash> food_locations;
 
   for (const Snake& snake : state.snakes) {
-    const Point& snake_head = snake.body.front();
+    const Point& snake_head = snake.Head();
     std::initializer_list<Point> possible_food_locations{
         Point{.x = static_cast<Coordinate>(snake_head.x - 1),
               .y = static_cast<Coordinate>(snake_head.y - 1)},
@@ -212,7 +214,7 @@ PointsVector StandardRuleset::getUnoccupiedPoints(
     }
 
     if (include_possible_moves && snake.body.size() > 0) {
-      const Point& head = snake.body.front();
+      const Point& head = snake.Head();
       occupied_points.insert(head.Up());
       occupied_points.insert(head.Down());
       occupied_points.insert(head.Left());
@@ -270,51 +272,7 @@ void StandardRuleset::moveSnakes(BoardState& state,
       throw ErrorNoMoveFound(snake.id.ToString());
     }
 
-    Point old_head = snake.body.front();
-    // Default direction is Up.
-    Point new_head = old_head.Up();
-
-    switch (*move) {
-      case Move::Up:
-        new_head = old_head.Up();
-        break;
-      case Move::Down:
-        new_head = old_head.Down();
-        break;
-      case Move::Left:
-        new_head = old_head.Left();
-        break;
-      case Move::Right:
-        new_head = old_head.Right();
-        break;
-
-      default:
-        // If neck is available, use neck to determine last direction.
-        if (snake.body.size() < 2) {
-          break;
-        }
-        const Point& neck = snake.body[1];
-        if (old_head == neck.Up()) {
-          new_head = old_head.Up();
-        }
-        if (old_head == neck.Down()) {
-          new_head = old_head.Down();
-        }
-        if (old_head == neck.Left()) {
-          new_head = old_head.Left();
-        }
-        if (old_head == neck.Right()) {
-          new_head = old_head.Right();
-        }
-        break;
-    }
-
-    // Shift body to tail.
-    for (int i = snake.body.size() - 1; i > 0; --i) {
-      snake.body[i] = snake.body[i - 1];
-    }
-    // Set new head.
-    snake.body.front() = new_head;
+    snake.body.MoveTo(*move);
   }
 }
 
@@ -345,7 +303,7 @@ void StandardRuleset::maybeFeedSnakes(BoardState& state) const {
       if (snake.IsEliminated() || snake.body.size() == 0) {
         continue;
       }
-      const Point& head = snake.body.front();
+      const Point& head = snake.Head();
       if (head == food) {
         feedSnake(snake);
         food_has_been_eaten = true;
@@ -366,10 +324,7 @@ void StandardRuleset::feedSnake(Snake& snake) const {
 }
 
 void StandardRuleset::growSnake(Snake& snake) const {
-  if (snake.body.empty()) {
-    return;
-  }
-  snake.body.push_back(snake.body[snake.body.size() - 1]);
+  snake.body.IncreaseLength();
 }
 
 void StandardRuleset::maybeEliminateSnakes(BoardState& state) const {
@@ -506,8 +461,10 @@ StandardRuleset::findCollisionEliminations(
 bool StandardRuleset::snakeHasBodyCollided(const Snake& snake,
                                            const Snake& other) const {
   const Point& head = snake.Head();
-  for (int i = 1; i < other.body.size(); ++i) {
-    if (head == other.body[i]) {
+  // Start with other snake's neck.
+  for (SnakeBody::Piece piece = other.body.Head().Next(); piece.Valid();
+       piece = piece.Next()) {
+    if (piece.Pos() == head) {
       return true;
     }
   }

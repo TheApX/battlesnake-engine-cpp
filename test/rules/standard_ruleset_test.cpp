@@ -204,7 +204,7 @@ class StandardPlaceSnakeTest : public StandardRulesetTest {
 
       // Check that head is on an even cell.
       ASSERT_THAT(snake.body.empty(), IsFalse());
-      Point prev = snake.body.front();
+      Point prev = snake.Head();
       EXPECT_THAT((prev.x + prev.x) % 2, Eq(0));
 
       for (const Point& p : snake.body) {
@@ -316,7 +316,7 @@ class StandardPlaceFoodTest : public StandardRulesetTest {
   void ExpectFoodAroundSnakes(const BoardState& state) {
     for (const Snake& snake : state.snakes) {
       ASSERT_THAT(snake.body.empty(), IsFalse());
-      const Point& head = snake.body.front();
+      const Point& head = snake.Head();
 
       auto accepted_food_pos = {
           Point{.x = static_cast<Coordinate>(head.x - 1),
@@ -628,8 +628,7 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUnknownContinue) {
   BoardState state{};
   ruleset.CreateNextBoardState(
       initial_state,
-      SnakeMovesVector::Create({{pool.Add("one"), static_cast<Move>(5)}}), 0,
-      state);
+      SnakeMovesVector::Create({{pool.Add("one"), Move::Unknown}}), 0, state);
 
   // Unknown move should move snake to its old direction.
   EXPECT_THAT(state.snakes,
@@ -658,8 +657,7 @@ TEST_F(StandardCreateNextBoardStateTest, MovesHeadUnknownUp) {
   BoardState state{};
   ruleset.CreateNextBoardState(
       initial_state,
-      SnakeMovesVector::Create({{pool.Add("one"), static_cast<Move>(5)}}), 0,
-      state);
+      SnakeMovesVector::Create({{pool.Add("one"), Move::Unknown}}), 0, state);
 
   // Unknown move should move snake up if previous move is also unknown.
   EXPECT_THAT(state.snakes,

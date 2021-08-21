@@ -94,43 +94,99 @@ Point Point::Moved(Move move) const {
   }
 }
 
-void SnakeBody::MoveTo(Move move) {
-  push_front(Head().Moved(move));
-  resize(size() - 1);
+Move DetectMove(const Point& from, const Point& to) {
+  if (to == from.Up()) return Move::Up;
+  if (to == from.Down()) return Move::Down;
+  if (to == from.Left()) return Move::Left;
+  if (to == from.Right()) return Move::Right;
+  return Move::Unknown;
 }
 
-void SnakeBody::IncreaseLength(int delta) {
-  for (int i = 0; i < delta; ++i) {
-    push_back(back());
+SnakeBody::Piece SnakeBody::Piece::Next() const {
+  if (!Valid()) {
+    return *this;
   }
+  if (index_ == body_->Length() - 1) {
+    return Piece(body_, index_ + 1, pos_);
+  }
+  if (body_->NextRepeated(index_)) {
+    return Piece(body_, index_ + 1, pos_);
+  }
+  return Piece(body_, index_ + 1, pos_.Moved(body_->NextMove(index_)));
+}
+
+bool SnakeBody::Piece::operator==(const SnakeBody::Piece& other) const {
+  if (!this->Valid() && !other.Valid()) return true;
+  if (this->Valid() != other.Valid()) return false;
+
+  if (this->body_ != other.body_) return false;
+  if (this->index_ != other.index_) return false;
+
+  return true;
+}
+
+void SnakeBody::MoveTo(Move move) {
+  if (move == Move::Unknown) {
+    if (size() >= 2) {
+      move = DetectMove(Head().Next().Pos(), Head().Pos());
+    }
+  }
+  if (move == Move::Unknown) {
+    move = Move::Up;
+  }
+
+  head = head.Moved(move);
+  if (moves_offset == 0) {
+    moves.push_front(0);
+    moves_offset = kMovesPerBlock;
+  }
+
+  BlockType& block = moves.front();
+  moves_offset--;
+
+  BlockType move_data = static_cast<BlockType>(Opposite(move))
+                        << (moves_offset * 2);
+  block = block | move_data;
+
+  moves_length = std::min(moves_length + 1, total_length - 1);
+  int moves_with_offset = moves_offset + moves_length;
+  int blocks_needed = moves_with_offset / kMovesPerBlock +
+                      (moves_with_offset % kMovesPerBlock == 0 ? 0 : 1);
+  if (moves.size() > blocks_needed) {
+    moves.resize(blocks_needed);
+  }
+}
+
+void SnakeBody::IncreaseLength(int delta) { total_length += delta; }
+
+Move SnakeBody::NextMove(short index) const {
+  short index_moves_offset = index + moves_offset;
+
+  short index_block = index_moves_offset / kMovesPerBlock;
+  unsigned char block_data = moves.at(index_block);
+
+  unsigned short index_block_offset = index_moves_offset % kMovesPerBlock;
+  return static_cast<Move>((block_data >> (index_block_offset * 2)) & 0x03u);
 }
 
 bool operator==(const SnakeBody& a, const SnakeBody& b) {
-  if (a.size() != b.size()) {
+  if (a.head != b.head) {
+    return false;
+  }
+  if (a.total_length != b.total_length) {
+    return false;
+  }
+  if (a.moves_length != b.moves_length) {
     return false;
   }
 
-  for (int i = 0; i < a.size(); ++i) {
-    if (a.at(i) != b.at(i)) {
+  for (int i = 0; i < a.moves_length; ++i) {
+    if (a.NextMove(i) != b.NextMove(i)) {
       return false;
     }
   }
 
   return true;
-}
-
-Point& Snake::Head() {
-  if (body.empty()) {
-    throw ErrorZeroLengthSnake(id.ToString());
-  }
-  return body.front();
-}
-
-const Point& Snake::Head() const {
-  if (body.empty()) {
-    throw ErrorZeroLengthSnake(id.ToString());
-  }
-  return body.front();
 }
 
 std::ostream& operator<<(std::ostream& s, const StringWrapper& string) {

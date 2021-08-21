@@ -1,5 +1,7 @@
 #pragma once
 
+#include <battlesnake/rules/errors.h>
+
 #include <cstdint>
 #include <forward_list>
 #include <mutex>
@@ -68,12 +70,20 @@ class StringPool {
 
 using SnakeId = StringWrapper;
 
+// Move direction. Values are chosen to simplify calculation of the opposite
+// direction.
 enum class Move {
   Up = 0,
-  Down = 1,
-  Left = 2,
-  Right = 3,
+  Down = 3,
+  Left = 1,
+  Right = 2,
+
+  Unknown = 4,
 };
+
+inline Move Opposite(Move m) {
+  return static_cast<Move>(3 - static_cast<int>(m));
+}
 
 struct EliminatedCause {
   enum Cause {
@@ -106,6 +116,8 @@ struct Point {
   Point Moved(Move move) const;
 };
 
+Move DetectMove(const Point& from, const Point& to);
+
 // Max board area is kBoardSizeMax^2, but snakes may have an extra element at
 // their tail and may go out of bounds, so extra buffer of 2 elements. This
 // vector never allocates memory on heap, thus improving performance. Though it
@@ -122,22 +134,145 @@ struct PointHash {
   }
 };
 
-struct SnakeBody : public theapx::trivial_loop_array<Point, kMaxSnakeBodyLen> {
-  Point& Head() { return front(); }
-  const Point& Head() const { return front(); }
-  int Length() const { return size(); }
-  Point& Piece(int n) { return at(n); }
-  const Point& Piece(int n) const { return at(n); }
+struct SnakeBody {
+ private:
+  struct fake_allocator {
+    typedef Point value_type;
+    typedef Point* pointer;
+    typedef const Point* const_pointer;
+  };
+
+ public:
+  class Piece {
+   public:
+    using iterator_category = std::input_iterator_tag;
+    using value_type = Point;
+    using reference = Point&;
+    using const_reference = const Point&;
+    using pointer = Point*;
+    using const_pointer = const Point*;
+    using allocator_type = fake_allocator;
+
+    Piece(const SnakeBody* body, short index, Point pos)
+        : body_(body), index_(index), pos_(pos) {}
+
+    bool Valid() const { return index_ < body_->Length(); }
+    const Point& Pos() const { return pos_; }
+    Piece Next() const;
+
+    Piece operator++() {
+      *this = Next();
+      return *this;
+    }
+    Piece operator++(int) {
+      Piece result = *this;
+      *this = Next();
+      return result;
+    }
+
+    const Point& operator*() { return Pos(); }
+    const Point* operator->() { return &Pos(); }
+
+    bool operator==(const Piece& other) const;
+    bool operator!=(const Piece& other) const { return !operator==(other); }
+
+   private:
+    const SnakeBody* body_;
+    short index_;
+    Point pos_;
+  };
+
+  using value_type = Point;
+  using reference = Point&;
+  using const_reference = const Point&;
+  using pointer = Point*;
+  using const_pointer = const Point*;
+  using iterator = Piece;
+  using const_iterator = Piece;
+  using allocator_type = fake_allocator;
+
+  const Point& HeadPos() const { return head; }
+  Piece Head() const { return Piece(this, 0, head); }
+  int Length() const { return total_length; }
 
   void MoveTo(Move move);
   void IncreaseLength(int delta = 1);
 
+  bool NextRepeated(short index) const { return index >= moves_length; }
+  Move NextMove(short index) const;
+
+  bool empty() const { return total_length == 0; }
+  int size() const { return total_length; }
+
+  Piece begin() const { return Head(); }
+  Piece end() const { return Piece(this, total_length, head); }
+
+  // Example: {1,1}, {1,2}, {2,2}, {2,3}, {2,3}, {2,3}
+  // Assuming sizeof(BlockType) == 1
+  // head = {1,1}
+  // total_length = 6
+  // moves_length = 3
+  // moves = [Left, Up, Left] packed 2 bits per move
+  // moves_offset = 0, 1, 2 or 3, depending on the offset of the first move in
+  //                the first block in `moves`
+
+  using BlockType = unsigned char;
+  static constexpr int kMovesPerBlock = sizeof(BlockType) * 4;
+  static constexpr short kBodyDataLength =
+      kMaxSnakeBodyLen / kMovesPerBlock +
+      (kMaxSnakeBodyLen % kMovesPerBlock == 0 ? 0 : 1);
+
+  Point head;
+  short total_length;
+  short moves_length;
+  theapx::trivial_loop_array<BlockType, kBodyDataLength> moves;
+  signed char moves_offset;
+
   template <class T>
   static SnakeBody Create(const T& data) {
-    SnakeBody result{};
-    for (const Point& p : data) {
-      result.push_back(p);
+    SnakeBody result{
+        .total_length = static_cast<short>(data.size()),
+        .moves_length = 0,
+        .moves = {},
+        .moves_offset = 0,
+    };
+
+    if (data.size() != 0) {
+      result.head = *data.begin();
     }
+
+    Point prev = result.head;
+    bool first = true;
+    BlockType current_block = 0;
+    int block_offset = 0;
+    for (Point p : data) {
+      if (first) {
+        first = false;
+        continue;
+      }
+      Move move = DetectMove(prev, p);
+      if (move == Move::Unknown) {
+        // if (prev != p) {
+        //   throw RulesetException("Invalid body data");
+        // }
+        break;
+      }
+      result.moves_length++;
+      BlockType current_move = static_cast<BlockType>(move);
+      current_block = current_block | (current_move << (block_offset * 2));
+      block_offset++;
+      if (block_offset == kMovesPerBlock) {
+        block_offset = 0;
+        result.moves.push_back(current_block);
+      }
+
+      prev = p;
+    }
+
+    if (block_offset != 0) {
+      result.moves.push_back(current_block);
+    }
+
     return result;
   }
 
@@ -170,9 +305,9 @@ struct Snake {
 
   bool IsOutOfHealth() const { return health <= 0; }
 
-  Point& Head();
-  const Point& Head() const;
-  size_t Length() const { return body.size(); }
+  Point& Head() { return body.head; }
+  const Point& Head() const { return body.head; }
+  size_t Length() const { return body.Length(); }
 };
 
 using SnakesVector = ::theapx::trivial_loop_array<Snake, kSnakesCountMax>;

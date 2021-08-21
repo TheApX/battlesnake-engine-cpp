@@ -52,7 +52,9 @@ static_assert(std::is_trivial<BoardState>::value);
 
 using ::testing::_;
 using ::testing::ElementsAre;
+using ::testing::ElementsAreArray;
 using ::testing::Eq;
+using ::testing::Le;
 
 TEST(StringPoolTest, MultipleInserts) {
   StringPool pool;
@@ -92,52 +94,69 @@ TEST(PodTest, PointZeroInitialization) {
   EXPECT_THAT(point.y, Eq(0));
 }
 
+TEST(SnakeBodyTest, CreateWorks) {
+  SnakeBody body = SnakeBody::Create({
+      {1, 2},
+      {2, 2},
+      {2, 3},
+      {1, 3},
+      {0, 3},
+      {0, 2},
+  });
+
+  EXPECT_THAT(body, ElementsAreArray({
+                        Point{1, 2},
+                        Point{2, 2},
+                        Point{2, 3},
+                        Point{1, 3},
+                        Point{0, 3},
+                        Point{0, 2},
+                    }));
+}
+
 TEST(SnakeBodyTest, IncreaseLengthWorks) {
   SnakeBody body = SnakeBody::Create({
       {1, 2},
-      {3, 4},
-      {5, 6},
+      {2, 2},
+      {2, 3},
   });
 
   body.IncreaseLength(2);
 
-  EXPECT_THAT(body, Eq(SnakeBody::Create({
-                        {1, 2},
-                        {3, 4},
-                        {5, 6},
-                        {5, 6},
-                        {5, 6},
-                    })));
+  EXPECT_THAT(body, ElementsAreArray({
+                        Point{1, 2},
+                        Point{2, 2},
+                        Point{2, 3},
+                        Point{2, 3},
+                        Point{2, 3},
+                    }));
 }
 
 TEST(SnakeBodyTest, MoveToWorks) {
   SnakeBody body = SnakeBody::Create({
       {1, 2},
-      {3, 4},
-      {5, 6},
+      {2, 2},
+      {2, 3},
   });
 
   body.MoveTo(Move::Left);
 
-  EXPECT_THAT(body, Eq(SnakeBody::Create({
-                        {0, 2},
-                        {1, 2},
-                        {3, 4},
-                    })));
+  EXPECT_THAT(body, ElementsAreArray({
+                        Point{0, 2},
+                        Point{1, 2},
+                        Point{2, 2},
+                    }));
+  EXPECT_THAT(body.total_length, Eq(3));
+  EXPECT_THAT(body.moves_length, Eq(2));
 }
 
 TEST(ObjectSizesTest, ObjectSizes) {
   EXPECT_THAT(sizeof(Point), Eq(2));
 
-  int body_array_size = kMaxSnakeBodyLen * sizeof(Point);
-  int padding = (-body_array_size) % sizeof(int);
-
-  EXPECT_THAT(sizeof(SnakeBody),
-              Eq(body_array_size   // Data array
-                 + sizeof(size_t)  // start_index
-                 + sizeof(size_t)  // array_size
-                 + padding         // padding
-                 ));
+  // Check that SnakeBody array uses 2 bits per body piece, plus const
+  // threshold.
+  int body_array_size = kMaxSnakeBodyLen / 4;
+  EXPECT_THAT(sizeof(SnakeBody), Le(body_array_size + 40));
 }
 
 }  // namespace

@@ -33,9 +33,7 @@ void ConstrictorRuleset::applyConstrictorRules(BoardState& state) const {
       continue;
     }
 
-    Point tail = snake.body[snake.body.size() - 1];
-    Point sub_tail = snake.body[snake.body.size() - 2];
-    if (tail != sub_tail) {
+    if (snake.body.moves_length == snake.body.total_length - 1) {
       growSnake(snake);
     }
   }

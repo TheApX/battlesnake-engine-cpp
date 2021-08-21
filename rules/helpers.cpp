@@ -127,26 +127,34 @@ std::string RenderGame(
       continue;
     }
 
-    Point last_pos = snake.Head();
-    for (int i = 1; i < snake.Length() - 1; ++i) {
-      Point pos = snake.body[i];
-      Point prev = snake.body[i - 1];
-      Point next = snake.body[i + 1];
-      if (next == pos) {
+    SnakeBody::Piece last_pos = snake.body.Head();
+    SnakeBody::Piece pos = last_pos.Next();
+    while (pos.Valid()) {
+      SnakeBody::Piece prev = last_pos;
+      SnakeBody::Piece next = pos.Next();
+      if (!next.Valid()) {
+        break;
+      }
+      if (next.Pos() == pos.Pos()) {
+        last_pos = pos;
+        pos = next;
         continue;
       }
+
+      Direction dp = GetDirection(pos.Pos(), prev.Pos());
+      Direction dn = GetDirection(pos.Pos(), next.Pos());
+      board[ind(pos.Pos().x, pos.Pos().y)] = kBodySymbols[dn][dp];
+
       last_pos = pos;
-      Direction dp = GetDirection(pos, prev);
-      Direction dn = GetDirection(pos, next);
-      board[ind(pos.x, pos.y)] = kBodySymbols[dn][dp];
+      pos = next;
     }
 
-    Point tail = snake.body[snake.body.size() - 1];
-    board[ind(tail.x, tail.y)] = kTailSymbols[GetDirection(last_pos, tail)];
+    board[ind(pos.Pos().x, pos.Pos().y)] =
+        kTailSymbols[GetDirection(last_pos.Pos(), pos.Pos())];
 
     Direction head_dir = Unknown;
     if (snake.Length() > 1) {
-      Point next = snake.body[1];
+      Point next = snake.body.Head().Next().Pos();
       head_dir = GetDirection(next, snake.Head());
     }
     std::string head_board = kHeadSymbols[head_dir];
