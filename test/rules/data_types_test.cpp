@@ -157,6 +157,9 @@ TEST(ObjectSizesTest, ObjectSizes) {
   // threshold.
   int body_array_size = kMaxSnakeBodyLen / 4;
   EXPECT_THAT(sizeof(SnakeBody), Le(body_array_size + 40));
+
+  // This is just for monitoring total size of BoardState. Update as needed.
+  EXPECT_THAT(sizeof(BoardState), Eq(3352));
 }
 
 }  // namespace

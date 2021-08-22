@@ -221,11 +221,13 @@ struct SnakeBody {
   static constexpr short kBodyDataLength =
       kMaxSnakeBodyLen / kMovesPerBlock +
       (kMaxSnakeBodyLen % kMovesPerBlock == 0 ? 0 : 1);
+  using BodyMovesVector =
+      ::theapx::trivial_loop_array<BlockType, kBodyDataLength>;
 
   Point head;
   short total_length;
   short moves_length;
-  theapx::trivial_loop_array<BlockType, kBodyDataLength> moves;
+  BodyMovesVector moves;
   signed char moves_offset;
 
   template <class T>
