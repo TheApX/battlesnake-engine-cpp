@@ -67,19 +67,13 @@ TEST_F(RoyaleCreateNextBoardStateTest, NotInHazardDoesntAffectHealth) {
               .health = 100,
           },
       }),
-      .hazards = PointsVector::Create({
-          Point{0, 0},
-          Point{0, 1},
-          Point{0, 2},
-          Point{0, 3},
-          Point{0, 4},
-          Point{0, 5},
-          Point{0, 6},
-          Point{0, 7},
-          Point{0, 8},
-          Point{0, 9},
-          Point{0, 10},
-      }),
+      .hazard_info =
+          {
+              .depth_left = 1,
+              .depth_right = 0,
+              .depth_top = 0,
+              .depth_bottom = 0,
+          },
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.
@@ -109,19 +103,13 @@ TEST_F(RoyaleCreateNextBoardStateTest, InHazardReducesHealth) {
               .health = 100,
           },
       }),
-      .hazards = PointsVector::Create({
-          Point{0, 0},
-          Point{0, 1},
-          Point{0, 2},
-          Point{0, 3},
-          Point{0, 4},
-          Point{0, 5},
-          Point{0, 6},
-          Point{0, 7},
-          Point{0, 8},
-          Point{0, 9},
-          Point{0, 10},
-      }),
+      .hazard_info =
+          {
+              .depth_left = 1,
+              .depth_right = 0,
+              .depth_top = 0,
+              .depth_bottom = 0,
+          },
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.
@@ -151,19 +139,13 @@ TEST_F(RoyaleCreateNextBoardStateTest, MovesIntoHazard) {
               .health = 100,
           },
       }),
-      .hazards = PointsVector::Create({
-          Point{0, 0},
-          Point{1, 0},
-          Point{2, 0},
-          Point{3, 0},
-          Point{4, 0},
-          Point{5, 0},
-          Point{6, 0},
-          Point{7, 0},
-          Point{8, 0},
-          Point{9, 0},
-          Point{10, 0},
-      }),
+      .hazard_info =
+          {
+              .depth_left = 0,
+              .depth_right = 0,
+              .depth_top = 0,
+              .depth_bottom = 1,
+          },
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.
@@ -193,19 +175,13 @@ TEST_F(RoyaleCreateNextBoardStateTest, MovesOutOfHazard) {
               .health = 100,
           },
       }),
-      .hazards = PointsVector::Create({
-          Point{0, 0},
-          Point{0, 1},
-          Point{0, 2},
-          Point{0, 3},
-          Point{0, 4},
-          Point{0, 5},
-          Point{0, 6},
-          Point{0, 7},
-          Point{0, 8},
-          Point{0, 9},
-          Point{0, 10},
-      }),
+      .hazard_info =
+          {
+              .depth_left = 1,
+              .depth_right = 0,
+              .depth_top = 0,
+              .depth_bottom = 0,
+          },
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.
@@ -235,19 +211,13 @@ TEST_F(RoyaleCreateNextBoardStateTest, NewHazardDoesntAffectHealth) {
               .health = 100,
           },
       }),
-      .hazards = PointsVector::Create({
-          Point{0, 0},
-          Point{0, 1},
-          Point{0, 2},
-          Point{0, 3},
-          Point{0, 4},
-          Point{0, 5},
-          Point{0, 6},
-          Point{0, 7},
-          Point{0, 8},
-          Point{0, 9},
-          Point{0, 10},
-      }),
+      .hazard_info =
+          {
+              .depth_left = 1,
+              .depth_right = 0,
+              .depth_top = 0,
+              .depth_bottom = 0,
+          },
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.

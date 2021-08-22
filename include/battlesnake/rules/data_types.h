@@ -312,12 +312,29 @@ struct Snake {
 
 using SnakesVector = ::theapx::trivial_loop_array<Snake, kSnakesCountMax>;
 
+struct HazardInfo {
+  Coordinate depth_left;
+  Coordinate depth_right;
+  Coordinate depth_top;
+  Coordinate depth_bottom;
+};
+
+bool operator==(const HazardInfo& a, const HazardInfo& b);
+
 struct BoardState {
   Coordinate width;
   Coordinate height;
   PointsVector food;
   SnakesVector snakes;
-  PointsVector hazards;
+  HazardInfo hazard_info;
+
+  bool InHazard(const Point& p) const {
+    if (p.x < hazard_info.depth_left) return true;
+    if (p.x >= width - hazard_info.depth_right) return true;
+    if (p.y < hazard_info.depth_bottom) return true;
+    if (p.y >= height - hazard_info.depth_top) return true;
+    return false;
+  }
 };
 
 struct RulesetInfo {

@@ -71,7 +71,7 @@ TEST_F(CreateJsonTest, BoardStateBasic) {
       .height = 15,
       .food = {},
       .snakes = {},
-      .hazards = {},
+      .hazard_info = {},
   };
 
   auto expected_json = nlohmann::json::parse(R"json(
@@ -96,7 +96,7 @@ TEST_F(CreateJsonTest, BoardStateFood) {
           Point{4, 14},
       }),
       .snakes = {},
-      .hazards = {},
+      .hazard_info = {},
   };
 
   auto expected_json = nlohmann::json::parse(R"json(
@@ -115,29 +115,182 @@ TEST_F(CreateJsonTest, BoardStateFood) {
   EXPECT_THAT(CreateJson(state), expected_json);
 }
 
-TEST_F(CreateJsonTest, BoardStateHazards) {
+TEST_F(CreateJsonTest, BoardStateHazardsLeft) {
   BoardState state{
-      .width = 5,
-      .height = 15,
+      .width = 3,
+      .height = 4,
       .food = {},
       .snakes = {},
-      .hazards = PointsVector::Create({
-          Point{1, 0},
-          Point{3, 10},
-          Point{2, 5},
-      }),
+      .hazard_info =
+          {
+              .depth_left = 1,
+          },
+  };
+
+  auto expected_json = nlohmann::json::parse(R"json(
+        {
+          "width": 3,
+          "height": 4,
+          "food": [],
+          "snakes": [],
+          "hazards": [
+              {"x": 0, "y": 0},
+              {"x": 0, "y": 1},
+              {"x": 0, "y": 2},
+              {"x": 0, "y": 3}
+          ]
+        }
+    )json");
+
+  EXPECT_THAT(CreateJson(state), expected_json);
+}
+
+TEST_F(CreateJsonTest, BoardStateHazardsRight) {
+  BoardState state{
+      .width = 3,
+      .height = 4,
+      .food = {},
+      .snakes = {},
+      .hazard_info =
+          {
+              .depth_right = 2,
+          },
+  };
+
+  auto expected_json = nlohmann::json::parse(R"json(
+        {
+          "width": 3,
+          "height": 4,
+          "food": [],
+          "snakes": [],
+          "hazards": [
+              {"x": 1, "y": 0},
+              {"x": 2, "y": 0},
+              {"x": 1, "y": 1},
+              {"x": 2, "y": 1},
+              {"x": 1, "y": 2},
+              {"x": 2, "y": 2},
+              {"x": 1, "y": 3},
+              {"x": 2, "y": 3}
+          ]
+        }
+    )json");
+
+  EXPECT_THAT(CreateJson(state), expected_json);
+}
+
+TEST_F(CreateJsonTest, BoardStateHazardsBottom) {
+  BoardState state{
+      .width = 3,
+      .height = 4,
+      .food = {},
+      .snakes = {},
+      .hazard_info =
+          {
+              .depth_bottom = 1,
+          },
+  };
+
+  auto expected_json = nlohmann::json::parse(R"json(
+        {
+          "width": 3,
+          "height": 4,
+          "food": [],
+          "snakes": [],
+          "hazards": [
+              {"x": 0, "y": 0},
+              {"x": 1, "y": 0},
+              {"x": 2, "y": 0}
+          ]
+        }
+    )json");
+
+  EXPECT_THAT(CreateJson(state), expected_json);
+}
+
+TEST_F(CreateJsonTest, BoardStateHazardsTop) {
+  BoardState state{
+      .width = 3,
+      .height = 4,
+      .food = {},
+      .snakes = {},
+      .hazard_info =
+          {
+              .depth_top = 2,
+          },
+  };
+
+  auto expected_json = nlohmann::json::parse(R"json(
+        {
+          "width": 3,
+          "height": 4,
+          "food": [],
+          "snakes": [],
+          "hazards": [
+              {"x": 0, "y": 2},
+              {"x": 1, "y": 2},
+              {"x": 2, "y": 2},
+              {"x": 0, "y": 3},
+              {"x": 1, "y": 3},
+              {"x": 2, "y": 3}
+          ]
+        }
+    )json");
+
+  EXPECT_THAT(CreateJson(state), expected_json);
+}
+
+TEST_F(CreateJsonTest, BoardStateHazardsGeneric) {
+  BoardState state{
+      .width = 5,
+      .height = 6,
+      .food = {},
+      .snakes = {},
+      .hazard_info =
+          {
+              .depth_left = 1,
+              .depth_right = 2,
+              .depth_top = 2,
+              .depth_bottom = 1,
+          },
   };
 
   auto expected_json = nlohmann::json::parse(R"json(
         {
           "width": 5,
-          "height": 15,
+          "height": 6,
           "food": [],
           "snakes": [],
           "hazards": [
+              {"x": 0, "y": 0},
               {"x": 1, "y": 0},
-              {"x": 3, "y": 10},
-              {"x": 2, "y": 5}
+              {"x": 2, "y": 0},
+              {"x": 3, "y": 0},
+              {"x": 4, "y": 0},
+
+              {"x": 0, "y": 1},
+              {"x": 3, "y": 1},
+              {"x": 4, "y": 1},
+
+              {"x": 0, "y": 2},
+              {"x": 3, "y": 2},
+              {"x": 4, "y": 2},
+
+              {"x": 0, "y": 3},
+              {"x": 3, "y": 3},
+              {"x": 4, "y": 3},
+
+              {"x": 0, "y": 4},
+              {"x": 1, "y": 4},
+              {"x": 2, "y": 4},
+              {"x": 3, "y": 4},
+              {"x": 4, "y": 4},
+
+              {"x": 0, "y": 5},
+              {"x": 1, "y": 5},
+              {"x": 2, "y": 5},
+              {"x": 3, "y": 5},
+              {"x": 4, "y": 5}
           ]
         }
     )json");
@@ -167,7 +320,7 @@ TEST_F(CreateJsonTest, BoardStateSnakes) {
               .squad = pool.Add("The Suicide Squad"),
           },
       }),
-      .hazards = {},
+      .hazard_info = {},
   };
 
   auto expected_json = nlohmann::json::parse(R"json(
@@ -223,7 +376,7 @@ TEST_F(CreateJsonTest, BoardStateEliminatedSnake) {
               .squad = pool.Add("The Suicide Squad"),
           },
       }),
-      .hazards = {},
+      .hazard_info = {},
   };
 
   auto expected_json = nlohmann::json::parse(R"json(

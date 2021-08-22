@@ -189,6 +189,15 @@ bool operator==(const SnakeBody& a, const SnakeBody& b) {
   return true;
 }
 
+bool operator==(const HazardInfo& a, const HazardInfo& b) {
+  if (a.depth_left != b.depth_left) return false;
+  if (a.depth_right != b.depth_right) return false;
+  if (a.depth_top != b.depth_top) return false;
+  if (a.depth_bottom != b.depth_bottom) return false;
+
+  return true;
+}
+
 std::ostream& operator<<(std::ostream& s, const StringWrapper& string) {
   return s << string.ToString();
 }

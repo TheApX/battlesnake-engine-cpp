@@ -214,7 +214,7 @@ TEST_F(ParseJsonTest, BoardStateBasic) {
       .width = 5,
       .height = 15,
       .food = {},
-      .hazards = {},
+      .hazard_info = {},
   };
 
   StringPool pool;
@@ -224,7 +224,7 @@ TEST_F(ParseJsonTest, BoardStateBasic) {
   EXPECT_THAT(state.height, Eq(expected_state.height));
   EXPECT_THAT(state.food, ElementsAreArray(expected_state.food));
   EXPECT_THAT(state.snakes, ElementsAre());
-  EXPECT_THAT(state.hazards, ElementsAreArray(expected_state.hazards));
+  EXPECT_THAT(state.hazard_info, Eq(expected_state.hazard_info));
 }
 
 TEST_F(ParseJsonTest, BoardStateFood) {
@@ -248,7 +248,7 @@ TEST_F(ParseJsonTest, BoardStateFood) {
           Point{0, 1},
           Point{4, 14},
       }),
-      .hazards = {},
+      .hazard_info = {},
   };
 
   StringPool pool;
@@ -258,33 +258,62 @@ TEST_F(ParseJsonTest, BoardStateFood) {
   EXPECT_THAT(state.height, Eq(expected_state.height));
   EXPECT_THAT(state.food, ElementsAreArray(expected_state.food));
   EXPECT_THAT(state.snakes, ElementsAre());
-  EXPECT_THAT(state.hazards, ElementsAreArray(expected_state.hazards));
+  EXPECT_THAT(state.hazard_info, Eq(expected_state.hazard_info));
 }
 
 TEST_F(ParseJsonTest, BoardStateHazards) {
   auto json = nlohmann::json::parse(R"json(
         {
           "width": 5,
-          "height": 15,
+          "height": 6,
           "food": [],
           "snakes": [],
           "hazards": [
+              {"x": 0, "y": 0},
               {"x": 1, "y": 0},
-              {"x": 3, "y": 10},
-              {"x": 2, "y": 5}
+              {"x": 2, "y": 0},
+              {"x": 3, "y": 0},
+              {"x": 4, "y": 0},
+
+              {"x": 0, "y": 1},
+              {"x": 3, "y": 1},
+              {"x": 4, "y": 1},
+
+              {"x": 0, "y": 2},
+              {"x": 3, "y": 2},
+              {"x": 4, "y": 2},
+
+              {"x": 0, "y": 3},
+              {"x": 3, "y": 3},
+              {"x": 4, "y": 3},
+
+              {"x": 0, "y": 4},
+              {"x": 1, "y": 4},
+              {"x": 2, "y": 4},
+              {"x": 3, "y": 4},
+              {"x": 4, "y": 4},
+
+              {"x": 0, "y": 5},
+              {"x": 1, "y": 5},
+              {"x": 2, "y": 5},
+              {"x": 3, "y": 5},
+              {"x": 4, "y": 5}
           ]
         }
     )json");
 
   BoardState expected_state{
       .width = 5,
-      .height = 15,
+      .height = 6,
       .food = {},
-      .hazards = PointsVector::Create({
-          Point{1, 0},
-          Point{3, 10},
-          Point{2, 5},
-      }),
+      .snakes = {},
+      .hazard_info =
+          {
+              .depth_left = 1,
+              .depth_right = 2,
+              .depth_top = 2,
+              .depth_bottom = 1,
+          },
   };
 
   StringPool pool;
@@ -294,7 +323,7 @@ TEST_F(ParseJsonTest, BoardStateHazards) {
   EXPECT_THAT(state.height, Eq(expected_state.height));
   EXPECT_THAT(state.food, ElementsAreArray(expected_state.food));
   EXPECT_THAT(state.snakes, ElementsAre());
-  EXPECT_THAT(state.hazards, ElementsAreArray(expected_state.hazards));
+  EXPECT_THAT(state.hazard_info, Eq(expected_state.hazard_info));
 }
 
 TEST_F(ParseJsonTest, BoardStateSnakes) {
@@ -326,7 +355,7 @@ TEST_F(ParseJsonTest, BoardStateSnakes) {
       .width = 5,
       .height = 15,
       .food = {},
-      .hazards = {},
+      .hazard_info = {},
   };
 
   StringPool pool;
@@ -336,7 +365,7 @@ TEST_F(ParseJsonTest, BoardStateSnakes) {
   EXPECT_THAT(state.height, Eq(expected_state.height));
   EXPECT_THAT(state.food, ElementsAreArray(expected_state.food));
   EXPECT_THAT(state.snakes, ElementsAre(Field(&Snake::id, "snake_id")));
-  EXPECT_THAT(state.hazards, ElementsAreArray(expected_state.hazards));
+  EXPECT_THAT(state.hazard_info, Eq(expected_state.hazard_info));
 }
 
 TEST_F(ParseJsonTest, BoardStateWrongSnakesValueType) {
