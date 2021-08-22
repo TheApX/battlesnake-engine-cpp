@@ -1,5 +1,6 @@
 #include <battlesnake/rules/standard_ruleset.h>
 
+#include <chrono>
 #include <iostream>
 #include <typeinfo>
 
@@ -103,10 +104,11 @@ int main() {
       .optimize_strings = true,
   }};
 
-  constexpr int max_size = 100000;
+  constexpr int max_size = 1000000;
   std::vector<BoardState> states;
   states.reserve(max_size);
 
+  auto start_time = std::chrono::high_resolution_clock::now();
   for (int i = 0; i < max_size; ++i) {
     // BoardState state = ruleset.CreateNextBoardState(initial_state, moves);
 
@@ -115,6 +117,12 @@ int main() {
 
     states.push_back(initial_state);
   }
+  auto end_time = std::chrono::high_resolution_clock::now();
+
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+                      end_time - start_time)
+                      .count();
+  std::cout << "Duration: " << duration << "ms" << std::endl;
 
   TestTypes();
 
