@@ -111,12 +111,13 @@ int main() {
 
   auto start_time = std::chrono::high_resolution_clock::now();
   for (int i = 0; i < max_size; ++i) {
-    // BoardState state = ruleset.CreateNextBoardState(initial_state, moves);
+    BoardState state = ruleset.CreateNextBoardState(initial_state, moves, 1);
+    states.push_back(state);
 
     // BoardState new_state = initial_state;
-    //  new_state.food.push_back(Point{0, 0});
+    // new_state.food.push_back(Point{0, 0});
 
-    states.push_back(initial_state);
+    // states.push_back(initial_state);
   }
   auto end_time = std::chrono::high_resolution_clock::now();
 
