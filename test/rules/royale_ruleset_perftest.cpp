@@ -50,53 +50,49 @@ int main() {
           {
               Snake{
                   .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
               Snake{
                   .id = pool.Add("two"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
               Snake{
                   .id = pool.Add("three"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
               Snake{
                   .id = pool.Add("four"),
-                  .body =
-                      {
-                          Point{1, 1},
-                          Point{1, 2},
-                          Point{1, 3},
-                      },
+                  .body = SnakeBody::Create({
+                      Point{1, 1},
+                      Point{1, 2},
+                      Point{1, 3},
+                  }),
                   .health = 100,
               },
           },
   };
 
-  const std::unordered_map<SnakeId, Move>& moves{
+  SnakeMovesVector moves = SnakeMovesVector::Create({
       {pool.Add("one"), Move::Up},
       {pool.Add("two"), Move::Down},
       {pool.Add("three"), Move::Left},
       {pool.Add("four"), Move::Right},
-  };
+  });
 
   RoyaleRuleset ruleset{
       StandardRuleset::Config{
@@ -111,7 +107,8 @@ int main() {
 
   auto start_time = std::chrono::high_resolution_clock::now();
   for (int i = 0; i < max_size; ++i) {
-    BoardState state = ruleset.CreateNextBoardState(initial_state, moves, 1);
+    BoardState state;
+    ruleset.CreateNextBoardState(initial_state, moves, 1, state);
     states.push_back(state);
 
     // BoardState new_state = initial_state;
