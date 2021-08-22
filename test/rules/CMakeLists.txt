@@ -26,7 +26,7 @@ SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg")
 
 
 set(testbattlesnakerulesperf_SRCS
-    standard_ruleset_perftest.cpp
+    royale_ruleset_perftest.cpp
 )
 
 add_executable(testbattlesnakerulesperf ${testbattlesnakerulesperf_SRCS})

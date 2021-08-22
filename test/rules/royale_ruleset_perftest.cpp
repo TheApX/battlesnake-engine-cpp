@@ -1,4 +1,4 @@
-#include <battlesnake/rules/standard_ruleset.h>
+#include <battlesnake/rules/royale_ruleset.h>
 
 #include <chrono>
 #include <iostream>
@@ -98,11 +98,12 @@ int main() {
       {pool.Add("four"), Move::Right},
   };
 
-  StandardRuleset ruleset{StandardRuleset::Config{
-      .food_spawn_chance = 0,
-      .minimum_food = 0,
-      .optimize_strings = true,
-  }};
+  RoyaleRuleset ruleset{
+      StandardRuleset::Config{
+          .food_spawn_chance = 0,
+          .minimum_food = 0,
+      },
+      RoyaleRuleset::RoyaleConfig{.shrink_every_n_turns = 1000000}};
 
   constexpr int max_size = 1000000;
   std::vector<BoardState> states;
