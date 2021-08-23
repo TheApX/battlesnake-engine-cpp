@@ -55,6 +55,8 @@ using ::testing::ElementsAre;
 using ::testing::ElementsAreArray;
 using ::testing::Eq;
 using ::testing::Le;
+using ::testing::IsTrue;
+using ::testing::IsFalse;
 
 TEST(StringPoolTest, MultipleInserts) {
   StringPool pool;
@@ -150,6 +152,134 @@ TEST(SnakeBodyTest, MoveToWorks) {
   EXPECT_THAT(body.moves_length, Eq(2));
 }
 
+TEST(BoardBitsTest, Get) {
+  BoardBits bits{
+    .data = {1, 2, 3},
+  };
+
+  EXPECT_THAT(bits.Get(0), IsTrue());
+  EXPECT_THAT(bits.Get(65), IsTrue());
+  EXPECT_THAT(bits.Get(128), IsTrue());
+  EXPECT_THAT(bits.Get(129), IsTrue());
+
+  EXPECT_THAT(bits.Get(1), IsFalse());
+  EXPECT_THAT(bits.Get(63), IsFalse());
+  EXPECT_THAT(bits.Get(64), IsFalse());
+  EXPECT_THAT(bits.Get(130), IsFalse());
+}
+
+TEST(BoardBitsTest, Set) {
+  BoardBits bits{};
+
+  bits.Set(0, true);
+  bits.Set(65, true);
+  bits.Set(128, true);
+  bits.Set(129, true);
+
+  EXPECT_THAT(bits.data[0], Eq(1));
+  EXPECT_THAT(bits.data[1], Eq(2));
+  EXPECT_THAT(bits.data[2], Eq(3));
+
+  bits.Set(128, false);
+
+  EXPECT_THAT(bits.data[2], Eq(2));
+}
+
+TEST(BoardBitsTest, EmptyInit) {
+  BoardBits bits{};
+
+  for(int i = 0; i < BoardBits::kMaxBitsSize; ++i) {
+    EXPECT_THAT(bits.Get(i), IsFalse()) << "i = " << i;
+  }
+}
+
+TEST(BoardBitsTest, ZeroInit) {
+  BoardBits bits;
+  std::memset(&bits, 0, sizeof(bits));
+
+  for(int i = 0; i < BoardBits::kMaxBitsSize; ++i) {
+    EXPECT_THAT(bits.Get(i), IsFalse()) << "i = " << i;
+  }
+}
+
+TEST(BoardBitsViewTest, Get) {
+  BoardBits bits{
+    .data = {1, 2, 3},
+  };
+  BoardBitsView view(&bits, 100, 3);
+
+  EXPECT_THAT(view.Get(Point{0, 0}), IsTrue());
+  EXPECT_THAT(view.Get(Point{65, 0}), IsTrue());
+  EXPECT_THAT(view.Get(Point{28, 1}), IsTrue());
+  EXPECT_THAT(view.Get(Point{29, 1}), IsTrue());
+
+  EXPECT_THAT(view.Get(Point{1, 0}), IsFalse());
+  EXPECT_THAT(view.Get(Point{63, 0}), IsFalse());
+  EXPECT_THAT(view.Get(Point{64, 0}), IsFalse());
+  EXPECT_THAT(view.Get(Point{30, 1}), IsFalse());
+}
+
+TEST(BoardBitsViewTest, Set) {
+  BoardBits bits{};
+  BoardBitsView view(&bits, 100, 3);
+
+  view.Set(Point{0, 0}, true);
+  view.Set(Point{65, 0}, true);
+  view.Set(Point{28, 1}, true);
+  view.Set(Point{29, 1}, true);
+
+  EXPECT_THAT(bits.data[0], Eq(1));
+  EXPECT_THAT(bits.data[1], Eq(2));
+  EXPECT_THAT(bits.data[2], Eq(3));
+
+  view.Set(Point{28, 1}, false);
+
+  EXPECT_THAT(bits.data[2], Eq(2));
+}
+
+TEST(BoardBitsViewTest, Fill) {
+  BoardBits bits{
+    .data = {
+      0xFFFFFFFFFFFFFFFFull,
+      0xFFFFFFFFFFFFFFFFull,
+      0xFFFFFFFFFFFFFFFFull,
+      0xFFFFFFFFFFFFFFFFull,
+    },
+  };
+  BoardBitsView view(&bits, 100, 3);
+
+  view.Fill({
+    Point{0, 0},
+    Point{65, 0},
+    Point{28, 1},
+    Point{29, 1},
+  });
+
+  EXPECT_THAT(bits.data[0], Eq(1));
+  EXPECT_THAT(bits.data[1], Eq(2));
+  EXPECT_THAT(bits.data[2], Eq(3));
+  EXPECT_THAT(bits.data[3], Eq(0));
+}
+
+TEST(BoardBitsViewTest, RangeFor) {
+  BoardBits bits{
+    .data = {1, 2, 3},
+  };
+  BoardBitsView view(&bits, 100, 3);
+
+  std::vector<Point> points;
+  for (const Point& p : view) {
+    points.push_back(p);
+  }
+
+  EXPECT_THAT(points, ElementsAreArray({
+    Point{0, 0},
+    Point{65, 0},
+    Point{28, 1},
+    Point{29, 1},
+  }));
+}
+
 TEST(ObjectSizesTest, ObjectSizes) {
   EXPECT_THAT(sizeof(Point), Eq(2));
 
@@ -159,7 +289,11 @@ TEST(ObjectSizesTest, ObjectSizes) {
   EXPECT_THAT(sizeof(SnakeBody), Le(body_array_size + 40));
 
   // This is just for monitoring total size of BoardState. Update as needed.
-  EXPECT_THAT(sizeof(BoardState), Eq(3352));
+  BoardState board_state;
+  EXPECT_THAT(sizeof(board_state), Eq(3352));
+  EXPECT_THAT(sizeof(board_state.food), Eq(1272));
+
+  EXPECT_THAT(sizeof(BoardBits), Eq(80));
 }
 
 }  // namespace

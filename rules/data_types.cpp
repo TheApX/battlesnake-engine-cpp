@@ -189,6 +189,110 @@ bool operator==(const SnakeBody& a, const SnakeBody& b) {
   return true;
 }
 
+bool BoardBits::Get(int index) const {
+  int block_index = index / kBlockSizeBits;
+  int block_offset = index % kBlockSizeBits;
+  BlockType bit_block_value = 1 << block_offset;
+  return (data[block_index] & bit_block_value) != 0;
+}
+
+void BoardBits::Set(int index, bool value) {
+  int block_index = index / kBlockSizeBits;
+  int block_offset = index % kBlockSizeBits;
+  BlockType bit_block_value = 1 << block_offset;
+  if (value) {
+    data[block_index] |= bit_block_value;
+  } else {
+    data[block_index] &= ~bit_block_value;
+  }
+}
+
+BoardBitsView::BitsIterator::BitsIterator(const BoardBitsView* owner, int index) {
+  owner_ = owner;
+  block_index_ = index / BoardBits::kBlockSizeBits;
+  block_offset_ = index % BoardBits::kBlockSizeBits;
+
+  AdvanceToNextPoint();
+}
+
+void BoardBitsView::BitsIterator::AdvanceToNextPoint() {
+  // Find a `1` bit starting from current position.
+  while (IsValid()) {
+    BoardBits::BlockType block = owner_->bits_->data[block_index_];
+    BoardBits::BlockType bit_block_value = 1 << block_offset_;
+    bool bit = (block & bit_block_value) != 0;
+    if (bit) break;
+
+    if ((block >> block_offset_) == 0) {
+      // No `1` bits left in the current block. Move to the next one.
+      block_offset_ = 0;
+      block_index_++;
+      continue;
+    }
+
+    while (IsValid() && block_offset_ < BoardBits::kBlockSizeBits) {
+      block_offset_++;
+      BoardBits::BlockType bit_block_value = 1 << block_offset_;
+      bit = (block & bit_block_value) != 0;
+      if (bit) break;
+    }
+  }
+}
+
+bool BoardBitsView::BitsIterator::IsValid() const {
+  return block_index_ * BoardBits::kBlockSizeBits + block_offset_ <
+    owner_->width_ * owner_->height_;
+}
+
+BoardBitsView::BitsIterator BoardBitsView::BitsIterator::operator++() {
+  block_offset_++;
+  if (block_offset_ == BoardBits::kBlockSizeBits) {
+    block_offset_  = 0;
+    block_index_++;
+  }
+
+  AdvanceToNextPoint();
+  return *this;
+}
+
+BoardBitsView::BitsIterator BoardBitsView::BitsIterator::operator++(int) {
+  BitsIterator result = *this;
+
+  block_offset_++;
+  if (block_offset_ == BoardBits::kBlockSizeBits) {
+    block_offset_  = 0;
+    block_index_++;
+  }
+
+  AdvanceToNextPoint();
+
+  return result;
+}
+
+Point BoardBitsView::BitsIterator::operator*() const {
+  int index = block_index_ * BoardBits::kBlockSizeBits + block_offset_;
+  return Point{
+    .x = static_cast<Coordinate>(index % owner_->width_),
+    .y = static_cast<Coordinate>(index / owner_->width_),
+  };
+}
+
+bool BoardBitsView::BitsIterator::operator==(const BoardBitsView::BitsIterator& other) const {
+  if (!IsValid() && !other.IsValid()) {
+    return true;
+  }
+
+  if (!IsValid() || !other.IsValid()) {
+    return false;
+  }
+
+  if (owner_ != other.owner_) return false;
+  if (block_index_ != other.block_index_) return false;
+  if (block_offset_ != other.block_offset_) return false;
+
+  return true;
+}
+
 bool operator==(const HazardInfo& a, const HazardInfo& b) {
   if (a.depth_left != b.depth_left) return false;
   if (a.depth_right != b.depth_right) return false;

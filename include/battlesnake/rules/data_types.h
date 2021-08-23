@@ -2,6 +2,7 @@
 
 #include <battlesnake/rules/errors.h>
 
+#include <cstring>
 #include <cstdint>
 #include <forward_list>
 #include <mutex>
@@ -310,6 +311,91 @@ struct Snake {
   Point& Head() { return body.head; }
   const Point& Head() const { return body.head; }
   size_t Length() const { return body.Length(); }
+};
+
+struct BoardBits {
+ public:
+  using BlockType = uint64_t;
+  static constexpr int kBitsSizeNeeded = kBoardSizeMax * kBoardSizeMax;
+  static constexpr int kBlockSizeBytes = sizeof(BlockType);
+  static constexpr int kBlockSizeBits = kBlockSizeBytes * 8;
+  static constexpr int kBlocksCount = kBitsSizeNeeded / kBlockSizeBits + (
+      kMaxSnakeBodyLen % kBlockSizeBits == 0
+      ? 0
+      : 1
+    );
+  static constexpr int kMaxBitsSize = kBlocksCount * kBlockSizeBits;
+
+  BlockType data[kBlocksCount];
+
+  bool Get(int index) const;
+  void Set(int index, bool value);
+};
+
+class BoardBitsView {
+ private:
+  struct fake_allocator {
+    typedef Point value_type;
+    typedef Point* pointer;
+    typedef const Point* const_pointer;
+  };
+
+ public:
+  BoardBitsView(BoardBits* bits, int width, int height) : 
+    bits_(bits), width_(width), height_(height) {}
+
+  bool Get(Point p) const { return bits_->Get(p.y * width_ + p.x); }
+  void Set(Point p, bool value) { bits_->Set(p.y * width_ + p.x, value); }
+
+  template <class T>
+  void Fill(const T& data) {
+    std::memset(bits_, 0, sizeof(*bits_));
+    for (Point p : data) {
+      Set(p, true);
+    }
+  }
+
+  void Fill(const std::initializer_list<Point>& data) {
+    Fill<std::initializer_list<Point>>(data);
+  }
+
+  class BitsIterator {
+   public:
+    using iterator_category = std::input_iterator_tag;
+    using value_type = Point;
+    using allocator_type = fake_allocator;
+
+    BitsIterator(const BoardBitsView* owner, int index);
+    void AdvanceToNextPoint();
+
+    bool IsValid() const;
+
+    BitsIterator operator++();
+    BitsIterator operator++(int);
+
+    Point operator*() const;
+
+    bool operator==(const BitsIterator& other) const;
+    bool operator!=(const BitsIterator& other) const { return !operator==(other); }
+
+   private:
+    const BoardBitsView* owner_;
+    int block_index_;
+    int block_offset_;
+  };
+
+  using value_type = Point;
+  using iterator = BitsIterator;
+  using const_iterator = BitsIterator;
+  using allocator_type = fake_allocator;
+
+  BitsIterator begin() const { return BitsIterator(this, 0); }
+  BitsIterator end() const { return BitsIterator(this, width_ * height_); }
+
+ private:
+  BoardBits* bits_;
+  int width_;
+  int height_;
 };
 
 using SnakesVector = ::theapx::trivial_loop_array<Snake, kSnakesCountMax>;
