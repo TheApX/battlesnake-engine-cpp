@@ -449,6 +449,9 @@ struct HazardInfo {
 };
 
 bool operator==(const HazardInfo& a, const HazardInfo& b);
+inline bool operator!=(const HazardInfo& a, const HazardInfo& b) {
+  return !(a == b);
+}
 
 struct BoardState {
   Coordinate width;
