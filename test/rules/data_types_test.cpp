@@ -300,6 +300,19 @@ TEST(BoardBitsViewTest, ConstRangeFor) {
                       }));
 }
 
+TEST(BoardBitsViewTest, Comparison) {
+  BoardBits bits_a{
+      .data = {1, 2, 3},
+  };
+  BoardBits bits_b{
+      .data = {4, 5, 6},
+  };
+  EXPECT_THAT(bits_a == bits_b, IsFalse());
+  EXPECT_THAT(bits_a != bits_b, IsTrue());
+  EXPECT_THAT(bits_a == bits_a, IsTrue());
+  EXPECT_THAT(bits_a != bits_a, IsFalse());
+}
+
 TEST(BoardBitsViewTest, ProdTest1) {
   BoardBits bits{};
   BoardBitsView view(&bits, 7, 7);

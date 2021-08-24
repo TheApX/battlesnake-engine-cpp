@@ -332,6 +332,11 @@ struct BoardBits {
   void clear() { std::memset(this, 0, sizeof(*this)); }
 };
 
+bool operator==(const BoardBits& a, const BoardBits& b);
+inline bool operator!=(const BoardBits& a, const BoardBits& b) {
+  return !(a == b);
+}
+
 template <class BitsType>
 class BoardBitsViewBase {
  private:

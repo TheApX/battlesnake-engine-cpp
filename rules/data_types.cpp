@@ -210,6 +210,10 @@ void BoardBits::Set(int index, bool value) {
   }
 }
 
+bool operator==(const BoardBits& a, const BoardBits& b) {
+  return std::memcmp(&a, &b, sizeof(a)) == 0;
+}
+
 template <class BitsType>
 BoardBitsViewBase<BitsType>::BitsIterator::BitsIterator(
     const BoardBitsViewBase<BitsType>* owner, int index) {
