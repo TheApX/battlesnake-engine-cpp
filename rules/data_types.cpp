@@ -192,14 +192,17 @@ bool operator==(const SnakeBody& a, const SnakeBody& b) {
 bool BoardBits::Get(int index) const {
   int block_index = index / kBlockSizeBits;
   int block_offset = index % kBlockSizeBits;
-  BlockType bit_block_value = 1 << block_offset;
+  BlockType bit_block_value = static_cast<BlockType>(1)
+                              << static_cast<BlockType>(block_offset);
   return (data[block_index] & bit_block_value) != 0;
 }
 
 void BoardBits::Set(int index, bool value) {
   int block_index = index / kBlockSizeBits;
   int block_offset = index % kBlockSizeBits;
-  BlockType bit_block_value = 1 << block_offset;
+  BlockType bit_block_value = static_cast<BlockType>(1)
+                              << static_cast<BlockType>(block_offset);
+  BlockType old_value = data[block_index];
   if (value) {
     data[block_index] |= bit_block_value;
   } else {
@@ -207,7 +210,9 @@ void BoardBits::Set(int index, bool value) {
   }
 }
 
-BoardBitsView::BitsIterator::BitsIterator(const BoardBitsView* owner, int index) {
+template <class BitsType>
+BoardBitsViewBase<BitsType>::BitsIterator::BitsIterator(
+    const BoardBitsViewBase<BitsType>* owner, int index) {
   owner_ = owner;
   block_index_ = index / BoardBits::kBlockSizeBits;
   block_offset_ = index % BoardBits::kBlockSizeBits;
@@ -215,11 +220,14 @@ BoardBitsView::BitsIterator::BitsIterator(const BoardBitsView* owner, int index)
   AdvanceToNextPoint();
 }
 
-void BoardBitsView::BitsIterator::AdvanceToNextPoint() {
+template <class BitsType>
+void BoardBitsViewBase<BitsType>::BitsIterator::AdvanceToNextPoint() {
   // Find a `1` bit starting from current position.
   while (IsValid()) {
     BoardBits::BlockType block = owner_->bits_->data[block_index_];
-    BoardBits::BlockType bit_block_value = 1 << block_offset_;
+    BoardBits::BlockType bit_block_value =
+        static_cast<BoardBits::BlockType>(1)
+        << static_cast<BoardBits::BlockType>(block_offset_);
     bool bit = (block & bit_block_value) != 0;
     if (bit) break;
 
@@ -232,22 +240,27 @@ void BoardBitsView::BitsIterator::AdvanceToNextPoint() {
 
     while (IsValid() && block_offset_ < BoardBits::kBlockSizeBits) {
       block_offset_++;
-      BoardBits::BlockType bit_block_value = 1 << block_offset_;
+      BoardBits::BlockType bit_block_value =
+          static_cast<BoardBits::BlockType>(1)
+          << static_cast<BoardBits::BlockType>(block_offset_);
       bit = (block & bit_block_value) != 0;
       if (bit) break;
     }
   }
 }
 
-bool BoardBitsView::BitsIterator::IsValid() const {
+template <class BitsType>
+bool BoardBitsViewBase<BitsType>::BitsIterator::IsValid() const {
   return block_index_ * BoardBits::kBlockSizeBits + block_offset_ <
-    owner_->width_ * owner_->height_;
+         owner_->width_ * owner_->height_;
 }
 
-BoardBitsView::BitsIterator BoardBitsView::BitsIterator::operator++() {
+template <class BitsType>
+BoardBitsViewBase<BitsType>::BitsIterator
+BoardBitsViewBase<BitsType>::BitsIterator::operator++() {
   block_offset_++;
   if (block_offset_ == BoardBits::kBlockSizeBits) {
-    block_offset_  = 0;
+    block_offset_ = 0;
     block_index_++;
   }
 
@@ -255,12 +268,14 @@ BoardBitsView::BitsIterator BoardBitsView::BitsIterator::operator++() {
   return *this;
 }
 
-BoardBitsView::BitsIterator BoardBitsView::BitsIterator::operator++(int) {
+template <class BitsType>
+BoardBitsViewBase<BitsType>::BitsIterator
+BoardBitsViewBase<BitsType>::BitsIterator::operator++(int) {
   BitsIterator result = *this;
 
   block_offset_++;
   if (block_offset_ == BoardBits::kBlockSizeBits) {
-    block_offset_  = 0;
+    block_offset_ = 0;
     block_index_++;
   }
 
@@ -269,15 +284,18 @@ BoardBitsView::BitsIterator BoardBitsView::BitsIterator::operator++(int) {
   return result;
 }
 
-Point BoardBitsView::BitsIterator::operator*() const {
+template <class BitsType>
+Point BoardBitsViewBase<BitsType>::BitsIterator::operator*() const {
   int index = block_index_ * BoardBits::kBlockSizeBits + block_offset_;
   return Point{
-    .x = static_cast<Coordinate>(index % owner_->width_),
-    .y = static_cast<Coordinate>(index / owner_->width_),
+      .x = static_cast<Coordinate>(index % owner_->width_),
+      .y = static_cast<Coordinate>(index / owner_->width_),
   };
 }
 
-bool BoardBitsView::BitsIterator::operator==(const BoardBitsView::BitsIterator& other) const {
+template <class BitsType>
+bool BoardBitsViewBase<BitsType>::BitsIterator::operator==(
+    const BoardBitsViewBase::BitsIterator& other) const {
   if (!IsValid() && !other.IsValid()) {
     return true;
   }
@@ -292,6 +310,9 @@ bool BoardBitsView::BitsIterator::operator==(const BoardBitsView::BitsIterator& 
 
   return true;
 }
+
+template class BoardBitsViewBase<BoardBits>;
+template class BoardBitsViewBase<const BoardBits>;
 
 bool operator==(const HazardInfo& a, const HazardInfo& b) {
   if (a.depth_left != b.depth_left) return false;

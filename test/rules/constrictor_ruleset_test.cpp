@@ -65,7 +65,7 @@ TEST_F(ConstrictorRulesetTest, NoFoodInitially) {
                                                          pool.Add("snake2"),
                                                      });
 
-  EXPECT_THAT(state.food, ElementsAre());
+  EXPECT_THAT(state.Food(), ElementsAre());
 }
 
 class ConstrictorCreateNextBoardStateTest : public ConstrictorRulesetTest {};

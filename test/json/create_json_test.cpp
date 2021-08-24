@@ -91,10 +91,12 @@ TEST_F(CreateJsonTest, BoardStateFood) {
   BoardState state{
       .width = 5,
       .height = 15,
-      .food = PointsVector::Create({
-          Point{0, 1},
-          Point{4, 14},
-      }),
+      .food = CreateBoardBits(
+          {
+              Point{0, 1},
+              Point{4, 14},
+          },
+          5, 15),
       .snakes = {},
       .hazard_info = {},
   };

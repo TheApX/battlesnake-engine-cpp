@@ -191,7 +191,7 @@ nlohmann::json CreateJson(const BoardState& state) {
 
   result["width"] = state.width;
   result["height"] = state.height;
-  result["food"] = CreateContainerJson(state.food);
+  result["food"] = CreateContainerJson(state.Food());
   result["hazards"] = CreateContainerJson(CreateHazardsVector(state));
 
   auto snakes = nlohmann::json::array();
@@ -289,9 +289,10 @@ BoardState ParseJsonBoard(const nlohmann::json& json,
   BoardState result{
       .width = GetCoordinate(json, "width"),
       .height = GetCoordinate(json, "height"),
-      .food = GetPointArray(json, "food"),
       .snakes = GetSnakeArray(json, "snakes", pool),
   };
+  result.food =
+      CreateBoardBits(GetPointArray(json, "food"), result.width, result.height);
   result.hazard_info = CalculateHazardInfo(GetPointArray(json, "hazards"),
                                            result.width, result.height);
   return result;

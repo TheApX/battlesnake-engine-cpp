@@ -41,11 +41,13 @@ TEST(BattlesnakeRandomTest, SnakeMoves) {
       .board{
           .width = kBoardSizeSmall,
           .height = kBoardSizeSmall,
-          .food{
-              Point{2, 2},
-              Point{10, 7},
-              Point{0, 0},
-          },
+          .food = CreateBoardBits(
+              {
+                  Point{2, 2},
+                  Point{5, 3},
+                  Point{0, 0},
+              },
+              kBoardSizeSmall, kBoardSizeSmall),
           .snakes = SnakesVector::Create({
               Snake{
                   .id = pool.Add("one"),

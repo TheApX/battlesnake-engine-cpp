@@ -109,7 +109,7 @@ class StandardCreateInitialBoardStateTest : public StandardRulesetTest {
                    const std::initializer_list<SnakeId>& ids) {
     EXPECT_THAT(state.width, Eq(width));
     EXPECT_THAT(state.height, Eq(height));
-    EXPECT_THAT(state.food.size(), Eq(num_food));
+    EXPECT_THAT(state.Food().Count(), Eq(num_food));
     std::vector<SnakeId> state_snake_ids;
     state_snake_ids.resize(state.snakes.size());
     std::transform(state.snakes.begin(), state.snakes.end(),
@@ -306,8 +306,8 @@ TEST_F(StandardPlaceSnakeTest, KnownSizeLargeMaxSnakes) {
 class StandardPlaceFoodTest : public StandardRulesetTest {
  protected:
   void ExpectBoardFood(const BoardState& state, int num_food) {
-    EXPECT_THAT(state.food.size(), Eq(num_food));
-    for (const Point& food : state.food) {
+    EXPECT_THAT(state.Food().Count(), Eq(num_food));
+    for (const Point& food : state.Food()) {
       EXPECT_THAT(food.x, ValueBetween(0, state.width));
       EXPECT_THAT(food.y, ValueBetween(0, state.height));
     }
@@ -331,11 +331,9 @@ class StandardPlaceFoodTest : public StandardRulesetTest {
 
       bool snake_has_food = false;
       for (const Point& pos : accepted_food_pos) {
-        for (const Point& food : state.food) {
-          if (food == pos) {
-            snake_has_food = true;
-            break;
-          }
+        if (state.Food().Get(pos)) {
+          snake_has_food = true;
+          break;
         }
       }
       EXPECT_THAT(snake_has_food, IsTrue());
@@ -388,13 +386,13 @@ TEST_F(StandardPlaceFoodTest, KnownSizeSmall) {
   ExpectFoodAroundSnakes(board_state);
 }
 
-TEST_F(StandardPlaceFoodTest, KnownSizeMiddlle) {
+TEST_F(StandardPlaceFoodTest, KnownSizeMedium) {
   // Food for each snake + 1 food in the middle for known board sizes.
   // Also tests known board size detection.
   StringPool pool;
   StandardRuleset ruleset;
   BoardState board_state = ruleset.CreateInitialBoardState(
-      kBoardSizeSmall, kBoardSizeSmall, CreateSnakeIds(8, pool));
+      kBoardSizeMedium, kBoardSizeMedium, CreateSnakeIds(8, pool));
 
   ExpectBoardFood(board_state, 9);
   ExpectFoodAroundSnakes(board_state);
@@ -406,7 +404,7 @@ TEST_F(StandardPlaceFoodTest, KnownSizeLarge) {
   StringPool pool;
   StandardRuleset ruleset;
   BoardState board_state = ruleset.CreateInitialBoardState(
-      kBoardSizeSmall, kBoardSizeSmall, CreateSnakeIds(6, pool));
+      kBoardSizeLarge, kBoardSizeLarge, CreateSnakeIds(6, pool));
 
   ExpectBoardFood(board_state, 7);
   ExpectFoodAroundSnakes(board_state);
@@ -746,9 +744,11 @@ TEST_F(StandardCreateNextBoardStateTest, FoodGrowsSnake) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food = PointsVector::Create({
-          Point{0, 1},
-      }),
+      .food = CreateBoardBits(
+          {
+              Point{0, 1},
+          },
+          kBoardSizeSmall, kBoardSizeSmall),
       .snakes = SnakesVector::Create({
           Snake{
               .id = pool.Add("one"),
@@ -780,9 +780,11 @@ TEST_F(StandardCreateNextBoardStateTest, FoodRestoresHealth) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food = PointsVector::Create({
-          Point{0, 1},
-      }),
+      .food = CreateBoardBits(
+          {
+              Point{0, 1},
+          },
+          kBoardSizeSmall, kBoardSizeSmall),
       .snakes = SnakesVector::Create({
           Snake{
               .id = pool.Add("one"),
@@ -810,9 +812,11 @@ TEST_F(StandardCreateNextBoardStateTest, DontEatFoodOtherPosition) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food = PointsVector::Create({
-          Point{10, 10},
-      }),
+      .food = CreateBoardBits(
+          {
+              Point{10, 10},
+          },
+          kBoardSizeSmall, kBoardSizeSmall),
       .snakes = SnakesVector::Create({
           Snake{
               .id = pool.Add("one"),
@@ -839,12 +843,14 @@ TEST_F(StandardCreateNextBoardStateTest, DontEatFoodOtherPosition) {
 TEST_F(StandardCreateNextBoardStateTest, EatenFoodDisappears) {
   StringPool pool;
   BoardState initial_state{
-      .width = kBoardSizeSmall,
-      .height = kBoardSizeSmall,
-      .food = PointsVector::Create({
-          Point{0, 1},
-          Point{10, 10},
-      }),
+      .width = kBoardSizeLarge,
+      .height = kBoardSizeLarge,
+      .food = CreateBoardBits(
+          {
+              Point{0, 1},
+              Point{10, 10},
+          },
+          kBoardSizeLarge, kBoardSizeLarge),
       .snakes = SnakesVector::Create({
           Snake{
               .id = pool.Add("one"),
@@ -864,7 +870,7 @@ TEST_F(StandardCreateNextBoardStateTest, EatenFoodDisappears) {
       initial_state, SnakeMovesVector::Create({{pool.Add("one"), Move::Left}}),
       0, state);
 
-  EXPECT_THAT(state.food, ElementsAre(Point{10, 10}));
+  EXPECT_THAT(state.Food(), ElementsAre(Point{10, 10}));
 }
 
 TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodDisappears) {
@@ -874,9 +880,11 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodDisappears) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food = PointsVector::Create({
-          Point{1, 1},
-      }),
+      .food = CreateBoardBits(
+          {
+              Point{1, 1},
+          },
+          kBoardSizeSmall, kBoardSizeSmall),
       .snakes = SnakesVector::Create({
           Snake{
               .id = pool.Add("one"),
@@ -912,7 +920,7 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodDisappears) {
                                0, state);
 
   // Food must disappear.
-  EXPECT_THAT(state.food, ElementsAre());
+  EXPECT_THAT(state.Food(), ElementsAre());
 }
 
 TEST_F(StandardCreateNextBoardStateTest, ZeroChanceNeverSpawnsFood) {
@@ -933,7 +941,7 @@ TEST_F(StandardCreateNextBoardStateTest, ZeroChanceNeverSpawnsFood) {
   for (int i = 0; i < 1000; ++i) {
     BoardState state{};
     ruleset.CreateNextBoardState(initial_state, {}, 0, state);
-    ASSERT_THAT(state.food.size(), Eq(0));
+    ASSERT_THAT(state.Food().Count(), Eq(0));
   }
 }
 
@@ -955,7 +963,7 @@ TEST_F(StandardCreateNextBoardStateTest, HundredChanceAlwaysSpawnsFood) {
   for (int i = 0; i < 1000; ++i) {
     BoardState state{};
     ruleset.CreateNextBoardState(initial_state, {}, 0, state);
-    ASSERT_THAT(state.food.size(), Eq(1));
+    ASSERT_THAT(state.Food().Count(), Eq(1));
   }
 }
 
@@ -966,9 +974,11 @@ TEST_F(StandardCreateNextBoardStateTest, SpawnFoodMinimum) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food = PointsVector::Create({
-          Point{1, 1},
-      }),
+      .food = CreateBoardBits(
+          {
+              Point{1, 1},
+          },
+          kBoardSizeSmall, kBoardSizeSmall),
   };
 
   StandardRuleset ruleset(StandardRuleset::Config{
@@ -977,7 +987,7 @@ TEST_F(StandardCreateNextBoardStateTest, SpawnFoodMinimum) {
   BoardState state{};
   ruleset.CreateNextBoardState(initial_state, {}, 0, state);
 
-  EXPECT_THAT(state.food.size(), Eq(7));
+  EXPECT_THAT(state.Food().Count(), Eq(7));
 }
 
 TEST_F(StandardCreateNextBoardStateTest, EatingOnLastMove) {
@@ -989,9 +999,11 @@ TEST_F(StandardCreateNextBoardStateTest, EatingOnLastMove) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food = PointsVector::Create({
-          Point{0, 1},
-      }),
+      .food = CreateBoardBits(
+          {
+              Point{0, 1},
+          },
+          kBoardSizeSmall, kBoardSizeSmall),
       .snakes = SnakesVector::Create({
           Snake{
               .id = pool.Add("one"),
@@ -1023,9 +1035,11 @@ TEST_F(StandardCreateNextBoardStateTest, IgnoresEliminatedSnakes) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food = PointsVector::Create({
-          Point{0, 1},
-      }),
+      .food = CreateBoardBits(
+          {
+              Point{0, 1},
+          },
+          kBoardSizeSmall, kBoardSizeSmall),
       .snakes = SnakesVector::Create({
           Snake{
               .id = pool.Add("one"),
@@ -1053,7 +1067,7 @@ TEST_F(StandardCreateNextBoardStateTest, IgnoresEliminatedSnakes) {
                   pool.Add("one"),
                   ElementsAre(Point{1, 1}, Point{1, 2}, Point{1, 3}), 10)));
   // Food hasn't disappeared.
-  EXPECT_THAT(state.food, ElementsAre(Point{0, 1}));
+  EXPECT_THAT(state.Food(), ElementsAre(Point{0, 1}));
 }
 
 class StandardEliminateSnakesTest : public StandardCreateNextBoardStateTest {};
@@ -1820,9 +1834,11 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodBothEliminated) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food = PointsVector::Create({
-          Point{1, 1},
-      }),
+      .food = CreateBoardBits(
+          {
+              Point{1, 1},
+          },
+          kBoardSizeSmall, kBoardSizeSmall),
       .snakes = SnakesVector::Create({
           Snake{
               .id = pool.Add("one"),
@@ -1858,7 +1874,7 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodBothEliminated) {
                                0, state);
 
   // Food must disappear.
-  EXPECT_THAT(state.food, ElementsAre());
+  EXPECT_THAT(state.Food(), ElementsAre());
   // Both snakes eliminated.
   EXPECT_THAT(
       state.snakes,
@@ -1876,9 +1892,11 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodOneEliminated) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food = PointsVector::Create({
-          Point{1, 1},
-      }),
+      .food = CreateBoardBits(
+          {
+              Point{1, 1},
+          },
+          kBoardSizeSmall, kBoardSizeSmall),
       .snakes = SnakesVector::Create({
           Snake{
               .id = pool.Add("one"),
@@ -1915,7 +1933,7 @@ TEST_F(StandardCreateNextBoardStateTest, HeadToHeadFoodOneEliminated) {
                                0, state);
 
   // Food must disappear.
-  EXPECT_THAT(state.food, ElementsAre());
+  EXPECT_THAT(state.Food(), ElementsAre());
   // One snake survives and grows.
   EXPECT_THAT(
       state.snakes,

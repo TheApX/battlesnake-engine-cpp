@@ -2,8 +2,8 @@
 
 #include <battlesnake/rules/errors.h>
 
-#include <cstring>
 #include <cstdint>
+#include <cstring>
 #include <forward_list>
 #include <mutex>
 #include <ostream>
@@ -319,20 +319,21 @@ struct BoardBits {
   static constexpr int kBitsSizeNeeded = kBoardSizeMax * kBoardSizeMax;
   static constexpr int kBlockSizeBytes = sizeof(BlockType);
   static constexpr int kBlockSizeBits = kBlockSizeBytes * 8;
-  static constexpr int kBlocksCount = kBitsSizeNeeded / kBlockSizeBits + (
-      kMaxSnakeBodyLen % kBlockSizeBits == 0
-      ? 0
-      : 1
-    );
+  static constexpr int kBlocksCount =
+      kBitsSizeNeeded / kBlockSizeBits +
+      (kMaxSnakeBodyLen % kBlockSizeBits == 0 ? 0 : 1);
   static constexpr int kMaxBitsSize = kBlocksCount * kBlockSizeBits;
 
   BlockType data[kBlocksCount];
 
   bool Get(int index) const;
   void Set(int index, bool value);
+
+  void clear() { std::memset(this, 0, sizeof(*this)); }
 };
 
-class BoardBitsView {
+template <class BitsType>
+class BoardBitsViewBase {
  private:
   struct fake_allocator {
     typedef Point value_type;
@@ -341,10 +342,63 @@ class BoardBitsView {
   };
 
  public:
-  BoardBitsView(BoardBits* bits, int width, int height) : 
-    bits_(bits), width_(width), height_(height) {}
+  BoardBitsViewBase(BitsType* bits, int width, int height)
+      : bits_(bits), width_(width), height_(height) {}
 
   bool Get(Point p) const { return bits_->Get(p.y * width_ + p.x); }
+
+  int Count() const {
+    int result = 0;
+    for (const auto& p : *this) result++;
+    return result;
+  }
+
+  class BitsIterator {
+   public:
+    using iterator_category = std::input_iterator_tag;
+    using value_type = Point;
+    using allocator_type = fake_allocator;
+
+    BitsIterator(const BoardBitsViewBase<BitsType>* owner, int index);
+    void AdvanceToNextPoint();
+
+    bool IsValid() const;
+
+    BitsIterator operator++();
+    BitsIterator operator++(int);
+
+    Point operator*() const;
+
+    bool operator==(const BitsIterator& other) const;
+    bool operator!=(const BitsIterator& other) const {
+      return !operator==(other);
+    }
+
+   private:
+    const BoardBitsViewBase<BitsType>* owner_;
+    int block_index_;
+    int block_offset_;
+  };
+
+  using value_type = Point;
+  using iterator = BitsIterator;
+  using const_iterator = BitsIterator;
+  using allocator_type = fake_allocator;
+
+  BitsIterator begin() const { return BitsIterator(this, 0); }
+  BitsIterator end() const { return BitsIterator(this, width_ * height_); }
+
+ protected:
+  BitsType* bits_;
+  int width_;
+  int height_;
+};
+
+class BoardBitsView : public BoardBitsViewBase<BoardBits> {
+ public:
+  BoardBitsView(BoardBits* bits, int width, int height)
+      : BoardBitsViewBase<BoardBits>(bits, width, height) {}
+
   void Set(Point p, bool value) { bits_->Set(p.y * width_ + p.x, value); }
 
   template <class T>
@@ -358,45 +412,27 @@ class BoardBitsView {
   void Fill(const std::initializer_list<Point>& data) {
     Fill<std::initializer_list<Point>>(data);
   }
-
-  class BitsIterator {
-   public:
-    using iterator_category = std::input_iterator_tag;
-    using value_type = Point;
-    using allocator_type = fake_allocator;
-
-    BitsIterator(const BoardBitsView* owner, int index);
-    void AdvanceToNextPoint();
-
-    bool IsValid() const;
-
-    BitsIterator operator++();
-    BitsIterator operator++(int);
-
-    Point operator*() const;
-
-    bool operator==(const BitsIterator& other) const;
-    bool operator!=(const BitsIterator& other) const { return !operator==(other); }
-
-   private:
-    const BoardBitsView* owner_;
-    int block_index_;
-    int block_offset_;
-  };
-
-  using value_type = Point;
-  using iterator = BitsIterator;
-  using const_iterator = BitsIterator;
-  using allocator_type = fake_allocator;
-
-  BitsIterator begin() const { return BitsIterator(this, 0); }
-  BitsIterator end() const { return BitsIterator(this, width_ * height_); }
-
- private:
-  BoardBits* bits_;
-  int width_;
-  int height_;
 };
+
+class BoardBitsViewConst : public BoardBitsViewBase<const BoardBits> {
+ public:
+  BoardBitsViewConst(const BoardBits* bits, int width, int height)
+      : BoardBitsViewBase<const BoardBits>(bits, width, height) {}
+};
+
+template <class T>
+inline BoardBits CreateBoardBits(const T& data, Coordinate width,
+                                 Coordinate height) {
+  BoardBits result{};
+  BoardBitsView view(&result, width, height);
+  view.Fill(data);
+  return result;
+}
+
+inline BoardBits CreateBoardBits(const std::initializer_list<Point>& data,
+                                 Coordinate width, Coordinate height) {
+  return CreateBoardBits<std::initializer_list<Point>>(data, width, height);
+}
 
 using SnakesVector = ::theapx::trivial_loop_array<Snake, kSnakesCountMax>;
 
@@ -412,9 +448,14 @@ bool operator==(const HazardInfo& a, const HazardInfo& b);
 struct BoardState {
   Coordinate width;
   Coordinate height;
-  PointsVector food;
+  BoardBits food;
   SnakesVector snakes;
   HazardInfo hazard_info;
+
+  BoardBitsView Food() { return BoardBitsView(&this->food, width, height); }
+  BoardBitsViewConst Food() const {
+    return BoardBitsViewConst(&this->food, width, height);
+  }
 
   bool InHazard(const Point& p) const {
     if (p.x < hazard_info.depth_left) return true;

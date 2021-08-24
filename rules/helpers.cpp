@@ -120,7 +120,7 @@ std::string RenderGame(
     }
   }
 
-  for (const Point& pos : state.board.food) {
+  for (const Point& pos : state.board.Food()) {
     board[ind(pos.x, pos.y)] = kFoodSymbol;
   }
 

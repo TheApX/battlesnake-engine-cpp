@@ -1,3 +1,5 @@
+#include <vector>
+
 #include "battlesnake/json/converter.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -13,6 +15,14 @@ using ::testing::Eq;
 using ::testing::Field;
 
 using namespace ::battlesnake::rules;
+
+std::vector<Point> FoodVector(const BoardBitsView& food) {
+  std::vector<Point> result;
+  for (const Point& p : food) {
+    result.push_back(p);
+  }
+  return result;
+}
 
 class ParseJsonTest : public testing::Test {};
 
@@ -222,7 +232,8 @@ TEST_F(ParseJsonTest, BoardStateBasic) {
 
   EXPECT_THAT(state.width, Eq(expected_state.width));
   EXPECT_THAT(state.height, Eq(expected_state.height));
-  EXPECT_THAT(state.food, ElementsAreArray(expected_state.food));
+  EXPECT_THAT(state.Food(),
+              ElementsAreArray(FoodVector(expected_state.Food())));
   EXPECT_THAT(state.snakes, ElementsAre());
   EXPECT_THAT(state.hazard_info, Eq(expected_state.hazard_info));
 }
@@ -244,10 +255,12 @@ TEST_F(ParseJsonTest, BoardStateFood) {
   BoardState expected_state{
       .width = 5,
       .height = 15,
-      .food = PointsVector::Create({
-          Point{0, 1},
-          Point{4, 14},
-      }),
+      .food = CreateBoardBits(
+          {
+              Point{0, 1},
+              Point{4, 14},
+          },
+          5, 15),
       .hazard_info = {},
   };
 
@@ -256,7 +269,8 @@ TEST_F(ParseJsonTest, BoardStateFood) {
 
   EXPECT_THAT(state.width, Eq(expected_state.width));
   EXPECT_THAT(state.height, Eq(expected_state.height));
-  EXPECT_THAT(state.food, ElementsAreArray(expected_state.food));
+  EXPECT_THAT(state.Food(),
+              ElementsAreArray(FoodVector(expected_state.Food())));
   EXPECT_THAT(state.snakes, ElementsAre());
   EXPECT_THAT(state.hazard_info, Eq(expected_state.hazard_info));
 }
@@ -321,7 +335,8 @@ TEST_F(ParseJsonTest, BoardStateHazards) {
 
   EXPECT_THAT(state.width, Eq(expected_state.width));
   EXPECT_THAT(state.height, Eq(expected_state.height));
-  EXPECT_THAT(state.food, ElementsAreArray(expected_state.food));
+  EXPECT_THAT(state.Food(),
+              ElementsAreArray(FoodVector(expected_state.Food())));
   EXPECT_THAT(state.snakes, ElementsAre());
   EXPECT_THAT(state.hazard_info, Eq(expected_state.hazard_info));
 }
@@ -363,7 +378,8 @@ TEST_F(ParseJsonTest, BoardStateSnakes) {
 
   EXPECT_THAT(state.width, Eq(expected_state.width));
   EXPECT_THAT(state.height, Eq(expected_state.height));
-  EXPECT_THAT(state.food, ElementsAreArray(expected_state.food));
+  EXPECT_THAT(state.Food(),
+              ElementsAreArray(FoodVector(expected_state.Food())));
   EXPECT_THAT(state.snakes, ElementsAre(Field(&Snake::id, "snake_id")));
   EXPECT_THAT(state.hazard_info, Eq(expected_state.hazard_info));
 }

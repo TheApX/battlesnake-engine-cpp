@@ -144,7 +144,7 @@ void StandardRuleset::placeFoodFixed(BoardState& state) const {
 
     const Point& placed_food = available_food_locations[getRandomNumber(
         available_food_locations.size())];
-    state.food.push_back(placed_food);
+    state.Food().Set(placed_food, true);
     food_locations.insert(placed_food);
   }
 
@@ -156,7 +156,7 @@ void StandardRuleset::placeFoodFixed(BoardState& state) const {
   if (food_locations.find(center_coordinates) != food_locations.end()) {
     throw ErrorNoRoomForFood();
   }
-  state.food.push_back(center_coordinates);
+  state.Food().Set(center_coordinates, true);
 }
 
 void StandardRuleset::placeFoodRandomly(BoardState& state,
@@ -165,7 +165,7 @@ void StandardRuleset::placeFoodRandomly(BoardState& state,
 }
 
 void StandardRuleset::maybeSpawnFood(BoardState& state) const {
-  int num_current_food = state.food.size();
+  int num_current_food = state.Food().Count();
   if (num_current_food < config_.minimum_food) {
     auto unoccupied_points = getUnoccupiedPoints(state, false);
     spawnFood(state, config_.minimum_food - num_current_food,
@@ -187,7 +187,7 @@ void StandardRuleset::spawnFood(BoardState& state, int count,
       return;
     }
     int ri = getRandomNumber(unoccupied_points.size());
-    state.food.push_back(unoccupied_points[ri]);
+    state.Food().Set(unoccupied_points[ri], true);
 
     if (unoccupied_points.size() == 1) {
       unoccupied_points.clear();
@@ -296,8 +296,10 @@ void StandardRuleset::reduceSnakeHealth(BoardState& state) const {
 }
 
 void StandardRuleset::maybeFeedSnakes(BoardState& state) const {
-  for (int i = 0; i < state.food.size(); ++i) {
-    const Point& food = state.food[i];
+  // for (int i = 0; i < state.food.size(); ++i) {
+  //   const Point& food = state.food[i];
+  BoardBitsView all_food = state.Food();
+  for (const Point& food : all_food) {
     bool food_has_been_eaten = false;
     for (Snake& snake : state.snakes) {
       if (snake.IsEliminated() || snake.body.size() == 0) {
@@ -311,9 +313,10 @@ void StandardRuleset::maybeFeedSnakes(BoardState& state) const {
     }
 
     if (food_has_been_eaten) {
-      state.food[i] = std::move(state.food[state.food.size() - 1]);
-      state.food.resize(state.food.size() - 1);
-      --i;
+      all_food.Set(food, false);
+      // state.food[i] = std::move(state.food[state.food.size() - 1]);
+      // state.food.resize(state.food.size() - 1);
+      // --i;
     }
   }
 }
