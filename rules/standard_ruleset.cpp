@@ -165,6 +165,10 @@ void StandardRuleset::placeFoodRandomly(BoardState& state,
 }
 
 void StandardRuleset::maybeSpawnFood(BoardState& state) const {
+  if (config_.minimum_food == 0 && config_.food_spawn_chance == 0) {
+    return;
+  }
+
   int num_current_food = state.Food().Count();
   if (num_current_food < config_.minimum_food) {
     auto unoccupied_points = getUnoccupiedPoints(state, false);
