@@ -267,6 +267,7 @@ struct SnakeBody {
       if (block_offset == kMovesPerBlock) {
         block_offset = 0;
         result.moves.push_back(current_block);
+        current_block = 0;
       }
 
       prev = p;

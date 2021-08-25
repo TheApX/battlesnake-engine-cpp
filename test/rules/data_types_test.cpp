@@ -152,6 +152,27 @@ TEST(SnakeBodyTest, MoveToWorks) {
   EXPECT_THAT(body.moves_length, Eq(2));
 }
 
+TEST(SnakeBodyTest, RealData) {
+  auto data = {
+      Point{.x = 4, .y = 1},   //
+      Point{.x = 5, .y = 1},   //
+      Point{.x = 5, .y = 2},   //
+      Point{.x = 5, .y = 3},   //
+      Point{.x = 5, .y = 4},   //
+      Point{.x = 5, .y = 5},   //
+      Point{.x = 5, .y = 6},   //
+      Point{.x = 5, .y = 7},   //
+      Point{.x = 5, .y = 8},   //
+      Point{.x = 5, .y = 9},   //
+      Point{.x = 5, .y = 10},  //
+      Point{.x = 4, .y = 10},  //
+  };
+
+  SnakeBody body = SnakeBody::Create(data);
+
+  EXPECT_THAT(body, ElementsAreArray(data));
+}
+
 TEST(BoardBitsTest, Get) {
   BoardBits bits{
       .data = {1, 2, 3},
