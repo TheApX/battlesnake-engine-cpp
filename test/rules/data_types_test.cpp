@@ -152,6 +152,16 @@ TEST(SnakeBodyTest, MoveToWorks) {
   EXPECT_THAT(body.moves_length, Eq(2));
 }
 
+TEST(SnakeBodyTest, TailWorks) {
+  SnakeBody body = SnakeBody::Create({
+      {1, 2},
+      {2, 2},
+      {2, 3},
+  });
+
+  EXPECT_THAT(body.TailPos(), Eq(Point{2, 3}));
+}
+
 TEST(SnakeBodyTest, RealData) {
   auto data = {
       Point{.x = 4, .y = 1},   //

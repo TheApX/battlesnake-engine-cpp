@@ -193,6 +193,7 @@ struct SnakeBody {
   using allocator_type = fake_allocator;
 
   const Point& HeadPos() const { return head; }
+  const Point& TailPos() const { return tail; }
   Piece Head() const { return Piece(this, 0, head); }
   int Length() const { return total_length; }
 
@@ -226,6 +227,7 @@ struct SnakeBody {
       ::theapx::trivial_loop_array<BlockType, kBodyDataLength>;
 
   Point head;
+  Point tail;
   short total_length;
   short moves_length;
   BodyMovesVector moves;
@@ -272,6 +274,7 @@ struct SnakeBody {
 
       prev = p;
     }
+    result.tail = prev;
 
     if (block_offset != 0) {
       result.moves.push_back(current_block);
