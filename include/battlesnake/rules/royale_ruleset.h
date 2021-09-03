@@ -11,7 +11,7 @@ class RoyaleRuleset : public StandardRuleset {
  public:
   struct RoyaleConfig {
     int shrink_every_n_turns = 25;
-    int extra_damage_per_turn = 15;
+    int extra_damage_per_turn = 14;
 
     static RoyaleConfig Default() { return RoyaleConfig(); }
   };

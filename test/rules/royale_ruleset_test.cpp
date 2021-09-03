@@ -119,8 +119,59 @@ TEST_F(RoyaleCreateNextBoardStateTest, InHazardReducesHealth) {
       initial_state, SnakeMovesVector::Create({{pool.Add("one"), Move::Down}}),
       1, state);
 
-  // Head is in hazard, health must decrease by more than one.
-  EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(Lt(99))));
+  // Head is in hazard, health must decrease by 15 points.
+  EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(Eq(85))));
+}
+
+TEST_F(RoyaleCreateNextBoardStateTest, FoodInHazardRestoresHealth) {
+  StringPool pool;
+  BoardState initial_state{
+      .width = kBoardSizeSmall,
+      .height = kBoardSizeSmall,
+      .food =
+          {
+              Point{0, 0},
+          },
+      .snakes =
+          {
+              Snake{
+                  .id = pool.Add("one"),
+                  .body =
+                      {
+                          Point{0, 1},
+                          Point{0, 2},
+                          Point{0, 3},
+                      },
+                  .health = 50,
+              },
+          },
+      .hazards =
+          {
+              Point{0, 0},
+              Point{0, 1},
+              Point{0, 2},
+              Point{0, 3},
+              Point{0, 4},
+              Point{0, 5},
+              Point{0, 6},
+              Point{0, 7},
+              Point{0, 8},
+              Point{0, 9},
+              Point{0, 10},
+          },
+  };
+
+  // Disable spawning random food so that it doesn't interfere with tests.
+  RoyaleRuleset ruleset(StandardRuleset::Config{
+      .food_spawn_chance = 0,
+      .snake_max_health = 100,
+  });
+  BoardState state;
+  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
+                               1, state);
+
+  // Food must restore health to its max level.
+  EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(Eq(100))));
 }
 
 TEST_F(RoyaleCreateNextBoardStateTest, MovesIntoHazard) {

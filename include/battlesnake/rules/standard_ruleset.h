@@ -34,11 +34,12 @@ class StandardRuleset : public Ruleset {
   static int getRandomNumber(int max_value);
   void growSnake(Snake& snake) const;
 
+ protected:
+  Config config_;
+
  private:
   using SnakeIndicesVector =
       ::theapx::trivial_loop_array<int, kSnakesCountMax>;
-
-  Config config_;
 
   static bool isKnownBoardSize(const BoardState& state);
 
