@@ -35,11 +35,12 @@ class StandardRuleset : public Ruleset {
   static int getRandomNumber(int max_value);
   void growSnake(Snake& snake) const;
 
+ protected:
+  Config config_;
+
  private:
   using SnakeIndicesVector =
       ::itlib::small_vector<int, kOptimizeForMaxSnakesCount>;
-
-  Config config_;
 
   static bool isKnownBoardSize(const BoardState& state);
 

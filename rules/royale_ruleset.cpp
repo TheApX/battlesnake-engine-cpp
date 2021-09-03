@@ -70,7 +70,11 @@ void RoyaleRuleset::damageOutOfBounds(const Bounds& bounds,
       continue;
     }
 
-    snake.health -= royale_config_.extra_damage_per_turn;
+    if (snake.health != config_.snake_max_health) {
+      // Decrease health only if no food was eaten. Detect it by health being at
+      // max level.
+      snake.health -= royale_config_.extra_damage_per_turn;
+    }
     if (snake.IsOutOfHealth()) {
       snake.health = 0;
       snake.eliminated_cause.cause = EliminatedCause::OutOfHealth;
