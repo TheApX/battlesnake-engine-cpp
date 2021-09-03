@@ -38,8 +38,7 @@ class StandardRuleset : public Ruleset {
   Config config_;
 
  private:
-  using SnakeIndicesVector =
-      ::theapx::trivial_loop_array<int, kSnakesCountMax>;
+  using SnakeIndicesVector = ::theapx::trivial_loop_array<int, kSnakesCountMax>;
 
   static bool isKnownBoardSize(const BoardState& state);
 
@@ -55,11 +54,11 @@ class StandardRuleset : public Ruleset {
                  PointsVector& unoccupied_points) const;
 
   static PointsVector getUnoccupiedPoints(
-      const BoardState& state, bool include_possible_moves,
+      BoardState& state, bool include_possible_moves,
       const std::function<bool(const Point&)>& filter = [](const Point&) {
         return true;
       });
-  static PointsVector getEvenUnoccupiedPoints(const BoardState& state);
+  static PointsVector getEvenUnoccupiedPoints(BoardState& state);
 
   void moveSnakes(BoardState& state, const SnakeMovesVector& moves) const;
   Move const* findSnakeMove(const SnakeMovesVector& moves,

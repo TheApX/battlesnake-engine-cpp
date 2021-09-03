@@ -175,9 +175,8 @@ void StandardRuleset::maybeSpawnFood(BoardState& state) const {
     spawnFood(state, config_.minimum_food - num_current_food,
               unoccupied_points);
     return;
-  }
-  if (config_.food_spawn_chance > 0 &&
-      getRandomNumber(100) < config_.food_spawn_chance) {
+  } else if (config_.food_spawn_chance > 0 &&
+             getRandomNumber(100) < config_.food_spawn_chance) {
     auto unoccupied_points = getUnoccupiedPoints(state, false);
     spawnFood(state, 1, unoccupied_points);
     return;
@@ -204,7 +203,7 @@ void StandardRuleset::spawnFood(BoardState& state, int count,
 }
 
 PointsVector StandardRuleset::getUnoccupiedPoints(
-    const BoardState& state, bool include_possible_moves,
+    BoardState& state, bool include_possible_moves,
     const std::function<bool(const Point&)>& filter) {
   std::unordered_set<Point, PointHash> occupied_points;
 
@@ -227,10 +226,15 @@ PointsVector StandardRuleset::getUnoccupiedPoints(
   }
 
   PointsVector unoccupied_points{};
+  BoardBitsView food = state.Food();
   for (int y = 0; y < state.height; ++y) {
     for (int x = 0; x < state.width; ++x) {
       Point p{static_cast<Coordinate>(x), static_cast<Coordinate>(y)};
       if (occupied_points.find(p) != occupied_points.end()) {
+        continue;
+      }
+      if (food.Get(p)) {
+        // Taken by food.
         continue;
       }
       if (!filter(p)) {
@@ -243,7 +247,7 @@ PointsVector StandardRuleset::getUnoccupiedPoints(
   return unoccupied_points;
 }
 
-PointsVector StandardRuleset::getEvenUnoccupiedPoints(const BoardState& state) {
+PointsVector StandardRuleset::getEvenUnoccupiedPoints(BoardState& state) {
   return getUnoccupiedPoints(
       state, false, [](const Point& p) { return (p.x + p.y) % 2 == 0; });
 }
