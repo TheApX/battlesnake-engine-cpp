@@ -128,36 +128,28 @@ TEST_F(RoyaleCreateNextBoardStateTest, FoodInHazardRestoresHealth) {
   BoardState initial_state{
       .width = kBoardSizeSmall,
       .height = kBoardSizeSmall,
-      .food =
+      .food = CreateBoardBits(
           {
               Point{0, 0},
           },
-      .snakes =
-          {
-              Snake{
-                  .id = pool.Add("one"),
-                  .body =
-                      {
-                          Point{0, 1},
-                          Point{0, 2},
-                          Point{0, 3},
-                      },
-                  .health = 50,
-              },
+          kBoardSizeSmall, kBoardSizeSmall),
+      .snakes = SnakesVector::Create({
+          Snake{
+              .id = pool.Add("one"),
+              .body = SnakeBody::Create({
+                  Point{0, 1},
+                  Point{0, 2},
+                  Point{0, 3},
+              }),
+              .health = 100,
           },
-      .hazards =
+      }),
+      .hazard_info =
           {
-              Point{0, 0},
-              Point{0, 1},
-              Point{0, 2},
-              Point{0, 3},
-              Point{0, 4},
-              Point{0, 5},
-              Point{0, 6},
-              Point{0, 7},
-              Point{0, 8},
-              Point{0, 9},
-              Point{0, 10},
+              .depth_left = 1,
+              .depth_right = 0,
+              .depth_top = 0,
+              .depth_bottom = 0,
           },
   };
 
@@ -167,8 +159,9 @@ TEST_F(RoyaleCreateNextBoardStateTest, FoodInHazardRestoresHealth) {
       .snake_max_health = 100,
   });
   BoardState state;
-  ruleset.CreateNextBoardState(initial_state, {{pool.Add("one"), Move::Down}},
-                               1, state);
+  ruleset.CreateNextBoardState(
+      initial_state, SnakeMovesVector::Create({{pool.Add("one"), Move::Down}}),
+      1, state);
 
   // Food must restore health to its max level.
   EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(Eq(100))));
