@@ -399,20 +399,100 @@ TEST_F(ParseJsonTest, BoardStateWrongSnakesValueType) {
   EXPECT_THROW(ParseJsonBoard(json, pool), ParseException);
 }
 
+TEST_F(ParseJsonTest, RulesetSettingsSucceeds) {
+  auto json = nlohmann::json::parse(R"json({
+      "foodSpawnChance": 15,
+      "minimumFood": 1,
+      "hazardDamagePerTurn": 30,
+      "royale": {
+        "shrinkEveryNTurns": 123
+      },
+      "squad": {
+        "allowBodyCollisions": true,
+        "sharedElimination": false,
+        "sharedHealth": true,
+        "sharedLength": false
+      }
+    })json");
+
+  RulesetSettings expected_result{
+      .food_spawn_chance = 15,
+      .minimum_food = 1,
+      .hazard_damage_per_turn = 30,
+      .royale_shrink_every_n_turns = 123,
+      .squad_allow_body_collisions = true,
+      .squad_shared_elimination = false,
+      .squad_shared_health = true,
+      .squad_shared_length = false,
+  };
+
+  RulesetSettings result = ParseJsonRulesetSettings(json);
+
+  EXPECT_THAT(result.food_spawn_chance, Eq(expected_result.food_spawn_chance));
+  EXPECT_THAT(result.minimum_food, Eq(expected_result.minimum_food));
+  EXPECT_THAT(result.hazard_damage_per_turn,
+              Eq(expected_result.hazard_damage_per_turn));
+  EXPECT_THAT(result.royale_shrink_every_n_turns,
+              Eq(expected_result.royale_shrink_every_n_turns));
+  EXPECT_THAT(result.squad_allow_body_collisions,
+              Eq(expected_result.squad_allow_body_collisions));
+  EXPECT_THAT(result.squad_shared_elimination,
+              Eq(expected_result.squad_shared_elimination));
+  EXPECT_THAT(result.squad_shared_health,
+              Eq(expected_result.squad_shared_health));
+  EXPECT_THAT(result.squad_shared_length,
+              Eq(expected_result.squad_shared_length));
+}
+
+TEST_F(ParseJsonTest, RulesetSettingsWrongJsonType) {
+  auto json = nlohmann::json::parse(R"json([])json");
+
+  EXPECT_THROW(ParseJsonRulesetSettings(json), ParseException);
+}
+
 TEST_F(ParseJsonTest, RulesetInfoSucceeds) {
-  auto json = nlohmann::json::parse(
-      R"json({"name": "standard", "version": "v1.2.3"})json");
+  auto json = nlohmann::json::parse(R"json({
+      "name": "standard",
+      "version": "v1.0.21",
+      "settings": {
+        "foodSpawnChance": 15,
+        "minimumFood": 1,
+        "hazardDamagePerTurn": 30,
+        "royale": {
+          "shrinkEveryNTurns": 123
+        },
+        "squad": {
+          "allowBodyCollisions": true,
+          "sharedElimination": false,
+          "sharedHealth": true,
+          "sharedLength": false
+        }
+      }
+    })json");
 
   StringPool pool;
   RulesetInfo expected_result{
       .name = pool.Add("standard"),
-      .version = pool.Add("v1.2.3"),
+      .version = pool.Add("v1.0.21"),
+      .settings =
+          {
+              .food_spawn_chance = 15,
+              .minimum_food = 1,
+              .hazard_damage_per_turn = 30,
+              .royale_shrink_every_n_turns = 123,
+              .squad_allow_body_collisions = true,
+              .squad_shared_elimination = false,
+              .squad_shared_health = true,
+              .squad_shared_length = false,
+          },
   };
 
   RulesetInfo result = ParseJsonRulesetInfo(json, pool);
 
   EXPECT_THAT(result.name, Eq(expected_result.name));
   EXPECT_THAT(result.version, Eq(expected_result.version));
+  EXPECT_THAT(result.settings.food_spawn_chance,
+              Eq(expected_result.settings.food_spawn_chance));
 }
 
 TEST_F(ParseJsonTest, RulesetInfoWrongJsonType) {

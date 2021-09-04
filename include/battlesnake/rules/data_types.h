@@ -478,9 +478,21 @@ struct BoardState {
   }
 };
 
+struct RulesetSettings {
+  int food_spawn_chance;
+  int minimum_food;
+  int hazard_damage_per_turn;
+  int royale_shrink_every_n_turns;
+  bool squad_allow_body_collisions;
+  bool squad_shared_elimination;
+  bool squad_shared_health;
+  bool squad_shared_length;
+};
+
 struct RulesetInfo {
   StringWrapper name;
   StringWrapper version;
+  RulesetSettings settings;
 };
 
 struct GameInfo {

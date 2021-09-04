@@ -29,6 +29,17 @@ int GetInt(const nlohmann::json& json, const char* key) {
   return *v;
 }
 
+bool GetBool(const nlohmann::json& json, const char* key) {
+  auto v = json.find(key);
+  if (v == json.end()) {
+    throw ParseException();
+  }
+  if (!v->is_boolean()) {
+    throw ParseException();
+  }
+  return *v;
+}
+
 Coordinate GetCoordinate(const nlohmann::json& json, const char* key) {
   return static_cast<Coordinate>(GetInt(json, key));
 }
@@ -207,10 +218,33 @@ nlohmann::json CreateJson(const BoardState& state) {
   return result;
 }
 
+// Create json for RulesetSettings.
+nlohmann::json CreateJson(
+    const battlesnake::rules::RulesetSettings& ruleset_settings) {
+  return nlohmann::json{
+      {"foodSpawnChance", ruleset_settings.food_spawn_chance},
+      {"minimumFood", ruleset_settings.minimum_food},
+      {"hazardDamagePerTurn", ruleset_settings.hazard_damage_per_turn},
+      {"royale",
+       {
+           {"shrinkEveryNTurns", ruleset_settings.royale_shrink_every_n_turns},
+       }},
+      {"squad",
+       {
+           {"allowBodyCollisions",
+            ruleset_settings.squad_allow_body_collisions},
+           {"sharedElimination", ruleset_settings.squad_shared_elimination},
+           {"sharedHealth", ruleset_settings.squad_shared_health},
+           {"sharedLength", ruleset_settings.squad_shared_length},
+       }},
+  };
+}
+
 nlohmann::json CreateJson(const RulesetInfo& ruleset_info) {
   return nlohmann::json{
       {"name", ruleset_info.name.ToString()},
       {"version", ruleset_info.version.ToString()},
+      {"settings", CreateJson(ruleset_info.settings)},
   };
 }
 
@@ -298,16 +332,40 @@ BoardState ParseJsonBoard(const nlohmann::json& json,
   return result;
 }
 
+RulesetSettings ParseJsonRulesetSettings(const nlohmann::json& json) {
+  if (!json.is_object()) {
+    throw ParseException();
+  }
+
+  auto& squad_data = json["squad"];
+
+  return RulesetSettings{
+      .food_spawn_chance = GetInt(json, "foodSpawnChance"),
+      .minimum_food = GetInt(json, "minimumFood"),
+      .hazard_damage_per_turn = GetInt(json, "hazardDamagePerTurn"),
+      .royale_shrink_every_n_turns =
+          GetInt(json["royale"], "shrinkEveryNTurns"),
+      .squad_allow_body_collisions = GetBool(squad_data, "allowBodyCollisions"),
+      .squad_shared_elimination = GetBool(squad_data, "sharedElimination"),
+      .squad_shared_health = GetBool(squad_data, "sharedHealth"),
+      .squad_shared_length = GetBool(squad_data, "sharedLength"),
+  };
+}
+
 RulesetInfo ParseJsonRulesetInfo(const nlohmann::json& json,
                                  battlesnake::rules::StringPool& pool) {
   if (!json.is_object()) {
     throw ParseException();
   }
 
-  return RulesetInfo{
+  RulesetInfo result{
       .name = GetString(json, "name", pool),
       .version = GetString(json, "version", pool),
   };
+  if (json.contains("settings")) {
+    result.settings = ParseJsonRulesetSettings(json["settings"]);
+  }
+  return result;
 }
 
 GameInfo ParseJsonGameInfo(const nlohmann::json& json,

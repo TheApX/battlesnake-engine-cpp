@@ -394,16 +394,71 @@ TEST_F(CreateJsonTest, BoardStateEliminatedSnake) {
   EXPECT_THAT(CreateJson(state), expected_json);
 }
 
+TEST_F(CreateJsonTest, RulesetSettings) {
+  StringPool pool;
+
+  nlohmann::json json = CreateJson(RulesetSettings{
+      .food_spawn_chance = 15,
+      .minimum_food = 1,
+      .hazard_damage_per_turn = 30,
+      .royale_shrink_every_n_turns = 123,
+      .squad_allow_body_collisions = true,
+      .squad_shared_elimination = false,
+      .squad_shared_health = true,
+      .squad_shared_length = false,
+  });
+  EXPECT_THAT(json, Eq(nlohmann::json::parse(R"json({
+    "foodSpawnChance": 15,
+    "minimumFood": 1,
+    "hazardDamagePerTurn": 30,
+    "royale": {
+      "shrinkEveryNTurns": 123
+    },
+    "squad": {
+      "allowBodyCollisions": true,
+      "sharedElimination": false,
+      "sharedHealth": true,
+      "sharedLength": false
+    }
+  })json")));
+}
+
 TEST_F(CreateJsonTest, RulesetInfo) {
   StringPool pool;
 
   nlohmann::json json = CreateJson(RulesetInfo{
       .name = pool.Add("standard"),
       .version = pool.Add("v1.2.3"),
+      .settings =
+          {
+              .food_spawn_chance = 15,
+              .minimum_food = 1,
+              .hazard_damage_per_turn = 30,
+              .royale_shrink_every_n_turns = 123,
+              .squad_allow_body_collisions = true,
+              .squad_shared_elimination = false,
+              .squad_shared_health = true,
+              .squad_shared_length = false,
+          },
   });
-  EXPECT_THAT(json,
-              Eq(nlohmann::json::parse(
-                  R"json({"name": "standard", "version": "v1.2.3"})json")));
+  EXPECT_THAT(json, Eq(nlohmann::json::parse(R"json({
+    "name": "standard",
+    "version": "v1.2.3",
+    "settings": {
+      "foodSpawnChance": 15,
+      "minimumFood": 1,
+      "hazardDamagePerTurn": 30,
+      "royale": {
+        "shrinkEveryNTurns": 123
+      },
+      "squad": {
+        "allowBodyCollisions": true,
+        "sharedElimination": false,
+        "sharedHealth": true,
+        "sharedLength": false
+      }
+    }
+  })json")));
 }
 
 TEST_F(CreateJsonTest, GameInfo) {
@@ -414,14 +469,39 @@ TEST_F(CreateJsonTest, GameInfo) {
       .ruleset{
           .name = pool.Add("standard"),
           .version = pool.Add("v1.2.3"),
+          .settings =
+              {
+                  .food_spawn_chance = 15,
+                  .minimum_food = 1,
+                  .hazard_damage_per_turn = 30,
+                  .royale_shrink_every_n_turns = 123,
+                  .squad_allow_body_collisions = true,
+                  .squad_shared_elimination = false,
+                  .squad_shared_health = true,
+                  .squad_shared_length = false,
+              },
       },
       .timeout = 500,
   });
   EXPECT_THAT(json, Eq(nlohmann::json::parse(R"json({
       "id": "totally-unique-game-id",
       "ruleset": {
-          "name": "standard",
-          "version": "v1.2.3"
+        "name": "standard",
+        "version": "v1.2.3",
+        "settings": {
+            "foodSpawnChance": 15,
+            "minimumFood": 1,
+            "hazardDamagePerTurn": 30,
+            "royale": {
+                "shrinkEveryNTurns": 123
+            },
+            "squad": {
+                "allowBodyCollisions": true,
+                "sharedElimination": false,
+                "sharedHealth": true,
+                "sharedLength": false
+            }
+        }
       },
       "timeout": 500
   })json")));
@@ -436,6 +516,17 @@ TEST_F(CreateJsonTest, GameState) {
           .ruleset{
               .name = pool.Add("standard"),
               .version = pool.Add("v1.2.3"),
+              .settings =
+                  {
+                      .food_spawn_chance = 15,
+                      .minimum_food = 1,
+                      .hazard_damage_per_turn = 30,
+                      .royale_shrink_every_n_turns = 123,
+                      .squad_allow_body_collisions = true,
+                      .squad_shared_elimination = false,
+                      .squad_shared_health = true,
+                      .squad_shared_length = false,
+                  },
           },
           .timeout = 500,
       },
@@ -460,7 +551,21 @@ TEST_F(CreateJsonTest, GameState) {
             "id": "totally-unique-game-id",
             "ruleset": {
                 "name": "standard",
-                "version": "v1.2.3"
+                "version": "v1.2.3",
+                "settings": {
+                    "foodSpawnChance": 15,
+                    "minimumFood": 1,
+                    "hazardDamagePerTurn": 30,
+                    "royale": {
+                        "shrinkEveryNTurns": 123
+                    },
+                    "squad": {
+                        "allowBodyCollisions": true,
+                        "sharedElimination": false,
+                        "sharedHealth": true,
+                        "sharedLength": false
+                    }
+                }
             },
             "timeout": 500
         },
@@ -499,6 +604,17 @@ TEST_F(CreateJsonTest, GameStateYouEliminated) {
           .ruleset{
               .name = pool.Add("standard"),
               .version = pool.Add("v1.2.3"),
+              .settings =
+                  {
+                      .food_spawn_chance = 15,
+                      .minimum_food = 1,
+                      .hazard_damage_per_turn = 30,
+                      .royale_shrink_every_n_turns = 123,
+                      .squad_allow_body_collisions = true,
+                      .squad_shared_elimination = false,
+                      .squad_shared_health = true,
+                      .squad_shared_length = false,
+                  },
           },
           .timeout = 500,
       },
@@ -524,7 +640,21 @@ TEST_F(CreateJsonTest, GameStateYouEliminated) {
             "id": "totally-unique-game-id",
             "ruleset": {
                 "name": "standard",
-                "version": "v1.2.3"
+                "version": "v1.2.3",
+                "settings": {
+                    "foodSpawnChance": 15,
+                    "minimumFood": 1,
+                    "hazardDamagePerTurn": 30,
+                    "royale": {
+                        "shrinkEveryNTurns": 123
+                    },
+                    "squad": {
+                        "allowBodyCollisions": true,
+                        "sharedElimination": false,
+                        "sharedHealth": true,
+                        "sharedLength": false
+                    }
+                }
             },
             "timeout": 500
         },
@@ -548,6 +678,17 @@ TEST_F(CreateJsonTest, GameStateNoYou) {
           .ruleset{
               .name = pool.Add("standard"),
               .version = pool.Add("v1.2.3"),
+              .settings =
+                  {
+                      .food_spawn_chance = 15,
+                      .minimum_food = 1,
+                      .hazard_damage_per_turn = 30,
+                      .royale_shrink_every_n_turns = 123,
+                      .squad_allow_body_collisions = true,
+                      .squad_shared_elimination = false,
+                      .squad_shared_health = true,
+                      .squad_shared_length = false,
+                  },
           },
           .timeout = 500,
       },
@@ -559,7 +700,21 @@ TEST_F(CreateJsonTest, GameStateNoYou) {
             "id": "totally-unique-game-id",
             "ruleset": {
                 "name": "standard",
-                "version": "v1.2.3"
+                "version": "v1.2.3",
+                "settings": {
+                    "foodSpawnChance": 15,
+                    "minimumFood": 1,
+                    "hazardDamagePerTurn": 30,
+                    "royale": {
+                        "shrinkEveryNTurns": 123
+                    },
+                    "squad": {
+                        "allowBodyCollisions": true,
+                        "sharedElimination": false,
+                        "sharedHealth": true,
+                        "sharedLength": false
+                    }
+                }
             },
             "timeout": 500
         },
