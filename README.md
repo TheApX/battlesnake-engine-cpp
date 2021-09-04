@@ -4,8 +4,9 @@ C++ implementation of https://github.com/BattlesnakeOfficial/rules - official ba
 
 # What's included
 
-* C++ structs definitions for json passed to battlesnakes.
-  * Converters to/from json.
+* Heavily optimized C++ structs definitions for json passed to battlesnakes.
+  * Designed to be POD to avoid memory allocations and allow for very efficient copying.
+  * Converters to/from json included.
 * Base abstraction for different game modes (rules).
 * Game modes implemented:
   * standard
@@ -69,7 +70,7 @@ If any adjustments needed to build and run on other platforms, please send a pul
   * It is fast. During the same 500ms code written in vanilla C++ can compute much more than vanilla Python, for example.
   * It's the language I've been using at my main job for over 10 years.
 * Can I use it as a starter project?
-  * Yes, but I wouldn't recommend. It is a bit overly complicated for a starter project. Though there is an [example](snakes/random/README.md) that you can use.
+  * Yes, but I wouldn't recommend. It is overly complicated for a starter project. Though there is an [example](snakes/random/README.md) that you can use.
 * I want to make contribution!
   * You are more than welcome! Please send a pull request and I will respond in a couple days.
 
