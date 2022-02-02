@@ -112,12 +112,8 @@ std::string RenderGame(
   std::vector<std::string> board(state.board.width * state.board.height,
                                  kHazardSymbol);
 
-  for (Coordinate y = state.board.hazard_info.depth_bottom;
-       y < state.board.height - state.board.hazard_info.depth_top; ++y) {
-    for (Coordinate x = state.board.hazard_info.depth_left;
-         x < state.board.width - state.board.hazard_info.depth_right; ++x) {
-      board[ind(x, y)] = kSpaceSymbol;
-    }
+  for (const Point& p : state.board.Hazard()) {
+    board[ind(p.x, p.y)] = kSpaceSymbol;
   }
 
   for (const Point& pos : state.board.Food()) {

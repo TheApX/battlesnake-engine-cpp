@@ -383,7 +383,7 @@ TEST(ObjectSizesTest, ObjectSizes) {
 
   // This is just for monitoring total size of BoardState. Update as needed.
   BoardState board_state;
-  EXPECT_THAT(sizeof(board_state), Eq(2160));
+  EXPECT_THAT(sizeof(board_state), Eq(2232));
   EXPECT_THAT(sizeof(board_state.food), Eq(80));
 
   EXPECT_THAT(sizeof(BoardBits), Eq(80));

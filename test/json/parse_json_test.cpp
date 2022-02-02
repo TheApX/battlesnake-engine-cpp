@@ -16,7 +16,7 @@ using ::testing::Field;
 
 using namespace ::battlesnake::rules;
 
-std::vector<Point> FoodVector(const BoardBitsView& food) {
+std::vector<Point> BoardBitsVector(const BoardBitsView& food) {
   std::vector<Point> result;
   for (const Point& p : food) {
     result.push_back(p);
@@ -224,7 +224,7 @@ TEST_F(ParseJsonTest, BoardStateBasic) {
       .width = 5,
       .height = 15,
       .food = {},
-      .hazard_info = {},
+      .hazard = {},
   };
 
   StringPool pool;
@@ -233,9 +233,10 @@ TEST_F(ParseJsonTest, BoardStateBasic) {
   EXPECT_THAT(state.width, Eq(expected_state.width));
   EXPECT_THAT(state.height, Eq(expected_state.height));
   EXPECT_THAT(state.Food(),
-              ElementsAreArray(FoodVector(expected_state.Food())));
+              ElementsAreArray(BoardBitsVector(expected_state.Food())));
   EXPECT_THAT(state.snakes, ElementsAre());
-  EXPECT_THAT(state.hazard_info, Eq(expected_state.hazard_info));
+  EXPECT_THAT(state.Hazard(),
+              ElementsAreArray(BoardBitsVector(expected_state.Hazard())));
 }
 
 TEST_F(ParseJsonTest, BoardStateFood) {
@@ -261,7 +262,7 @@ TEST_F(ParseJsonTest, BoardStateFood) {
               Point{4, 14},
           },
           5, 15),
-      .hazard_info = {},
+      .hazard = {},
   };
 
   StringPool pool;
@@ -270,9 +271,10 @@ TEST_F(ParseJsonTest, BoardStateFood) {
   EXPECT_THAT(state.width, Eq(expected_state.width));
   EXPECT_THAT(state.height, Eq(expected_state.height));
   EXPECT_THAT(state.Food(),
-              ElementsAreArray(FoodVector(expected_state.Food())));
+              ElementsAreArray(BoardBitsVector(expected_state.Food())));
   EXPECT_THAT(state.snakes, ElementsAre());
-  EXPECT_THAT(state.hazard_info, Eq(expected_state.hazard_info));
+  EXPECT_THAT(state.Hazard(),
+              ElementsAreArray(BoardBitsVector(expected_state.Hazard())));
 }
 
 TEST_F(ParseJsonTest, BoardStateHazards) {
@@ -321,13 +323,39 @@ TEST_F(ParseJsonTest, BoardStateHazards) {
       .height = 6,
       .food = {},
       .snakes = {},
-      .hazard_info =
+      .hazard = CreateBoardBits(
           {
-              .depth_left = 1,
-              .depth_right = 2,
-              .depth_top = 2,
-              .depth_bottom = 1,
+              Point{0, 0},  //
+              Point{1, 0},  //
+              Point{2, 0},  //
+              Point{3, 0},  //
+              Point{4, 0},  //
+
+              Point{0, 1},  //
+              Point{3, 1},  //
+              Point{4, 1},  //
+
+              Point{0, 2},  //
+              Point{3, 2},  //
+              Point{4, 2},  //
+
+              Point{0, 3},  //
+              Point{3, 3},  //
+              Point{4, 3},  //
+
+              Point{0, 4},  //
+              Point{1, 4},  //
+              Point{2, 4},  //
+              Point{3, 4},  //
+              Point{4, 4},  //
+
+              Point{0, 5},  //
+              Point{1, 5},  //
+              Point{2, 5},  //
+              Point{3, 5},  //
+              Point{4, 5},  //
           },
+          5, 6),
   };
 
   StringPool pool;
@@ -336,9 +364,10 @@ TEST_F(ParseJsonTest, BoardStateHazards) {
   EXPECT_THAT(state.width, Eq(expected_state.width));
   EXPECT_THAT(state.height, Eq(expected_state.height));
   EXPECT_THAT(state.Food(),
-              ElementsAreArray(FoodVector(expected_state.Food())));
+              ElementsAreArray(BoardBitsVector(expected_state.Food())));
   EXPECT_THAT(state.snakes, ElementsAre());
-  EXPECT_THAT(state.hazard_info, Eq(expected_state.hazard_info));
+  EXPECT_THAT(state.Hazard(),
+              ElementsAreArray(BoardBitsVector(expected_state.Hazard())));
 }
 
 TEST_F(ParseJsonTest, BoardStateSnakes) {
@@ -370,7 +399,7 @@ TEST_F(ParseJsonTest, BoardStateSnakes) {
       .width = 5,
       .height = 15,
       .food = {},
-      .hazard_info = {},
+      .hazard = {},
   };
 
   StringPool pool;
@@ -379,9 +408,10 @@ TEST_F(ParseJsonTest, BoardStateSnakes) {
   EXPECT_THAT(state.width, Eq(expected_state.width));
   EXPECT_THAT(state.height, Eq(expected_state.height));
   EXPECT_THAT(state.Food(),
-              ElementsAreArray(FoodVector(expected_state.Food())));
+              ElementsAreArray(BoardBitsVector(expected_state.Food())));
   EXPECT_THAT(state.snakes, ElementsAre(Field(&Snake::id, "snake_id")));
-  EXPECT_THAT(state.hazard_info, Eq(expected_state.hazard_info));
+  EXPECT_THAT(state.Hazard(),
+              ElementsAreArray(BoardBitsVector(expected_state.Hazard())));
 }
 
 TEST_F(ParseJsonTest, BoardStateWrongSnakesValueType) {

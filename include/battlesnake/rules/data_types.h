@@ -444,38 +444,24 @@ inline BoardBits CreateBoardBits(const std::initializer_list<Point>& data,
 }
 
 using SnakesVector = ::theapx::trivial_loop_array<Snake, kSnakesCountMax>;
-
-struct HazardInfo {
-  Coordinate depth_left;
-  Coordinate depth_right;
-  Coordinate depth_top;
-  Coordinate depth_bottom;
-};
-
-bool operator==(const HazardInfo& a, const HazardInfo& b);
-inline bool operator!=(const HazardInfo& a, const HazardInfo& b) {
-  return !(a == b);
-}
-
 struct BoardState {
   Coordinate width;
   Coordinate height;
   BoardBits food;
   SnakesVector snakes;
-  HazardInfo hazard_info;
+  BoardBits hazard;
 
   BoardBitsView Food() { return BoardBitsView(&this->food, width, height); }
   BoardBitsViewConst Food() const {
     return BoardBitsViewConst(&this->food, width, height);
   }
 
-  bool InHazard(const Point& p) const {
-    if (p.x < hazard_info.depth_left) return true;
-    if (p.x >= width - hazard_info.depth_right) return true;
-    if (p.y < hazard_info.depth_bottom) return true;
-    if (p.y >= height - hazard_info.depth_top) return true;
-    return false;
+  BoardBitsView Hazard() { return BoardBitsView(&this->hazard, width, height); }
+  BoardBitsViewConst Hazard() const {
+    return BoardBitsViewConst(&this->hazard, width, height);
   }
+
+  bool InHazard(const Point& p) const { return Hazard().Get(p); }
 };
 
 struct RulesetSettings {

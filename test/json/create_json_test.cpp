@@ -71,7 +71,7 @@ TEST_F(CreateJsonTest, BoardStateBasic) {
       .height = 15,
       .food = {},
       .snakes = {},
-      .hazard_info = {},
+      .hazard = {},
   };
 
   auto expected_json = nlohmann::json::parse(R"json(
@@ -98,7 +98,7 @@ TEST_F(CreateJsonTest, BoardStateFood) {
           },
           5, 15),
       .snakes = {},
-      .hazard_info = {},
+      .hazard = {},
   };
 
   auto expected_json = nlohmann::json::parse(R"json(
@@ -123,10 +123,14 @@ TEST_F(CreateJsonTest, BoardStateHazardsLeft) {
       .height = 4,
       .food = {},
       .snakes = {},
-      .hazard_info =
+      .hazard = CreateBoardBits(
           {
-              .depth_left = 1,
+              Point{0, 0},
+              Point{0, 1},
+              Point{0, 2},
+              Point{0, 3},
           },
+          3, 4),
   };
 
   auto expected_json = nlohmann::json::parse(R"json(
@@ -153,10 +157,18 @@ TEST_F(CreateJsonTest, BoardStateHazardsRight) {
       .height = 4,
       .food = {},
       .snakes = {},
-      .hazard_info =
+      .hazard = CreateBoardBits(
           {
-              .depth_right = 2,
+              Point{1, 0},
+              Point{2, 0},
+              Point{1, 1},
+              Point{2, 1},
+              Point{1, 2},
+              Point{2, 2},
+              Point{1, 3},
+              Point{2, 3},
           },
+          3, 4),
   };
 
   auto expected_json = nlohmann::json::parse(R"json(
@@ -187,10 +199,13 @@ TEST_F(CreateJsonTest, BoardStateHazardsBottom) {
       .height = 4,
       .food = {},
       .snakes = {},
-      .hazard_info =
+      .hazard = CreateBoardBits(
           {
-              .depth_bottom = 1,
+              Point{0, 0},
+              Point{1, 0},
+              Point{2, 0},
           },
+          3, 4),
   };
 
   auto expected_json = nlohmann::json::parse(R"json(
@@ -216,10 +231,16 @@ TEST_F(CreateJsonTest, BoardStateHazardsTop) {
       .height = 4,
       .food = {},
       .snakes = {},
-      .hazard_info =
+      .hazard = CreateBoardBits(
           {
-              .depth_top = 2,
+              Point{0, 2},
+              Point{1, 2},
+              Point{2, 2},
+              Point{0, 3},
+              Point{1, 3},
+              Point{2, 3},
           },
+          3, 4),
   };
 
   auto expected_json = nlohmann::json::parse(R"json(
@@ -248,13 +269,39 @@ TEST_F(CreateJsonTest, BoardStateHazardsGeneric) {
       .height = 6,
       .food = {},
       .snakes = {},
-      .hazard_info =
+      .hazard = CreateBoardBits(
           {
-              .depth_left = 1,
-              .depth_right = 2,
-              .depth_top = 2,
-              .depth_bottom = 1,
+              Point{0, 0},  //
+              Point{1, 0},  //
+              Point{2, 0},  //
+              Point{3, 0},  //
+              Point{4, 0},  //
+
+              Point{0, 1},  //
+              Point{3, 1},  //
+              Point{4, 1},  //
+
+              Point{0, 2},  //
+              Point{3, 2},  //
+              Point{4, 2},  //
+
+              Point{0, 3},  //
+              Point{3, 3},  //
+              Point{4, 3},  //
+
+              Point{0, 4},  //
+              Point{1, 4},  //
+              Point{2, 4},  //
+              Point{3, 4},  //
+              Point{4, 4},  //
+
+              Point{0, 5},  //
+              Point{1, 5},  //
+              Point{2, 5},  //
+              Point{3, 5},  //
+              Point{4, 5},  //
           },
+          5, 6),
   };
 
   auto expected_json = nlohmann::json::parse(R"json(
@@ -322,7 +369,7 @@ TEST_F(CreateJsonTest, BoardStateSnakes) {
               .squad = pool.Add("The Suicide Squad"),
           },
       }),
-      .hazard_info = {},
+      .hazard = {},
   };
 
   auto expected_json = nlohmann::json::parse(R"json(
@@ -378,7 +425,7 @@ TEST_F(CreateJsonTest, BoardStateEliminatedSnake) {
               .squad = pool.Add("The Suicide Squad"),
           },
       }),
-      .hazard_info = {},
+      .hazard = {},
   };
 
   auto expected_json = nlohmann::json::parse(R"json(

@@ -20,12 +20,27 @@ void RoyaleRuleset::CreateNextBoardState(const BoardState& prev_state,
 }
 
 RoyaleRuleset::Bounds RoyaleRuleset::findBounds(const BoardState& state) const {
-  return Bounds{
-      .min_x = state.hazard_info.depth_left,
-      .max_x = state.width - state.hazard_info.depth_right - 1,
-      .min_y = state.hazard_info.depth_bottom,
-      .max_y = state.height - state.hazard_info.depth_top - 1,
+  Bounds result{
+      .min_x = state.width,
+      .max_x = -1,
+      .min_y = state.height,
+      .max_y = -1,
   };
+
+  for (int y = 0; y < state.height; ++y) {
+    for (int x = 0; x < state.width; ++x) {
+      if (state.Hazard().Get(
+              Point{static_cast<Coordinate>(x), static_cast<Coordinate>(y)})) {
+        continue;
+      }
+      result.min_x = std::min(result.min_x, x);
+      result.max_x = std::max(result.max_x, x);
+      result.min_y = std::min(result.min_y, y);
+      result.max_y = std::max(result.max_y, y);
+    }
+  }
+
+  return result;
 }
 
 void RoyaleRuleset::damageOutOfBounds(const Bounds& bounds,
@@ -103,10 +118,18 @@ bool RoyaleRuleset::maybeShrinkBounds(int turn,
 }
 
 void RoyaleRuleset::fillHazards(const Bounds& bounds, BoardState& state) const {
-  state.hazard_info.depth_left = bounds.min_x;
-  state.hazard_info.depth_right = state.width - bounds.max_x - 1;
-  state.hazard_info.depth_bottom = bounds.min_y;
-  state.hazard_info.depth_top = state.height - bounds.max_y - 1;
+  for (int y = 0; y < state.height; ++y) {
+    for (int x = 0; x < state.width; ++x) {
+      bool in_bounds = true                    //
+                       && (x >= bounds.min_x)  //
+                       && (x <= bounds.max_x)  //
+                       && (y >= bounds.min_y)  //
+                       && (y <= bounds.max_y);
+      state.Hazard().Set(
+          Point{static_cast<Coordinate>(x), static_cast<Coordinate>(y)},
+          !in_bounds);
+    }
+  }
 }
 
 }  // namespace rules

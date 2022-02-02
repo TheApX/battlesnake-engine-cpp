@@ -116,54 +116,6 @@ SnakesVector GetSnakeArray(const nlohmann::json& json, const char* key,
   return result;
 }
 
-PointsVector CreateHazardsVector(const BoardState& state) {
-  PointsVector result{};
-  for (Coordinate y = 0; y < state.height; ++y) {
-    for (Coordinate x = 0; x < state.width; ++x) {
-      Point p{.x = x, .y = y};
-      if (state.InHazard(p)) {
-        result.push_back(p);
-      }
-    }
-  }
-
-  return result;
-}
-
-HazardInfo CalculateHazardInfo(const PointsVector& hazards, Coordinate width,
-                               Coordinate height) {
-  int min_x = width;
-  int max_x = -1;
-  int min_y = height;
-  int max_y = -1;
-
-  std::vector<bool> board(width * height, false);
-  auto ind = [&](int x, int y) -> int { return y * width + x; };
-
-  for (const Point& pos : hazards) {
-    board[ind(pos.x, pos.y)] = true;
-  }
-
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      if (board[ind(x, y)]) {
-        continue;
-      }
-      min_x = std::min(min_x, x);
-      max_x = std::max(max_x, x);
-      min_y = std::min(min_y, y);
-      max_y = std::max(max_y, y);
-    }
-  }
-
-  return HazardInfo{
-      .depth_left = static_cast<Coordinate>(min_x),
-      .depth_right = static_cast<Coordinate>(width - max_x - 1),
-      .depth_top = static_cast<Coordinate>(height - max_y - 1),
-      .depth_bottom = static_cast<Coordinate>(min_y),
-  };
-}
-
 }  // namespace
 
 nlohmann::json CreateJson(const Point& point) {
@@ -203,7 +155,7 @@ nlohmann::json CreateJson(const BoardState& state) {
   result["width"] = state.width;
   result["height"] = state.height;
   result["food"] = CreateContainerJson(state.Food());
-  result["hazards"] = CreateContainerJson(CreateHazardsVector(state));
+  result["hazards"] = CreateContainerJson(state.Hazard());
 
   auto snakes = nlohmann::json::array();
   for (const Snake& snake : state.snakes) {
@@ -327,8 +279,8 @@ BoardState ParseJsonBoard(const nlohmann::json& json,
   };
   result.food =
       CreateBoardBits(GetPointArray(json, "food"), result.width, result.height);
-  result.hazard_info = CalculateHazardInfo(GetPointArray(json, "hazards"),
-                                           result.width, result.height);
+  result.hazard = CreateBoardBits(GetPointArray(json, "hazards"), result.width,
+                                  result.height);
   return result;
 }
 

@@ -67,13 +67,17 @@ TEST_F(RoyaleCreateNextBoardStateTest, NotInHazardDoesntAffectHealth) {
               .health = 100,
           },
       }),
-      .hazard_info =
+      .hazard = CreateBoardBits(
           {
-              .depth_left = 1,
-              .depth_right = 0,
-              .depth_top = 0,
-              .depth_bottom = 0,
+              Point{0, 0},
+              Point{0, 1},
+              Point{0, 2},
+              Point{0, 3},
+              Point{0, 4},
+              Point{0, 5},
+              Point{0, 6},
           },
+          kBoardSizeSmall, kBoardSizeSmall),
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.
@@ -103,13 +107,17 @@ TEST_F(RoyaleCreateNextBoardStateTest, InHazardReducesHealth) {
               .health = 100,
           },
       }),
-      .hazard_info =
+      .hazard = CreateBoardBits(
           {
-              .depth_left = 1,
-              .depth_right = 0,
-              .depth_top = 0,
-              .depth_bottom = 0,
+              Point{0, 0},
+              Point{0, 1},
+              Point{0, 2},
+              Point{0, 3},
+              Point{0, 4},
+              Point{0, 5},
+              Point{0, 6},
           },
+          kBoardSizeSmall, kBoardSizeSmall),
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.
@@ -144,13 +152,17 @@ TEST_F(RoyaleCreateNextBoardStateTest, FoodInHazardRestoresHealth) {
               .health = 100,
           },
       }),
-      .hazard_info =
+      .hazard = CreateBoardBits(
           {
-              .depth_left = 1,
-              .depth_right = 0,
-              .depth_top = 0,
-              .depth_bottom = 0,
+              Point{0, 0},
+              Point{0, 1},
+              Point{0, 2},
+              Point{0, 3},
+              Point{0, 4},
+              Point{0, 5},
+              Point{0, 6},
           },
+          kBoardSizeSmall, kBoardSizeSmall),
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.
@@ -183,13 +195,17 @@ TEST_F(RoyaleCreateNextBoardStateTest, MovesIntoHazard) {
               .health = 100,
           },
       }),
-      .hazard_info =
+      .hazard = CreateBoardBits(
           {
-              .depth_left = 0,
-              .depth_right = 0,
-              .depth_top = 0,
-              .depth_bottom = 1,
+              Point{0, 0},
+              Point{1, 0},
+              Point{2, 0},
+              Point{3, 0},
+              Point{4, 0},
+              Point{5, 0},
+              Point{6, 0},
           },
+          kBoardSizeSmall, kBoardSizeSmall),
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.
@@ -219,13 +235,17 @@ TEST_F(RoyaleCreateNextBoardStateTest, MovesOutOfHazard) {
               .health = 100,
           },
       }),
-      .hazard_info =
+      .hazard = CreateBoardBits(
           {
-              .depth_left = 1,
-              .depth_right = 0,
-              .depth_top = 0,
-              .depth_bottom = 0,
+              Point{0, 0},
+              Point{0, 1},
+              Point{0, 2},
+              Point{0, 3},
+              Point{0, 4},
+              Point{0, 5},
+              Point{0, 6},
           },
+          kBoardSizeSmall, kBoardSizeSmall),
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.
@@ -255,13 +275,17 @@ TEST_F(RoyaleCreateNextBoardStateTest, NewHazardDoesntAffectHealth) {
               .health = 100,
           },
       }),
-      .hazard_info =
+      .hazard = CreateBoardBits(
           {
-              .depth_left = 1,
-              .depth_right = 0,
-              .depth_top = 0,
-              .depth_bottom = 0,
+              Point{0, 0},
+              Point{0, 1},
+              Point{0, 2},
+              Point{0, 3},
+              Point{0, 4},
+              Point{0, 5},
+              Point{0, 6},
           },
+          kBoardSizeSmall, kBoardSizeSmall),
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.
