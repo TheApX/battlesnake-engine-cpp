@@ -15,6 +15,7 @@
 #include "battlesnake/rules/solo_ruleset.h"
 #include "battlesnake/rules/squad_ruleset.h"
 #include "battlesnake/rules/standard_ruleset.h"
+#include "battlesnake/rules/wrapped_ruleset.h"
 #include "cli_options.h"
 #include "http_client_battlesnake.h"
 
@@ -65,6 +66,10 @@ std::unique_ptr<Ruleset> CreateRuleset(const std::string& name) {
 
   if (name == "squad") {
     return std::make_unique<SquadRuleset>();
+  }
+
+  if (name == "wrapped") {
+    return std::make_unique<WrappedRuleset>();
   }
 
   return nullptr;
