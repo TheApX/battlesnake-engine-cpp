@@ -110,14 +110,16 @@ struct Point {
   }
   bool operator!=(const Point& other) const { return !operator==(other); }
 
-  Point Up() const { return Point{x, static_cast<Coordinate>(y + 1)}; }
-  Point Down() const { return Point{x, static_cast<Coordinate>(y - 1)}; }
-  Point Left() const { return Point{static_cast<Coordinate>(x - 1), y}; }
-  Point Right() const { return Point{static_cast<Coordinate>(x + 1), y}; }
-  Point Moved(Move move) const;
+  // If wrapped_bard_size is provided, wraps new Point at the provided size.
+  Point Up(const Point* wrapped_board_size = nullptr) const;
+  Point Down(const Point* wrapped_board_size = nullptr) const;
+  Point Left(const Point* wrapped_board_size = nullptr) const;
+  Point Right(const Point* wrapped_board_size = nullptr) const;
+  Point Moved(Move move, const Point* wrapped_board_size = nullptr) const;
 };
 
-Move DetectMove(const Point& from, const Point& to);
+Move DetectMove(const Point& from, const Point& to,
+                const Point* wrapped_board_size = nullptr);
 
 // Max board area is kBoardSizeMax^2, but snakes may have an extra element at
 // their tail and may go out of bounds, so extra buffer of 2 elements. This

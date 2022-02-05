@@ -78,27 +78,59 @@ StringWrapper StringPool::Add(const std::string& s) {
 
 size_t StringPool::Size() const { return index_.size(); }
 
-Point Point::Moved(Move move) const {
+Point Point::Up(const Point* wrapped_board_size) const {
+  if (wrapped_board_size != nullptr) {
+    return Point{x, static_cast<Coordinate>((y + 1) % wrapped_board_size->y)};
+  }
+  return Point{x, static_cast<Coordinate>(y + 1)};
+}
+
+Point Point::Down(const Point* wrapped_board_size) const {
+  if (wrapped_board_size != nullptr) {
+    return Point{x, static_cast<Coordinate>((y - 1 + wrapped_board_size->y) %
+                                            wrapped_board_size->y)};
+  }
+  return Point{x, static_cast<Coordinate>(y - 1)};
+}
+
+Point Point::Left(const Point* wrapped_board_size) const {
+  if (wrapped_board_size != nullptr) {
+    return Point{static_cast<Coordinate>((x - 1 + wrapped_board_size->x) %
+                                         wrapped_board_size->x),
+                 y};
+  }
+  return Point{static_cast<Coordinate>(x - 1), y};
+}
+
+Point Point::Right(const Point* wrapped_board_size) const {
+  if (wrapped_board_size != nullptr) {
+    return Point{static_cast<Coordinate>((x + 1) % wrapped_board_size->x), y};
+  }
+  return Point{static_cast<Coordinate>(x + 1), y};
+}
+
+Point Point::Moved(Move move, const Point* wrapped_board_size) const {
   switch (move) {
     case Move::Up:
-      return Up();
+      return Up(wrapped_board_size);
     case Move::Down:
-      return Down();
+      return Down(wrapped_board_size);
     case Move::Left:
-      return Left();
+      return Left(wrapped_board_size);
     case Move::Right:
-      return Right();
+      return Right(wrapped_board_size);
 
     default:
       return *this;
   }
 }
 
-Move DetectMove(const Point& from, const Point& to) {
-  if (to == from.Up()) return Move::Up;
-  if (to == from.Down()) return Move::Down;
-  if (to == from.Left()) return Move::Left;
-  if (to == from.Right()) return Move::Right;
+Move DetectMove(const Point& from, const Point& to,
+                const Point* wrapped_board_size) {
+  if (to == from.Up(wrapped_board_size)) return Move::Up;
+  if (to == from.Down(wrapped_board_size)) return Move::Down;
+  if (to == from.Left(wrapped_board_size)) return Move::Left;
+  if (to == from.Right(wrapped_board_size)) return Move::Right;
   return Move::Unknown;
 }
 

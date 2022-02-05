@@ -96,6 +96,118 @@ TEST(PodTest, PointZeroInitialization) {
   EXPECT_THAT(point.y, Eq(0));
 }
 
+TEST(PointTest, LeftNotWrapped) {
+  Point point{5, 5};
+  Point moved{4, 5};
+  EXPECT_THAT(point.Left(), Eq(moved));
+  EXPECT_THAT(point.Moved(Move::Left), Eq(moved));
+}
+
+TEST(PointTest, RightNotWrapped) {
+  Point point{5, 5};
+  Point moved{6, 5};
+  EXPECT_THAT(point.Right(), Eq(moved));
+  EXPECT_THAT(point.Moved(Move::Right), Eq(moved));
+}
+
+TEST(PointTest, DownNotWrapped) {
+  Point point{5, 5};
+  Point moved{5, 4};
+  EXPECT_THAT(point.Down(), Eq(moved));
+  EXPECT_THAT(point.Moved(Move::Down), Eq(moved));
+}
+
+TEST(PointTest, UpNotWrapped) {
+  Point point{5, 5};
+  Point moved{5, 6};
+  EXPECT_THAT(point.Up(), Eq(moved));
+  EXPECT_THAT(point.Moved(Move::Up), Eq(moved));
+}
+
+TEST(PointTest, LeftWrapped) {
+  Point size{5, 5};
+  Point point{0, 0};
+  Point moved{4, 0};
+  EXPECT_THAT(point.Left(&size), Eq(moved));
+  EXPECT_THAT(point.Moved(Move::Left, &size), Eq(moved));
+}
+
+TEST(PointTest, RightWrapped) {
+  Point size{5, 5};
+  Point point{4, 4};
+  Point moved{0, 4};
+  EXPECT_THAT(point.Right(&size), Eq(moved));
+  EXPECT_THAT(point.Moved(Move::Right, &size), Eq(moved));
+}
+
+TEST(PointTest, DownWrapped) {
+  Point size{5, 5};
+  Point point{0, 0};
+  Point moved{0, 4};
+  EXPECT_THAT(point.Down(&size), Eq(moved));
+  EXPECT_THAT(point.Moved(Move::Down, &size), Eq(moved));
+}
+
+TEST(PointTest, UpWrapped) {
+  Point size{5, 5};
+  Point point{4, 4};
+  Point moved{4, 0};
+  EXPECT_THAT(point.Up(&size), Eq(moved));
+  EXPECT_THAT(point.Moved(Move::Up, &size), Eq(moved));
+}
+
+TEST(DetectMoveTest, LeftNotWrapped) {
+  Point point{5, 5};
+  Point moved{4, 5};
+  EXPECT_THAT(DetectMove(point, moved), Eq(Move::Left));
+}
+
+TEST(DetectMoveTest, RightNotWrapped) {
+  Point point{5, 5};
+  Point moved{6, 5};
+  EXPECT_THAT(DetectMove(point, moved), Eq(Move::Right));
+}
+
+TEST(DetectMoveTest, DownNotWrapped) {
+  Point point{5, 5};
+  Point moved{5, 4};
+  EXPECT_THAT(DetectMove(point, moved), Eq(Move::Down));
+}
+
+TEST(DetectMoveTest, UpNotWrapped) {
+  Point point{5, 5};
+  Point moved{5, 6};
+  EXPECT_THAT(DetectMove(point, moved), Eq(Move::Up));
+}
+
+TEST(DetectMoveTest, LeftWrapped) {
+  Point size{5, 5};
+  Point point{0, 0};
+  Point moved{4, 0};
+  EXPECT_THAT(DetectMove(point, moved, &size), Eq(Move::Left));
+}
+
+TEST(DetectMoveTest, RightWrapped) {
+  Point size{5, 5};
+  Point point{4, 4};
+  Point moved{0, 4};
+  EXPECT_THAT(DetectMove(point, moved, &size), Eq(Move::Right));
+}
+
+TEST(DetectMoveTest, DownWrapped) {
+  Point size{5, 5};
+  Point point{0, 0};
+  Point moved{0, 4};
+  EXPECT_THAT(DetectMove(point, moved, &size), Eq(Move::Down));
+}
+
+TEST(DetectMoveTest, UpWrapped) {
+  Point size{5, 5};
+  Point point{4, 4};
+  Point moved{4, 0};
+  EXPECT_THAT(DetectMove(point, moved, &size), Eq(Move::Up));
+}
+
 TEST(SnakeBodyTest, CreateWorks) {
   SnakeBody body = SnakeBody::Create({
       {1, 2},
