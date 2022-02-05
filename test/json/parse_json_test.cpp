@@ -9,6 +9,7 @@ namespace json {
 
 namespace {
 
+using ::testing::AllOf;
 using ::testing::ElementsAre;
 using ::testing::ElementsAreArray;
 using ::testing::Eq;
@@ -85,6 +86,65 @@ TEST_F(ParseJsonTest, SnakeSucceeds) {
   };
 
   Snake snake = ParseJsonSnake(json, pool);
+
+  EXPECT_THAT(snake.id, Eq(expected_snake.id));
+  EXPECT_THAT(snake.body, Eq(expected_snake.body));
+  EXPECT_THAT(snake.health, Eq(expected_snake.health));
+  EXPECT_THAT(snake.eliminated_cause.cause,
+              Eq(expected_snake.eliminated_cause.cause));
+  EXPECT_THAT(snake.eliminated_cause.by_id,
+              Eq(expected_snake.eliminated_cause.by_id));
+  EXPECT_THAT(snake.name, Eq(expected_snake.name));
+  EXPECT_THAT(snake.latency, Eq(expected_snake.latency));
+  EXPECT_THAT(snake.shout, Eq(expected_snake.shout));
+  EXPECT_THAT(snake.squad, Eq(expected_snake.squad));
+}
+
+TEST_F(ParseJsonTest, SnakeWrappedSucceeds) {
+  auto json = nlohmann::json::parse(R"json(
+      {
+          "id": "snake_id",
+          "body": [
+              {"x": 2, "y": 0},
+              {"x": 1, "y": 0},
+              {"x": 0, "y": 0},
+              {"x": 10, "y": 0},
+              {"x": 9, "y": 0},
+              {"x": 8, "y": 0}
+          ],
+          "length": 6,
+          "head": {"x": 2, "y": 0},
+          "health": 75,
+          "name": "Test Caterpillar",
+          "latency": "123",
+          "shout": "Why are we shouting???",
+          "squad": "The Suicide Squad"
+      }
+  )json");
+
+  Point wrapped_board_size{11, 11};
+
+  StringPool pool;
+  Snake expected_snake{
+      .id = pool.Add("snake_id"),
+      .body = SnakeBody::Create(
+          {
+              Point{2, 0},
+              Point{1, 0},
+              Point{0, 0},
+              Point{10, 0},
+              Point{9, 0},
+              Point{8, 0},
+          },
+          &wrapped_board_size),
+      .health = 75,
+      .name = pool.Add("Test Caterpillar"),
+      .latency = pool.Add("123"),
+      .shout = pool.Add("Why are we shouting???"),
+      .squad = pool.Add("The Suicide Squad"),
+  };
+
+  Snake snake = ParseJsonSnake(json, pool, &wrapped_board_size);
 
   EXPECT_THAT(snake.id, Eq(expected_snake.id));
   EXPECT_THAT(snake.body, Eq(expected_snake.body));
@@ -373,18 +433,21 @@ TEST_F(ParseJsonTest, BoardStateHazards) {
 TEST_F(ParseJsonTest, BoardStateSnakes) {
   auto json = nlohmann::json::parse(R"json(
         {
-          "width": 5,
+          "width": 11,
           "height": 15,
           "food": [],
           "snakes": [{
               "id": "snake_id",
               "body": [
-                  {"x": 10, "y": 1},
-                  {"x": 10, "y": 2},
-                  {"x": 10, "y": 3}
+                  {"x": 2, "y": 0},
+                  {"x": 1, "y": 0},
+                  {"x": 0, "y": 0},
+                  {"x": 10, "y": 0},
+                  {"x": 9, "y": 0},
+                  {"x": 8, "y": 0}
               ],
               "length": 3,
-              "head": {"x": 10, "y": 1},
+              "head": {"x": 2, "y": 0},
               "health": 75,
               "name": "Test Caterpillar",
               "latency": "123",
@@ -396,7 +459,7 @@ TEST_F(ParseJsonTest, BoardStateSnakes) {
     )json");
 
   BoardState expected_state{
-      .width = 5,
+      .width = 11,
       .height = 15,
       .food = {},
       .hazard = {},
@@ -409,7 +472,16 @@ TEST_F(ParseJsonTest, BoardStateSnakes) {
   EXPECT_THAT(state.height, Eq(expected_state.height));
   EXPECT_THAT(state.Food(),
               ElementsAreArray(BoardBitsVector(expected_state.Food())));
-  EXPECT_THAT(state.snakes, ElementsAre(Field(&Snake::id, "snake_id")));
+  EXPECT_THAT(state.snakes,
+              ElementsAre(AllOf(Field(&Snake::id, "snake_id"),
+                                Field(&Snake::body, ElementsAreArray({
+                                                        Point{2, 0},
+                                                        Point{1, 0},
+                                                        Point{0, 0},
+                                                        Point{10, 0},
+                                                        Point{9, 0},
+                                                        Point{8, 0},
+                                                    })))));
   EXPECT_THAT(state.Hazard(),
               ElementsAreArray(BoardBitsVector(expected_state.Hazard())));
 }

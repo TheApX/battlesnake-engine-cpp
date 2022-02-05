@@ -44,8 +44,9 @@ nlohmann::json CreateJson(
 // Parses Point from json.
 battlesnake::rules::Point ParseJsonPoint(const nlohmann::json& json);
 // Parses Snake from json.
-battlesnake::rules::Snake ParseJsonSnake(const nlohmann::json& json,
-                                         battlesnake::rules::StringPool& pool);
+battlesnake::rules::Snake ParseJsonSnake(
+    const nlohmann::json& json, battlesnake::rules::StringPool& pool,
+    const battlesnake::rules::Point* wrapped_board_size = nullptr);
 // Parses BoardState from json.
 battlesnake::rules::BoardState ParseJsonBoard(
     const nlohmann::json& json, battlesnake::rules::StringPool& pool);

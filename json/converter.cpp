@@ -99,7 +99,8 @@ PointsVector GetPointArray(const nlohmann::json& json, const char* key) {
 }
 
 SnakesVector GetSnakeArray(const nlohmann::json& json, const char* key,
-                           battlesnake::rules::StringPool& pool) {
+                           battlesnake::rules::StringPool& pool,
+                           const Point* wrapped_board_size) {
   auto v = json.find(key);
   if (v == json.end()) {
     throw ParseException();
@@ -111,7 +112,7 @@ SnakesVector GetSnakeArray(const nlohmann::json& json, const char* key,
   SnakesVector result{};
   result.reserve(v->size());
   for (const nlohmann::json& s : *v) {
-    result.push_back(ParseJsonSnake(s, pool));
+    result.push_back(ParseJsonSnake(s, pool, wrapped_board_size));
   }
   return result;
 }
@@ -239,14 +240,16 @@ Point ParseJsonPoint(const nlohmann::json& json) {
 }
 
 Snake ParseJsonSnake(const nlohmann::json& json,
-                     battlesnake::rules::StringPool& pool) {
+                     battlesnake::rules::StringPool& pool,
+                     const Point* wrapped_board_size) {
   if (!json.is_object()) {
     throw ParseException();
   }
 
   Snake snake{
       .id = GetString(json, "id", pool),
-      .body = SnakeBody::Create(GetPointArray(json, "body")),
+      .body =
+          SnakeBody::Create(GetPointArray(json, "body"), wrapped_board_size),
       .health = GetInt(json, "health"),
       .name = GetString(json, "name", "", pool),
       .latency = GetString(json, "latency", "0", pool),
@@ -275,8 +278,13 @@ BoardState ParseJsonBoard(const nlohmann::json& json,
   BoardState result{
       .width = GetCoordinate(json, "width"),
       .height = GetCoordinate(json, "height"),
-      .snakes = GetSnakeArray(json, "snakes", pool),
   };
+
+  // Parse all boards as wrapped. If board is not wrapped, snakes must not wrap,
+  // and will be parsed the same regardless of how they are parsed.
+  Point wrapped_board_size{result.width, result.height};
+  result.snakes = GetSnakeArray(json, "snakes", pool, &wrapped_board_size);
+
   result.food =
       CreateBoardBits(GetPointArray(json, "food"), result.width, result.height);
   result.hazard = CreateBoardBits(GetPointArray(json, "hazards"), result.width,
@@ -347,7 +355,10 @@ battlesnake::rules::GameState ParseJsonGameState(
 
   auto you_it = json.find("you");
   if (you_it != json.end()) {
-    game_state.you = ParseJsonSnake(*you_it, pool);
+    // Parse all boards as wrapped. If board is not wrapped, snakes must not
+    // wrap, and will be parsed the same regardless of how they are parsed.
+    Point wrapped_board_size{game_state.board.width, game_state.board.height};
+    game_state.you = ParseJsonSnake(*you_it, pool, &wrapped_board_size);
   }
 
   return game_state;
