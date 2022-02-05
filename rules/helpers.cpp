@@ -110,10 +110,10 @@ std::string RenderGame(
   auto ind = [&](int x, int y) -> int { return y * state.board.width + x; };
 
   std::vector<std::string> board(state.board.width * state.board.height,
-                                 kHazardSymbol);
+                                 kSpaceSymbol);
 
   for (const Point& p : state.board.Hazard()) {
-    board[ind(p.x, p.y)] = kSpaceSymbol;
+    board[ind(p.x, p.y)] = kHazardSymbol;
   }
 
   for (const Point& pos : state.board.Food()) {
