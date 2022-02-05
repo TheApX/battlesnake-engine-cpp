@@ -35,6 +35,8 @@ BoardState StandardRuleset::CreateInitialBoardState(
     placeFoodRandomly(initial_board_state, unoccupied_points);
   }
 
+  setSnakesWrapped(initial_board_state);
+
   return initial_board_state;
 }
 
@@ -199,6 +201,16 @@ void StandardRuleset::spawnFood(BoardState& state, int count,
           std::move(unoccupied_points[unoccupied_points.size() - 1]);
       unoccupied_points.resize(unoccupied_points.size() - 1);
     }
+  }
+}
+
+void StandardRuleset::setSnakesWrapped(BoardState& state) const {
+  if (!wrapped_mode_) {
+    return;
+  }
+
+  for (Snake& snake : state.snakes) {
+    snake.body.wrapped_board_size = Point{state.width, state.height};
   }
 }
 

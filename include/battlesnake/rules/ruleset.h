@@ -28,6 +28,7 @@ class Ruleset {
                                     const SnakeMovesVector& moves, int turn,
                                     BoardState& next_state) = 0;
   virtual bool IsGameOver(const BoardState& state) = 0;
+  virtual bool IsWrapped() = 0;
 };
 
 }  // namespace rules

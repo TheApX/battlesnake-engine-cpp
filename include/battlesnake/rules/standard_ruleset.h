@@ -29,6 +29,7 @@ class StandardRuleset : public Ruleset {
                                     const SnakeMovesVector& moves, int turn,
                                     BoardState& next_state) override;
   virtual bool IsGameOver(const BoardState& state) override;
+  virtual bool IsWrapped() override { return wrapped_mode_; }
 
  protected:
   static int getRandomNumber(int max_value);
@@ -36,6 +37,7 @@ class StandardRuleset : public Ruleset {
 
  protected:
   Config config_;
+  bool wrapped_mode_ = false;
 
  private:
   using SnakeIndicesVector = ::theapx::trivial_loop_array<int, kSnakesCountMax>;
@@ -52,6 +54,7 @@ class StandardRuleset : public Ruleset {
   void maybeSpawnFood(BoardState& state) const;
   void spawnFood(BoardState& state, int count,
                  PointsVector& unoccupied_points) const;
+  void setSnakesWrapped(BoardState& state) const;
 
   static PointsVector getUnoccupiedPoints(
       BoardState& state, bool include_possible_moves,
