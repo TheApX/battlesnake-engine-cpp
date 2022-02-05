@@ -49,7 +49,8 @@ battlesnake::rules::Snake ParseJsonSnake(
     const battlesnake::rules::Point* wrapped_board_size = nullptr);
 // Parses BoardState from json.
 battlesnake::rules::BoardState ParseJsonBoard(
-    const nlohmann::json& json, battlesnake::rules::StringPool& pool);
+    const nlohmann::json& json, battlesnake::rules::StringPool& pool,
+    bool wrapped = false);
 // Parses RulesetSettings from json.
 battlesnake::rules::RulesetSettings ParseJsonRulesetSettings(
     const nlohmann::json& json);

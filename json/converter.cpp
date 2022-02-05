@@ -1,4 +1,3 @@
-
 #include "battlesnake/json/converter.h"
 
 #include "battlesnake/rules/errors.h"
@@ -270,7 +269,7 @@ Snake ParseJsonSnake(const nlohmann::json& json,
 }
 
 BoardState ParseJsonBoard(const nlohmann::json& json,
-                          battlesnake::rules::StringPool& pool) {
+                          battlesnake::rules::StringPool& pool, bool wrapped) {
   if (!json.is_object()) {
     throw ParseException();
   }
@@ -280,10 +279,9 @@ BoardState ParseJsonBoard(const nlohmann::json& json,
       .height = GetCoordinate(json, "height"),
   };
 
-  // Parse all boards as wrapped. If board is not wrapped, snakes must not wrap,
-  // and will be parsed the same regardless of how they are parsed.
   Point wrapped_board_size{result.width, result.height};
-  result.snakes = GetSnakeArray(json, "snakes", pool, &wrapped_board_size);
+  result.snakes = GetSnakeArray(json, "snakes", pool,
+                                wrapped ? &wrapped_board_size : nullptr);
 
   result.food =
       CreateBoardBits(GetPointArray(json, "food"), result.width, result.height);
@@ -350,15 +348,17 @@ battlesnake::rules::GameState ParseJsonGameState(
   GameState game_state{
       .game = ParseJsonGameInfo(json["game"], pool),
       .turn = GetInt(json, "turn"),
-      .board = ParseJsonBoard(json["board"], pool),
   };
+
+  // If game type is wrapped, parse board and "you" snake as wrapped.
+  bool wrapped = game_state.game.ruleset.name == "wrapped";
+  game_state.board = ParseJsonBoard(json["board"], pool, wrapped);
 
   auto you_it = json.find("you");
   if (you_it != json.end()) {
-    // Parse all boards as wrapped. If board is not wrapped, snakes must not
-    // wrap, and will be parsed the same regardless of how they are parsed.
     Point wrapped_board_size{game_state.board.width, game_state.board.height};
-    game_state.you = ParseJsonSnake(*you_it, pool, &wrapped_board_size);
+    game_state.you =
+        ParseJsonSnake(*you_it, pool, wrapped ? &wrapped_board_size : nullptr);
   }
 
   return game_state;

@@ -1,6 +1,7 @@
 #include <vector>
 
 #include "battlesnake/json/converter.h"
+#include "battlesnake/rules/standard_ruleset.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
@@ -14,6 +15,9 @@ using ::testing::ElementsAre;
 using ::testing::ElementsAreArray;
 using ::testing::Eq;
 using ::testing::Field;
+using ::testing::IsFalse;
+using ::testing::IsTrue;
+using ::testing::Property;
 
 using namespace ::battlesnake::rules;
 
@@ -446,7 +450,7 @@ TEST_F(ParseJsonTest, BoardStateSnakes) {
                   {"x": 9, "y": 0},
                   {"x": 8, "y": 0}
               ],
-              "length": 3,
+              "length": 6,
               "head": {"x": 2, "y": 0},
               "health": 75,
               "name": "Test Caterpillar",
@@ -465,8 +469,10 @@ TEST_F(ParseJsonTest, BoardStateSnakes) {
       .hazard = {},
   };
 
+  Point wrapped_board_size{expected_state.width, expected_state.height};
+
   StringPool pool;
-  BoardState state = ParseJsonBoard(json, pool);
+  BoardState state = ParseJsonBoard(json, pool, &wrapped_board_size);
 
   EXPECT_THAT(state.width, Eq(expected_state.width));
   EXPECT_THAT(state.height, Eq(expected_state.height));
@@ -769,6 +775,199 @@ TEST_F(ParseJsonTest, GameStateNoYou) {
   EXPECT_THAT(result.turn, Eq(expected_result.turn));
   EXPECT_THAT(result.board.width, Eq(expected_result.board.width));
   EXPECT_THAT(result.you.id, Eq(expected_result.you.id));
+}
+
+TEST_F(ParseJsonTest, GameStateSoloWrapping) {
+  auto json = nlohmann::json::parse(R"json({
+        "game": {
+            "id": "totally-unique-game-id",
+            "ruleset": {
+                "name": "solo",
+                "version": "v1.2.3"
+            },
+            "timeout": 500
+        },
+        "turn": 987,
+        "board": {
+            "width": 5,
+            "height": 15,
+            "food": [],
+            "snakes": [{
+                "id": "snake_id",
+                "body": [
+                    {"x": 0, "y": 0},
+                    {"x": 1, "y": 0},
+                    {"x": 2, "y": 0}
+                ],
+                "length": 3,
+                "head": {"x": 0, "y": 0},
+                "health": 75,
+                "name": "Test Caterpillar",
+                "latency": "123",
+                "shout": "Why are we shouting???",
+                "squad": "The Suicide Squad"
+            }],
+            "hazards": []
+        },
+        "you": {
+            "id": "snake_id",
+            "body": [
+                {"x": 0, "y": 0},
+                {"x": 1, "y": 0},
+                {"x": 2, "y": 0}
+            ],
+            "length": 3,
+            "head": {"x": 0, "y": 0},
+            "health": 75,
+            "name": "Test Caterpillar",
+            "latency": "123",
+            "shout": "Why are we shouting???",
+            "squad": "The Suicide Squad"
+        }
+  })json");
+
+  StringPool pool;
+
+  Snake expected_you{
+      .id = pool.Add("snake_id"),
+      .body = SnakeBody::Create({
+          Point{10, 1},
+          Point{10, 2},
+          Point{10, 3},
+      }),
+      .health = 75,
+      .name = pool.Add("Test Caterpillar"),
+      .latency = pool.Add("123"),
+      .shout = pool.Add("Why are we shouting???"),
+      .squad = pool.Add("The Suicide Squad"),
+  };
+
+  GameState expected_result{
+      .game{
+          .id = pool.Add("totally-unique-game-id"),
+          .ruleset{
+              .name = pool.Add("standard"),
+              .version = pool.Add("v1.2.3"),
+          },
+          .timeout = 500,
+      },
+      .turn = 987,
+      .board{.width = 5, .height = 15, .snakes = {expected_you}},
+      .you = expected_you,
+  };
+
+  GameState result = ParseJsonGameState(json, pool);
+
+  // Now try to move the snake to the left. It must be eliminated.
+  StandardRuleset ruleset(StandardRuleset::Config{
+      .food_spawn_chance = 0,
+      .minimum_food = 0,
+  });
+
+  SnakeMovesVector moves =
+      SnakeMovesVector::Create({{pool.Add("snake_id"), Move::Left}});
+
+  BoardState next_state;
+  ruleset.CreateNextBoardState(result.board, moves, /*turn=*/1, next_state);
+  EXPECT_THAT(next_state.snakes,
+              ElementsAre(Property(&Snake::IsEliminated, IsTrue())));
+}
+
+TEST_F(ParseJsonTest, GameStateWrapped) {
+  auto json = nlohmann::json::parse(R"json({
+        "game": {
+            "id": "totally-unique-game-id",
+            "ruleset": {
+                "name": "wrapped",
+                "version": "v1.2.3"
+            },
+            "timeout": 500
+        },
+        "turn": 987,
+        "board": {
+            "width": 5,
+            "height": 15,
+            "food": [],
+            "snakes": [{
+                "id": "snake_id",
+                "body": [
+                    {"x": 0, "y": 0},
+                    {"x": 1, "y": 0},
+                    {"x": 2, "y": 0}
+                ],
+                "length": 3,
+                "head": {"x": 0, "y": 0},
+                "health": 75,
+                "name": "Test Caterpillar",
+                "latency": "123",
+                "shout": "Why are we shouting???",
+                "squad": "The Suicide Squad"
+            }],
+            "hazards": []
+        },
+        "you": {
+            "id": "snake_id",
+            "body": [
+                {"x": 0, "y": 0},
+                {"x": 1, "y": 0},
+                {"x": 2, "y": 0}
+            ],
+            "length": 3,
+            "head": {"x": 0, "y": 0},
+            "health": 75,
+            "name": "Test Caterpillar",
+            "latency": "123",
+            "shout": "Why are we shouting???",
+            "squad": "The Suicide Squad"
+        }
+  })json");
+
+  StringPool pool;
+
+  Snake expected_you{
+      .id = pool.Add("snake_id"),
+      .body = SnakeBody::Create({
+          Point{10, 1},
+          Point{10, 2},
+          Point{10, 3},
+      }),
+      .health = 75,
+      .name = pool.Add("Test Caterpillar"),
+      .latency = pool.Add("123"),
+      .shout = pool.Add("Why are we shouting???"),
+      .squad = pool.Add("The Suicide Squad"),
+  };
+
+  GameState expected_result{
+      .game{
+          .id = pool.Add("totally-unique-game-id"),
+          .ruleset{
+              .name = pool.Add("standard"),
+              .version = pool.Add("v1.2.3"),
+          },
+          .timeout = 500,
+      },
+      .turn = 987,
+      .board{.width = 5, .height = 15, .snakes = {expected_you}},
+      .you = expected_you,
+  };
+
+  GameState result = ParseJsonGameState(json, pool);
+
+  // Now try to move the snake to the left. It must NOT be eliminated.
+  StandardRuleset ruleset(StandardRuleset::Config{
+      .food_spawn_chance = 0,
+      .minimum_food = 0,
+  });
+
+  SnakeMovesVector moves =
+      SnakeMovesVector::Create({{pool.Add("snake_id"), Move::Left}});
+
+  BoardState next_state;
+  ruleset.CreateNextBoardState(result.board, moves, /*turn=*/1, next_state);
+  EXPECT_THAT(next_state.snakes,
+              ElementsAre(AllOf(Property(&Snake::IsEliminated, IsFalse()),
+                                Property(&Snake::Head, Eq(Point{4, 0})))));
 }
 
 TEST_F(ParseJsonTest, GameStateWrongJsonType) {

@@ -9,6 +9,7 @@ add_executable(testbattlesnakejson ${testbattlesnakejson_SRCS})
 
 target_link_libraries(testbattlesnakejson
     libbattlesnakejson
+    libbattlesnakerules
     gtest_main
     gmock_main
 )
