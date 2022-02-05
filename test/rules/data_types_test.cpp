@@ -228,6 +228,37 @@ TEST(SnakeBodyTest, CreateWorks) {
                     }));
 }
 
+TEST(SnakeBodyTest, CreateAndIterationWrappedWorks) {
+  Point size{11, 11};
+  SnakeBody body = SnakeBody::Create(
+      {
+          {2, 0},
+          {1, 0},
+          {0, 0},
+          {10, 0},
+          {9, 0},
+          {8, 0},
+      },
+      &size);
+
+  // Check that SnakeBody::Create correctly parsed the body.
+  EXPECT_THAT(body.NextMove(0), Eq(Move::Left));
+  EXPECT_THAT(body.NextMove(1), Eq(Move::Left));
+  EXPECT_THAT(body.NextMove(2), Eq(Move::Left));
+  EXPECT_THAT(body.NextMove(3), Eq(Move::Left));
+  EXPECT_THAT(body.NextMove(4), Eq(Move::Left));
+
+  // Check that iteration works correctly.
+  EXPECT_THAT(body, ElementsAreArray({
+                        Point{2, 0},
+                        Point{1, 0},
+                        Point{0, 0},
+                        Point{10, 0},
+                        Point{9, 0},
+                        Point{8, 0},
+                    }));
+}
+
 TEST(SnakeBodyTest, IncreaseLengthWorks) {
   SnakeBody body = SnakeBody::Create({
       {1, 2},

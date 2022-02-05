@@ -211,6 +211,13 @@ struct SnakeBody {
   Piece begin() const { return Head(); }
   Piece end() const { return Piece(this, total_length, head); }
 
+  const Point* WrappedBoardSizePtr() const {
+    if (wrapped_board_size.x == 0 || wrapped_board_size.y == 0) {
+      return nullptr;
+    }
+    return &wrapped_board_size;
+  }
+
   // Example: {1,1}, {1,2}, {2,2}, {2,3}, {2,3}, {2,3}
   // Assuming sizeof(BlockType) == 1
   // head = {1,1}
@@ -234,15 +241,24 @@ struct SnakeBody {
   short moves_length;
   BodyMovesVector moves;
   signed char moves_offset;
+  Point wrapped_board_size;
 
+  // Creates body from an ordered collection of points. If
+  // wrapped_board_size is provided, the board is assumed wrapped and having
+  // the provided size.
   template <class T>
-  static SnakeBody Create(const T& data) {
+  static SnakeBody Create(const T& data,
+                          const Point* wrapped_board_size = nullptr) {
     SnakeBody result{
         .total_length = static_cast<short>(data.size()),
         .moves_length = 0,
         .moves = {},
         .moves_offset = 0,
     };
+
+    if (wrapped_board_size != nullptr) {
+      result.wrapped_board_size = *wrapped_board_size;
+    }
 
     if (data.size() != 0) {
       result.head = *data.begin();
@@ -257,7 +273,7 @@ struct SnakeBody {
         first = false;
         continue;
       }
-      Move move = DetectMove(prev, p);
+      Move move = DetectMove(prev, p, result.WrappedBoardSizePtr());
       if (move == Move::Unknown) {
         // if (prev != p) {
         //   throw RulesetException("Invalid body data");
@@ -285,8 +301,9 @@ struct SnakeBody {
     return result;
   }
 
-  static SnakeBody Create(const std::initializer_list<Point>& data) {
-    return Create<std::initializer_list<Point>>(data);
+  static SnakeBody Create(const std::initializer_list<Point>& data,
+                          const Point* wrapped_board_size = nullptr) {
+    return Create<std::initializer_list<Point>>(data, wrapped_board_size);
   }
 };
 

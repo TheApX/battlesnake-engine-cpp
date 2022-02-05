@@ -144,7 +144,9 @@ SnakeBody::Piece SnakeBody::Piece::Next() const {
   if (body_->NextRepeated(index_)) {
     return Piece(body_, index_ + 1, pos_);
   }
-  return Piece(body_, index_ + 1, pos_.Moved(body_->NextMove(index_)));
+  return Piece(
+      body_, index_ + 1,
+      pos_.Moved(body_->NextMove(index_), body_->WrappedBoardSizePtr()));
 }
 
 bool SnakeBody::Piece::operator==(const SnakeBody::Piece& other) const {
