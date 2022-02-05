@@ -295,6 +295,27 @@ TEST(SnakeBodyTest, MoveToWorks) {
   EXPECT_THAT(body.moves_length, Eq(2));
 }
 
+TEST(SnakeBodyTest, MoveToWrappedWorks) {
+  Point size{5, 5};
+  SnakeBody body = SnakeBody::Create(
+      {
+          {0, 0},
+          {1, 0},
+          {2, 0},
+      },
+      &size);
+
+  body.MoveTo(Move::Left);
+
+  EXPECT_THAT(body, ElementsAreArray({
+                        Point{4, 0},
+                        Point{0, 0},
+                        Point{1, 0},
+                    }));
+  EXPECT_THAT(body.total_length, Eq(3));
+  EXPECT_THAT(body.moves_length, Eq(2));
+}
+
 TEST(SnakeBodyTest, TailWorks) {
   SnakeBody body = SnakeBody::Create({
       {1, 2},

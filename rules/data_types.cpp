@@ -169,7 +169,7 @@ void SnakeBody::MoveTo(Move move) {
     move = Move::Up;
   }
 
-  head = head.Moved(move);
+  head = head.Moved(move, WrappedBoardSizePtr());
   if (moves_offset == 0) {
     moves.push_front(0);
     moves_offset = kMovesPerBlock;
