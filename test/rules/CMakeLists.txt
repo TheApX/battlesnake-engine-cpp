@@ -4,6 +4,7 @@ set(testbattlesnakerules_SRCS
     royale_ruleset_test.cpp
     constrictor_ruleset_test.cpp
     squad_ruleset_test.cpp
+    wrapped_ruleset_test.cpp
     data_types_test.cpp
 )
 

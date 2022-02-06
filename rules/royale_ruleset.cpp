@@ -13,7 +13,7 @@ void RoyaleRuleset::CreateNextBoardState(const BoardState& prev_state,
   StandardRuleset::CreateNextBoardState(prev_state, moves, turn, next_state);
 
   Bounds bounds = findBounds(next_state);
-  damageOutOfBounds(bounds, next_state);
+  damageInHazard(next_state);
   if (maybeShrinkBounds(turn, bounds)) {
     fillHazards(bounds, next_state);
   }
@@ -43,8 +43,7 @@ RoyaleRuleset::Bounds RoyaleRuleset::findBounds(const BoardState& state) const {
   return result;
 }
 
-void RoyaleRuleset::damageOutOfBounds(const Bounds& bounds,
-                                      BoardState& state) const {
+void RoyaleRuleset::damageInHazard(BoardState& state) const {
   for (Snake& snake : state.snakes) {
     if (snake.IsEliminated()) {
       continue;
@@ -53,14 +52,8 @@ void RoyaleRuleset::damageOutOfBounds(const Bounds& bounds,
       continue;
     }
 
-    Point head = snake.Head();
-
-    bool in_bounds = true                         //
-                     && (head.x >= bounds.min_x)  //
-                     && (head.x <= bounds.max_x)  //
-                     && (head.y >= bounds.min_y)  //
-                     && (head.y <= bounds.max_y);
-    if (in_bounds) {
+    if (!state.Hazard().Get(snake.Head())) {
+      // Snake's head is not in hazard. Do not punish.
       continue;
     }
 

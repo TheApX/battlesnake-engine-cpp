@@ -35,7 +35,7 @@ class RoyaleRuleset : public StandardRuleset {
   };
 
   Bounds findBounds(const BoardState& state) const;
-  void damageOutOfBounds(const Bounds& bounds, BoardState& state) const;
+  void damageInHazard(BoardState& state) const;
   bool maybeShrinkBounds(int turn, Bounds& bounds) const;
   void fillHazards(const Bounds& bounds, BoardState& state) const;
 };
