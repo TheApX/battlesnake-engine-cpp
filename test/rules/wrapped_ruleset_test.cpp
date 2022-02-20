@@ -13,6 +13,7 @@ using ::testing::Eq;
 using ::testing::Field;
 using ::testing::IsFalse;
 using ::testing::IsTrue;
+using ::testing::UnorderedElementsAre;
 
 template <class M>
 auto SnakeHealthIs(M m) {
@@ -86,7 +87,7 @@ TEST_F(WrappedRulesetTest, InHazardReducesHealth) {
   };
 
   // Disable spawning random food so that it doesn't interfere with tests.
-  RoyaleRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
+  WrappedRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
   BoardState state{};
   ruleset.CreateNextBoardState(
       initial_state, SnakeMovesVector::Create({{pool.Add("one"), Move::Down}}),
@@ -94,6 +95,271 @@ TEST_F(WrappedRulesetTest, InHazardReducesHealth) {
 
   // Head is in hazard, health must decrease by 15 points.
   EXPECT_THAT(state.snakes, ElementsAre(SnakeHealthIs(Eq(85))));
+}
+
+TEST_F(WrappedRulesetTest, NoHazardTurn2) {
+  StringPool pool;
+  BoardState initial_state{
+      .width = kBoardSizeMedium,
+      .height = kBoardSizeMedium,
+  };
+
+  int turn = 2;
+
+  // Disable spawning random food so that it doesn't interfere with tests.
+  WrappedRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
+  BoardState state{};
+  ruleset.CreateNextBoardState(initial_state, SnakeMovesVector(), turn, state);
+
+  EXPECT_THAT(state.Hazard(), UnorderedElementsAre());
+}
+
+TEST_F(WrappedRulesetTest, NoHazardTurn3) {
+  StringPool pool;
+  BoardState initial_state{
+      .width = kBoardSizeMedium,
+      .height = kBoardSizeMedium,
+      .hazard = CreateBoardBits(
+          {
+              Point{3, 4},
+          },
+          kBoardSizeMedium, kBoardSizeMedium),
+  };
+
+  int turn = 3;
+
+  // Disable spawning random food so that it doesn't interfere with tests.
+  WrappedRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
+  BoardState state{};
+  ruleset.CreateNextBoardState(initial_state, SnakeMovesVector(), turn, state);
+
+  EXPECT_THAT(state.Hazard(), UnorderedElementsAre(Point{3, 4}));
+}
+
+TEST_F(WrappedRulesetTest, NewHazardTurn5) {
+  StringPool pool;
+  BoardState initial_state{
+      .width = kBoardSizeMedium,
+      .height = kBoardSizeMedium,
+      .hazard = CreateBoardBits(
+          {
+              Point{3, 4},
+          },
+          kBoardSizeMedium, kBoardSizeMedium),
+  };
+
+  int turn = 5;
+
+  // Disable spawning random food so that it doesn't interfere with tests.
+  WrappedRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
+  BoardState state{};
+  ruleset.CreateNextBoardState(initial_state, SnakeMovesVector(), turn, state);
+
+  EXPECT_THAT(state.Hazard(), UnorderedElementsAre(Point{3, 4}, Point{3, 5}));
+}
+
+TEST_F(WrappedRulesetTest, NewHazardTurn8) {
+  StringPool pool;
+  BoardState initial_state{
+      .width = kBoardSizeMedium,
+      .height = kBoardSizeMedium,
+      .hazard = CreateBoardBits(
+          {
+              Point{3, 4},
+              Point{3, 5},
+          },
+          kBoardSizeMedium, kBoardSizeMedium),
+  };
+
+  int turn = 8;
+
+  // Disable spawning random food so that it doesn't interfere with tests.
+  WrappedRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
+  BoardState state{};
+  ruleset.CreateNextBoardState(initial_state, SnakeMovesVector(), turn, state);
+
+  EXPECT_THAT(state.Hazard(),
+              UnorderedElementsAre(Point{3, 4}, Point{3, 5}, Point{4, 5}));
+}
+
+TEST_F(WrappedRulesetTest, Turn5TopRight) {
+  StringPool pool;
+  BoardState initial_state{
+      .width = kBoardSizeMedium,
+      .height = kBoardSizeMedium,
+      .hazard = CreateBoardBits(
+          {
+              Point{10, 10},
+          },
+          kBoardSizeMedium, kBoardSizeMedium),
+  };
+
+  int turn = 5;
+
+  // Disable spawning random food so that it doesn't interfere with tests.
+  WrappedRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
+  BoardState state{};
+  ruleset.CreateNextBoardState(initial_state, SnakeMovesVector(), turn, state);
+
+  EXPECT_THAT(state.Hazard(), UnorderedElementsAre(Point{10, 10}));
+}
+
+TEST_F(WrappedRulesetTest, Turn17TopRight) {
+  StringPool pool;
+  BoardState initial_state{
+      .width = kBoardSizeMedium,
+      .height = kBoardSizeMedium,
+      .hazard = CreateBoardBits(
+          {
+              Point{10, 10},
+          },
+          kBoardSizeMedium, kBoardSizeMedium),
+  };
+
+  // This situation is ambiguous:
+  // Option 1:
+  //     XX
+  // ----XX
+  // ....|X
+  // Option 2:
+  //     XX
+  //     XX
+  // -----X
+  // .....|
+
+  int turn = 17;
+
+  // Disable spawning random food so that it doesn't interfere with tests.
+  WrappedRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
+  BoardState state{};
+  ruleset.CreateNextBoardState(initial_state, SnakeMovesVector(), turn, state);
+
+  EXPECT_THAT(
+      state.Hazard(),
+      testing::AnyOf(UnorderedElementsAre(Point{10, 10}, Point{10, 9}),
+                     UnorderedElementsAre(Point{10, 10}, Point{9, 10})));
+}
+
+TEST_F(WrappedRulesetTest, Turn17TopRight2) {
+  StringPool pool;
+  BoardState initial_state{
+      .width = kBoardSizeMedium,
+      .height = kBoardSizeMedium,
+      .hazard = CreateBoardBits(
+          {
+              Point{9, 10},
+              Point{10, 10},
+              Point{10, 9},
+          },
+          kBoardSizeMedium, kBoardSizeMedium),
+  };
+
+  // Explanation:
+  //     XX
+  // ----XX
+  // ....+X
+  // .....|
+
+  int turn = 17;
+
+  // Disable spawning random food so that it doesn't interfere with tests.
+  WrappedRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
+  BoardState state{};
+  ruleset.CreateNextBoardState(initial_state, SnakeMovesVector(), turn, state);
+
+  EXPECT_THAT(state.Hazard(), UnorderedElementsAre(Point{9, 10}, Point{10, 10},
+                                                   Point{10, 9}, Point{9, 9}));
+}
+
+TEST_F(WrappedRulesetTest, Turn17DownLeft) {
+  StringPool pool;
+  BoardState initial_state{
+      .width = kBoardSizeMedium,
+      .height = kBoardSizeMedium,
+      .hazard = CreateBoardBits(
+          {
+              Point{0, 1},
+              Point{0, 2},
+              Point{1, 0},
+              Point{1, 1},
+              Point{1, 2},
+          },
+          kBoardSizeMedium, kBoardSizeMedium),
+  };
+
+  // Explanation:
+  // |....
+  // XX...
+  // XX...
+  // +X---
+
+  int turn = 17;
+
+  // Disable spawning random food so that it doesn't interfere with tests.
+  WrappedRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
+  BoardState state{};
+  ruleset.CreateNextBoardState(initial_state, SnakeMovesVector(), turn, state);
+
+  EXPECT_THAT(state.Hazard(),
+              UnorderedElementsAre(Point{0, 1}, Point{0, 2}, Point{1, 0},
+                                   Point{1, 1}, Point{1, 2}, Point{0, 0}));
+}
+
+TEST_F(WrappedRulesetTest, Turn17DownLeft2) {
+  StringPool pool;
+  BoardState initial_state{
+      .width = kBoardSizeMedium,
+      .height = kBoardSizeMedium,
+      .hazard = CreateBoardBits(
+          {
+              Point{0, 0},
+          },
+          kBoardSizeMedium, kBoardSizeMedium),
+  };
+
+  // Explanation:
+  //  |..
+  // XX--
+  // XX
+  // +X
+
+  int turn = 17;
+
+  // Disable spawning random food so that it doesn't interfere with tests.
+  WrappedRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
+  BoardState state{};
+  ruleset.CreateNextBoardState(initial_state, SnakeMovesVector(), turn, state);
+
+  EXPECT_THAT(state.Hazard(), UnorderedElementsAre(Point{0, 0}));
+}
+
+TEST_F(WrappedRulesetTest, Turn20TopRight) {
+  StringPool pool;
+  BoardState initial_state{
+      .width = kBoardSizeMedium,
+      .height = kBoardSizeMedium,
+      .hazard = CreateBoardBits(
+          {
+              Point{10, 10},
+          },
+          kBoardSizeMedium, kBoardSizeMedium),
+  };
+
+  // Explanation:
+  //      XX
+  //      XX
+  // ----+XX
+  // .....|
+
+  int turn = 20;
+
+  // Disable spawning random food so that it doesn't interfere with tests.
+  WrappedRuleset ruleset(StandardRuleset::Config{.food_spawn_chance = 0});
+  BoardState state{};
+  ruleset.CreateNextBoardState(initial_state, SnakeMovesVector(), turn, state);
+
+  EXPECT_THAT(state.Hazard(),
+              UnorderedElementsAre(Point{10, 10}, Point{9, 10}));
 }
 
 }  // namespace

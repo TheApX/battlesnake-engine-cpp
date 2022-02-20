@@ -24,6 +24,9 @@ class RoyaleRuleset : public StandardRuleset {
                                     const SnakeMovesVector& moves, int turn,
                                     BoardState& next_state) override;
 
+ protected:
+  void damageInHazard(BoardState& state) const;
+
  private:
   RoyaleConfig royale_config_;
 
@@ -35,7 +38,6 @@ class RoyaleRuleset : public StandardRuleset {
   };
 
   Bounds findBounds(const BoardState& state) const;
-  void damageInHazard(BoardState& state) const;
   bool maybeShrinkBounds(int turn, Bounds& bounds) const;
   void fillHazards(const Bounds& bounds, BoardState& state) const;
 };

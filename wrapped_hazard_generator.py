@@ -2,9 +2,9 @@ x = 0
 y = 0
 
 def printPos():
-    print('{%d, %d},' % (x, y))
+    print('Point{%d, %d},' % (x, y))
 
-print('static constexpr std::initializer_list<Point> kHazardList = {')
+# print('static constexpr std::initializer_list<Point> kHazardList = {')
 printPos()
 size = 1
 while size < 50:
@@ -26,4 +26,4 @@ while size < 50:
         x = x - 1
         printPos()
     size = size + 1
-print('};')
+# print('};')

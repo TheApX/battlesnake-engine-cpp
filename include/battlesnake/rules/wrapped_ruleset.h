@@ -13,8 +13,15 @@ class WrappedRuleset : public RoyaleRuleset {
     wrapped_mode_ = true;
   }
 
+  virtual void CreateNextBoardState(const BoardState& prev_state,
+                                    const SnakeMovesVector& moves, int turn,
+                                    BoardState& next_state) override;
+
  private:
   static RoyaleConfig fixRoyaleConfig(const RoyaleConfig& royale_config);
+
+  void updateWrappedHazard(BoardState& next_state, int turn);
+  void generateHazardPattern(int hazard_num);
 };
 
 }  // namespace rules
